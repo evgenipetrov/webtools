@@ -1,6 +1,6 @@
-# Assuming this is in cli/management/commands/create_project.py
 from django.core.management.base import BaseCommand, CommandError
-from core.managers.project_manager import ProjectManager
+
+from workflows.create_project_workflow import CreateProjectWorkflow
 
 
 class Command(BaseCommand):
@@ -8,13 +8,25 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         # Define the arguments that this command will take
-        parser.add_argument("name", type=str, help="Name of the project")
-        parser.add_argument("base_url", type=str, help="Base URL of the project")
-        parser.add_argument("data_folder", type=str, help="Path to the data folder")
+        parser.add_argument(
+            "--name", type=str, help="Name of the project", required=True
+        )
+        parser.add_argument(
+            "--url", type=str, help="Base URL of the project", required=True
+        )
+        parser.add_argument(
+            "--project_data", type=str, help="Path to the data folder", required=True
+        )
 
     def handle(self, *args, **options):
         name = options["name"]
-        base_url = options["base_url"]
-        data_folder = options["data_folder"]
+        url = options["url"]
+        data_folder = options["project_data"]
 
-        project = ProjectManager.create_project(name, base_url, data_folder)
+        workflow = CreateProjectWorkflow(
+            project_name=name,
+            project_url=url,
+            project_data_folder=data_folder,
+        )
+
+        workflow.execute()
