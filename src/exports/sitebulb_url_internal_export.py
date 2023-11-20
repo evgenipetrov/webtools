@@ -12,6 +12,7 @@ class SitebulbUrlInternalExport(BaseExportManager):
         Provide instructions for Screaming Frog website crawl export.
         """
         print(f"Please export the Sitebulb crawl data. Export Url -> Internal -> All as CSV using default settings.")
+        print(f"Make sure Redirect URL column is added to the report. Verify for 429 error codes.")
         print(f"Place the exported file(s) in the following directory: {self.export_folder}")
 
     def perform_export(self):

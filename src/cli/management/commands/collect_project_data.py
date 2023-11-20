@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from workflows.collect_project_data_workflow import CollectProjectDataWorkflow
 from core.managers.project_manager import ProjectManager
+from workflows.update_project_urls import UpdateProjectUrlsWorkflow
 
 
 class Command(BaseCommand):
@@ -22,7 +23,10 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f"Project '{project_name}' not found."))
             return
 
-        workflow = CollectProjectDataWorkflow(project)
-        workflow.execute()
+        workflow1 = CollectProjectDataWorkflow(project)
+        workflow1.execute()
+
+        workflow2 = UpdateProjectUrlsWorkflow(project)
+        workflow2.execute()
 
         self.stdout.write(self.style.SUCCESS(f"Data collection for project '{project_name}' completed."))

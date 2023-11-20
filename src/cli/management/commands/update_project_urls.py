@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
-from workflows.process_project_data_workflow import ProcessProjectDataWorkflow
+from workflows.update_project_urls import UpdateProjectUrlsWorkflow
 from core.managers.project_manager import ProjectManager
 
 
 class Command(BaseCommand):
-    help = "Collects data exports for a specified project by name."
+    help = "Updates project urls."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -22,7 +22,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f"Project '{project_name}' not found."))
             return
 
-        workflow = ProcessProjectDataWorkflow(project)
+        workflow = UpdateProjectUrlsWorkflow(project)
         workflow.execute()
 
-        self.stdout.write(self.style.SUCCESS(f"Data processing for project '{project_name}' completed."))
+        self.stdout.write(self.style.SUCCESS(f"Url update for project '{project_name}' completed."))

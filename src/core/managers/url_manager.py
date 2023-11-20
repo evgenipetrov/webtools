@@ -50,9 +50,17 @@ class UrlManager:
         return root_url
 
     @staticmethod
-    def create_url(full_address, website):
+    def create_url(full_address, **kwargs):
         """
         Create a new url instance.
         """
-        url = Url.objects.get_or_create(full_address=full_address, website=website)
+        url, created = Url.objects.get_or_create(full_address=full_address, defaults=kwargs)
+        return url
+
+    @staticmethod
+    def update_url(full_address, **kwargs):
+        """
+        Updates or creates a URL instance with given kwargs.
+        """
+        url, created = Url.objects.update_or_create(full_address=full_address, defaults=kwargs)
         return url

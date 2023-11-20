@@ -11,7 +11,7 @@ class ScreamingFrogSpiderCrawlExport(BaseExportManager):
         """
         Provide instructions for Screaming Frog website crawl export.
         """
-        print(f"Please export the Screaming Frog spider crawl data as CSV using default settings.")
+        print(f"Please export the Screaming Frog spider crawl data as CSV using default settings. Verify for 429 error codes.")
         print(f"Place the exported file(s) in the following directory: {self.export_folder}")
 
     def perform_export(self):

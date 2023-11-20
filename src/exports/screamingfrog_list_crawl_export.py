@@ -1,17 +1,18 @@
 from exports.base_export_manager import BaseExportManager
 
-EXPORT_SUBFOLDER = "screamingfrog_sitemap_crawl_export"
+EXPORT_SUBFOLDER = "screamingfrog_list_crawl_export"
 
 
-class ScreamingFrogSitemapCrawlExport(BaseExportManager):
+class ScreamingFrogListCrawlExport(BaseExportManager):
     def __init__(self, project):
         super().__init__(project, EXPORT_SUBFOLDER)
 
     def perform_pre_export_action(self):
         """
-        Provides instructions for Screaming Frog sitemap crawl export.
+        Provides instructions for Screaming Frog list crawl export.
         """
-        print(f"Please export the Screaming Frog sitemap crawl data as CSV. Verify for 429 error codes.")
+        print(f"The urls to crawl are copied to clipboard.")
+        print(f"Please export the Screaming Frog list crawl data as CSV. Verify for 429 error codes.")
         print(f"Place the exported file(s) in the following directory: {self.export_folder}")
 
     def perform_export(self):
