@@ -16,10 +16,9 @@ This project adopts a modular architecture with separate Django apps and special
 - `core/`: The heart of the application, containing core entities like projects, websites, URLs, keywords, etc. This directory also handles data persistence.
   - `models/`: Definitions of Django models representing core entities.
   - `migrations/`: Database migration files for the `core` app's models.
+  - `managers/`: Contains classes that manage and operate on the core entities, encapsulating the business logic for data manipulation.
 
 - `exports/`: Manages data export functionalities, controlling and overseeing data gathering from various sources like manual CSV, Google Search Console (GSC), Google Analytics 4 (GA4), SEMrush exports, etc.
-
-- `managers/`: Contains classes that manage and operate on the core entities, encapsulating the business logic for data manipulation.
 
 - `workflows/`: Comprises classes that embody complex business logic. Workflows are triggered by `cli` commands and utilize managers to interact with `exports` and `core` components.
 
@@ -28,10 +27,8 @@ This project adopts a modular architecture with separate Django apps and special
 - **Command Line Interfaces (`cli`):** The entry point for user interactions. CLI commands can only execute workflows.
 - **Workflows:** Contain and manage the execution logic. They orchestrate the sequence of operations and are solely responsible for invoking managers and dealing with exports. Workflows do not interact directly with core objects.
 - **Managers (`managers`):** Handle all interactions with core objects (`core`). They encapsulate the business logic for manipulating core data but do not directly handle data exports.
-- **Exports (`exports`):** Focused on data extraction and external data interactions. Managers use exports for data handling but exports do not interact directly with core objects.
 - **Core Objects (`core`):** The fundamental entities of the application, such as projects, websites, and URLs. Managed exclusively by managers.
-
-This structured separation ensures a clear and maintainable codebase, with each component focusing on its specific role.
+- **Exports (`exports`):** Focused on data extraction and external data interactions. Managers use exports for data handling but exports do not interact directly with core objects.
 
 ### Usage
 Instructions on how to use the application, including command-line interfaces:
