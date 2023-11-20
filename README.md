@@ -42,3 +42,25 @@ Collect data for a project:
 ```
 python manage.py collect_project_data_exports "Project Name"
 ```
+## Logging Guidelines
+
+In this project, we maintain specific standards for implementing logging to ensure clarity and consistency. Please adhere to the following guidelines when contributing to the codebase:
+
+- **Targeted Logging**: Logging should be implemented selectively within certain modules of the project. The modules where logging is expected are:
+  - `Manager`: Any management-related functionalities should include detailed logging.
+  - `Workflow`: Logging is crucial in workflow components to track the process flow and identify any issues.
+  - `Export`: Implement logging in export functionalities to monitor data exporting processes.
+  - `Report`: Reporting modules should include logging to track report generation and any associated computations.
+
+- **Avoid Logging in Certain Modules**: To maintain code cleanliness and prevent log clutter, please refrain from adding logging in the following areas:
+  - `CLI (Command Line Interface)`: The CLI should remain clean and user-friendly without logging details.
+  - `Core`: The core functionalities of the application should focus on performance and algorithmic efficiency without the overhead of logging.
+
+- **Logging Standards**: When implementing logging, please ensure that:
+  - The log messages are clear, concise, and meaningful.
+  - Log levels (like INFO, DEBUG, ERROR) are appropriately used to differentiate the importance and type of logged information.
+  - Sensitive information (like user data or credentials) should never be logged.
+
+- **Code Review and Compliance**: All contributions will be reviewed for compliance with these logging guidelines. Please ensure your code adheres to these standards before submitting a pull request.
+
+Following these guidelines will help maintain a clean, efficient, and maintainable codebase. If you have any questions or need clarification on logging practices, feel free to reach out to the project maintainers.
