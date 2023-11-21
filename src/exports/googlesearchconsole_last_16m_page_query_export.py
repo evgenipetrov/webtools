@@ -5,10 +5,10 @@ from dateutil.relativedelta import relativedelta  # Provides more accurate date 
 from exports.base_export_manager import BaseExportManager
 from services.google_search_console_service import GoogleSearchConsoleService
 
-EXPORT_SUBFOLDER = "googlesearchconsole_last_16m_page_export"
+EXPORT_SUBFOLDER = "googlesearchconsole_last_16m_page_query_export"
 
 
-class GoogleSearchConsoleLast16mPageExport(BaseExportManager):
+class GoogleSearchConsoleLast16mPageQueryExport(BaseExportManager):
     def __init__(self, project):
         super().__init__(project, EXPORT_SUBFOLDER)
         self.gsc_auth_domain = None
@@ -49,13 +49,13 @@ class GoogleSearchConsoleLast16mPageExport(BaseExportManager):
         start_date = end_date - relativedelta(months=16)  # Precisely 16 months before
 
         # Dimensions for the export - Adjust as needed
-        dimensions = ["page"]
+        dimensions = ["page", "query"]
 
         # Fetch and export the data
         df = gsc_service.fetch_data(self.gsc_property_name, start_date, end_date, dimensions)
 
         # Save DataFrame to CSV in export folder
-        csv_file_path = os.path.join(self.export_folder, "gsc_last_16m_page_export.csv")
+        csv_file_path = os.path.join(self.export_folder, "gsc_last_16m_page_query_export.csv")
         df.to_csv(csv_file_path, index=False)
 
         print(f"Exported GSC data to {csv_file_path}")
