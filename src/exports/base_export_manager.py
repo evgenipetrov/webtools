@@ -28,8 +28,6 @@ class BaseExportManager:
             self.perform_pre_export_action()
             self.perform_export()
             self.perform_post_export_action()
-        else:
-            logger.info("Export process aborted by the user.")
 
     @staticmethod
     def confirm_export(export_description):

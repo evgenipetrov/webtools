@@ -3,6 +3,7 @@ from exports.googlesearchconsole_last_16m_page_query_export import GoogleSearchC
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
+from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 from exports.sitebulb_url_internal_export import SitebulbUrlInternalExport
 from core.managers.project_manager import ProjectManager
 import logging
@@ -24,6 +25,9 @@ class CollectProjectDataWorkflow:
 
         sitebulb_url_internal_export = SitebulbUrlInternalExport(project)
         sitebulb_url_internal_export.collect()
+
+        semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(project)
+        semrush_analytics_organic_positions_rootdomain_export.collect()
 
         googlesearchconsole_last_16m_page_export = GoogleSearchConsoleLast16mPageExport(project)
         googlesearchconsole_last_16m_page_export.collect()
