@@ -1,5 +1,7 @@
 from exports.base_export_manager import BaseExportManager
+import logging
 
+logger = logging.getLogger(__name__)
 EXPORT_SUBFOLDER = "sitebulb_url_internal_export"
 
 

@@ -5,6 +5,9 @@ from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawl
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
 from exports.sitebulb_url_internal_export import SitebulbUrlInternalExport
 from core.managers.project_manager import ProjectManager
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CollectProjectDataWorkflow:

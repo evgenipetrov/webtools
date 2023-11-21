@@ -1,5 +1,4 @@
 import datetime
-import logging
 
 import pandas as pd
 import requests.exceptions
@@ -7,6 +6,8 @@ from googleapiclient.discovery import build
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from services.google_auth_service import GoogleAuthService
+
+import logging
 
 logger = logging.getLogger(__name__)
 

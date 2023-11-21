@@ -4,7 +4,9 @@ import os
 from dateutil.relativedelta import relativedelta  # Provides more accurate date manipulation
 from exports.base_export_manager import BaseExportManager
 from services.google_search_console_service import GoogleSearchConsoleService
+import logging
 
+logger = logging.getLogger(__name__)
 EXPORT_SUBFOLDER = "googlesearchconsole_last_16m_page_query_export"
 
 

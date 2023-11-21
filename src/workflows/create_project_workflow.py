@@ -1,6 +1,9 @@
 from core.managers.project_manager import ProjectManager
 from core.managers.url_manager import UrlManager
 from core.managers.website_manager import WebsiteManager
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CreateProjectWorkflow:

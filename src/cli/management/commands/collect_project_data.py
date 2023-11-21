@@ -2,6 +2,9 @@ from django.core.management.base import BaseCommand
 from workflows.collect_project_data_workflow import CollectProjectDataWorkflow
 from core.managers.project_manager import ProjectManager
 from workflows.update_project_urls import UpdateProjectUrlsWorkflow
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -16,6 +19,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        logger.info("Starting command execution.")
+
         project_name = options["name"]
         project = ProjectManager.get_project_by_name(project_name)
 
