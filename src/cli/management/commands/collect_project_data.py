@@ -19,8 +19,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        logger.info("Starting command execution.")
-
         project_name = options["name"]
         project = ProjectManager.get_project_by_name(project_name)
 

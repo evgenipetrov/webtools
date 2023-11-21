@@ -1,5 +1,8 @@
-from core.models.url import Url
+import logging
 from urllib.parse import urlparse, urlunparse
+from core.models.url import Url
+
+logger = logging.getLogger(__name__)
 
 
 class UrlManager:
@@ -9,7 +12,9 @@ class UrlManager:
         Extract the hostname from a given URL.
         """
         parsed_url = urlparse(full_address)
-        return parsed_url.hostname
+        hostname = parsed_url.hostname
+        logger.debug(f"Extracted hostname '{hostname}' from URL '{full_address}'.")
+        return hostname
 
     @staticmethod
     def remove_url_fragment(full_address):
@@ -17,7 +22,6 @@ class UrlManager:
         Remove the fragment from a URL.
         """
         parsed_url = urlparse(full_address)
-        # Reconstruct the URL without the fragment
         clean_url = urlunparse(
             (
                 parsed_url.scheme,
@@ -28,6 +32,7 @@ class UrlManager:
                 "",
             )
         )
+        logger.debug(f"Removed fragment from URL '{full_address}'. New URL: '{clean_url}'.")
         return clean_url
 
     @staticmethod
@@ -36,7 +41,6 @@ class UrlManager:
         Return root URL address of a website.
         """
         parsed_url = urlparse(full_address)
-        # Reconstruct the URL
         root_url = urlunparse(
             (
                 parsed_url.scheme,
@@ -47,6 +51,7 @@ class UrlManager:
                 "",
             )
         )
+        logger.debug(f"Extracted root URL '{root_url}' from URL '{full_address}'.")
         return root_url
 
     @staticmethod
@@ -55,6 +60,10 @@ class UrlManager:
         Create a new url instance.
         """
         url, created = Url.objects.get_or_create(full_address=full_address, defaults=kwargs)
+        if created:
+            logger.info(f"Created new URL instance for address '{full_address}'.")
+        else:
+            logger.debug(f"URL instance for address '{full_address}' already exists.")
         return url
 
     @staticmethod
@@ -63,4 +72,8 @@ class UrlManager:
         Updates or creates a URL instance with given kwargs.
         """
         url, created = Url.objects.update_or_create(full_address=full_address, defaults=kwargs)
+        if created:
+            logger.info(f"Created new URL instance for address '{full_address}'.")
+        else:
+            logger.info(f"Updated URL instance for address '{full_address}'.")
         return url

@@ -23,9 +23,21 @@ class BaseExportManager:
         """
         Template method that defines the export collection workflow.
         """
-        self.perform_pre_export_action()
-        self.perform_export()
-        self.perform_post_export_action()
+        # Ask user for confirmation before proceeding
+        if self.confirm_export(self.export_folder):
+            self.perform_pre_export_action()
+            self.perform_export()
+            self.perform_post_export_action()
+        else:
+            logger.info("Export process aborted by the user.")
+
+    @staticmethod
+    def confirm_export(export_description):
+        """
+        Asks the user whether to proceed with a specific export process.
+        """
+        response = input(f"Do you want to proceed with the {export_description} export? (yes/no): ")
+        return response.strip().lower() == "yes"
 
     def perform_pre_export_action(self):
         """
