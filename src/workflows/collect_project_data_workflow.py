@@ -3,6 +3,8 @@ from exports.googlesearchconsole_last_16m_page_query_export import GoogleSearchC
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
+from exports.semrush_analytics_organic_competitors import SemrushAnalyticsOrganicCompetitorsExport
+from exports.semrush_analytics_organic_pages_export import SemrushAnalyticsOrganicPagesExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 from exports.sitebulb_url_internal_export import SitebulbUrlInternalExport
 from core.managers.project_manager import ProjectManager
@@ -29,8 +31,16 @@ class CollectProjectDataWorkflow:
         semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(project)
         semrush_analytics_organic_positions_rootdomain_export.collect()
 
+        semrush_analytics_organic_competitors_export = SemrushAnalyticsOrganicCompetitorsExport(project)
+        semrush_analytics_organic_competitors_export.collect()
+
+        semrush_analytics_organic_pages_export = SemrushAnalyticsOrganicPagesExport(project)
+        semrush_analytics_organic_pages_export.collect()
+
         googlesearchconsole_last_16m_page_export = GoogleSearchConsoleLast16mPageExport(project)
         googlesearchconsole_last_16m_page_export.collect()
 
         googlesearchconsole_last_16m_page_query_export = GoogleSearchConsoleLast16mPageQueryExport(project)
         googlesearchconsole_last_16m_page_query_export.collect()
+
+        # add workflow to extract URLs and crawl SF list here ~~~~
