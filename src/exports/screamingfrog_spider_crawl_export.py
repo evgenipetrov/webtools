@@ -1,3 +1,5 @@
+from core.managers.url_manager import UrlManager
+from core.managers.website_manager import WebsiteManager
 from exports.base_export_manager import BaseExportManager
 import logging
 
@@ -14,7 +16,7 @@ class ScreamingFrogSpiderCrawlExport(BaseExportManager):
         Provide instructions for Screaming Frog website crawl export.
         """
         print(f"Please export the Screaming Frog spider crawl data as CSV using default settings. Verify for 429 error codes.")
-        print(f"Place the exported file(s) in the following directory: {self.export_folder}")
+        print(f"Place the exported file(s) in the following directory: {self.export_path}")
 
     def perform_export(self):
         """
@@ -29,3 +31,11 @@ class ScreamingFrogSpiderCrawlExport(BaseExportManager):
         """
         # Example: Confirmation or cleanup steps
         input("Press ENTER to continue after placing the exported files.")
+        df = self.get_data()
+        # clean urls
+        df = df[~df["Content Type"].str.contains("#")]  # remove fragments
+        # process urls
+        all_urls = df["Address"].unique()
+        website = WebsiteManager.get_website_by_project(self.project)
+        for url in all_urls:
+            UrlManager.push_url(full_address=url, website=website)

@@ -1,3 +1,5 @@
+from core.managers.url_manager import UrlManager
+from core.managers.website_manager import WebsiteManager
 from exports.base_export_manager import BaseExportManager
 import logging
 
@@ -14,7 +16,7 @@ class ScreamingFrogSitemapCrawlExport(BaseExportManager):
         Provides instructions for Screaming Frog sitemap crawl export.
         """
         print(f"Please export the Screaming Frog sitemap crawl data as CSV. Verify for 429 error codes.")
-        print(f"Place the exported file(s) in the following directory: {self.export_folder}")
+        print(f"Place the exported file(s) in the following directory: {self.export_path}")
 
     def perform_export(self):
         """
@@ -28,4 +30,15 @@ class ScreamingFrogSitemapCrawlExport(BaseExportManager):
         Any post-export actions.
         """
         input("Press ENTER to continue after placing the exported files.")
-        pass
+        df = self.get_data()
+        # clean urls
+        df = df[~df["Address"].str.contains("#")]  # remove fragments
+        df = df[~df["Content Type"].str.contains("application/xml")]  # remove sitemap urls
+        df = df[~df["Content Type"].str.contains("image/jpeg")]  # remove jpg images
+        df = df[~df["Content Type"].str.contains("image/png")]  # remove png images
+        df = df[~df["Content Type"].str.contains("image/webp")]  # remove webp images
+        # process urls
+        all_urls = df["Address"].unique()
+        website = WebsiteManager.get_website_by_project(self.project)
+        for url in all_urls:
+            UrlManager.push_url(full_address=url, website=website)

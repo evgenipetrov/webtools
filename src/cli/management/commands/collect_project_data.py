@@ -26,10 +26,10 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f"Project '{project_name}' not found."))
             return
 
-        workflow1 = CollectProjectDataWorkflow(project)
-        workflow1.execute()
+        collect_project_data = CollectProjectDataWorkflow(project)
+        collect_project_data.execute()
 
-        workflow2 = UpdateProjectUrlsWorkflow(project)
-        workflow2.execute()
+        # workflow2 = UpdateProjectUrlsWorkflow(project)
+        # workflow2.execute()
 
         self.stdout.write(self.style.SUCCESS(f"Data collection for project '{project_name}' completed."))

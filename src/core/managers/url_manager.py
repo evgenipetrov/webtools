@@ -55,25 +55,21 @@ class UrlManager:
         return root_url
 
     @staticmethod
-    def create_url(full_address, **kwargs):
+    def push_url(full_address, website, **kwargs):
         """
-        Create a new url instance.
+        Pushes url instance to website.
         """
-        url, created = Url.objects.get_or_create(full_address=full_address, defaults=kwargs)
-        if created:
+        url, create = Url.objects.update_or_create(full_address=full_address, website=website, defaults=kwargs)
+        if create:
             logger.info(f"Created new URL instance for address '{full_address}'.")
         else:
-            logger.debug(f"URL instance for address '{full_address}' already exists.")
+            logger.info(f"URL instance for address '{full_address}' already exists.")
         return url
 
     @staticmethod
-    def update_url(full_address, **kwargs):
+    def get_urls_by_website(website):
         """
-        Updates or creates a URL instance with given kwargs.
+        Returns all URLs for a website.
         """
-        url, created = Url.objects.update_or_create(full_address=full_address, defaults=kwargs)
-        if created:
-            logger.info(f"Created new URL instance for address '{full_address}'.")
-        else:
-            logger.info(f"Updated URL instance for address '{full_address}'.")
-        return url
+        urls = Url.objects.filter(website=website)
+        return urls

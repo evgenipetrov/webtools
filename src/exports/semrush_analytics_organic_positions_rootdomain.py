@@ -1,4 +1,5 @@
 from core.managers.url_manager import UrlManager
+from core.managers.website_manager import WebsiteManager
 from exports.base_export_manager import BaseExportManager
 import logging
 
@@ -18,7 +19,7 @@ class SemrushAnalyticsOrganicPositionsRootdomainExport(BaseExportManager):
         url = f"https://www.semrush.com/analytics/organic/positions/?sortField=&sortDirection=desc&db=us&q={domain}&searchType=domain"
         print(f"Open the following URL and perform export.")
         print(url)
-        print(f"Place the exported file(s) in the following directory: {self.export_folder}")
+        print(f"Place the exported file(s) in the following directory: {self.export_path}")
 
     def perform_export(self):
         """
@@ -32,4 +33,11 @@ class SemrushAnalyticsOrganicPositionsRootdomainExport(BaseExportManager):
         Any post-export actions.
         """
         input("Press ENTER to continue after placing the exported files.")
-        pass
+        df = self.get_data()
+        # clean urls
+        df = df[~df["URL"].str.contains("#")]  # remove fragments
+        # process urls
+        all_urls = df["URL"].unique()
+        website = WebsiteManager.get_website_by_project(self.project)
+        for url in all_urls:
+            UrlManager.push_url(full_address=url, website=website)

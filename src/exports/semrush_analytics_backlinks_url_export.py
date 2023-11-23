@@ -1,25 +1,37 @@
+import pandas as pd
+
 from core.managers.url_manager import UrlManager
 from core.managers.website_manager import WebsiteManager
 from exports.base_export_manager import BaseExportManager
 import logging
 
 logger = logging.getLogger(__name__)
-EXPORT_SUBFOLDER = "semrush_analytics_organic_pages"
+EXPORT_SUBFOLDER = "semrush_analytics_backlinks_url"
 
 
-class SemrushAnalyticsOrganicPagesExport(BaseExportManager):
+class SemrushAnalyticsBacklinksUrlExport(BaseExportManager):
     def __init__(self, project):
         super().__init__(project, EXPORT_SUBFOLDER)
 
     def perform_pre_export_action(self):
         """
-        Provides instructions for Semrush organic pages export.
+        Provides instructions for Semrush backlinks export for urls.
         """
-        domain = UrlManager.get_root_url(self.project.base_url)
-        url = f"https://www.semrush.com/analytics/organic/pages/?sortField=&sortDirection=desc&db=us&q={domain}&searchType=domain"
+
         print(f"Open the following URL and perform export.")
-        print(url)
         print(f"Place the exported file(s) in the following directory: {self.export_path}")
+        website = WebsiteManager.get_website_by_project(self.project)
+        urls = UrlManager.get_urls_by_website(website)
+
+        # Collect URLs in a DataFrame
+        addresses = [f"https://www.semrush.com/analytics/backlinks/backlinks/?q={url.full_address}&searchType=url" for url in urls]
+        df = pd.DataFrame(addresses, columns=["URL"])
+
+        # Printing and copying URLs to clipboard
+        # print(df.to_string(index=False))
+        df.to_clipboard(index=False, header=False)
+
+        print("URLs have been copied to the clipboard.")
 
     def perform_export(self):
         """
@@ -35,9 +47,9 @@ class SemrushAnalyticsOrganicPagesExport(BaseExportManager):
         input("Press ENTER to continue after placing the exported files.")
         df = self.get_data()
         # clean urls
-        df = df[~df["URL"].str.contains("#")]  # remove fragments
+        df = df[~df["Target url"].str.contains("#")]  # remove fragments
         # process urls
-        all_urls = df["URL"].unique()
+        all_urls = df["Target url"].unique()
         website = WebsiteManager.get_website_by_project(self.project)
         for url in all_urls:
             UrlManager.push_url(full_address=url, website=website)

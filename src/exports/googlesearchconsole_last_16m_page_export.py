@@ -2,6 +2,9 @@ import datetime
 import os
 
 from dateutil.relativedelta import relativedelta  # Provides more accurate date manipulation
+
+from core.managers.url_manager import UrlManager
+from core.managers.website_manager import WebsiteManager
 from exports.base_export_manager import BaseExportManager
 from services.google_search_console_service import GoogleSearchConsoleService
 import logging
@@ -57,7 +60,7 @@ class GoogleSearchConsoleLast16mPageExport(BaseExportManager):
         df = gsc_service.fetch_data(self.gsc_property_name, start_date, end_date, dimensions)
 
         # Save DataFrame to CSV in export folder
-        csv_file_path = os.path.join(self.export_folder, "gsc_last_16m_page_export.csv")
+        csv_file_path = os.path.join(self.export_path, "gsc_last_16m_page_export.csv")
         df.to_csv(csv_file_path, index=False)
 
         print(f"Exported GSC data to {csv_file_path}")
@@ -67,3 +70,12 @@ class GoogleSearchConsoleLast16mPageExport(BaseExportManager):
         Any post-export actions, such as logging or confirmation.
         """
         print("Export from Google Search Console completed.")
+        df = self.get_data()
+        # clean urls
+        df = df[~df["page"].str.contains("#")]  # remove fragments
+        df = df[~df["page"].str.contains(".jpg")]  # remove jpg
+        # process urls
+        all_urls = df["page"].unique()
+        website = WebsiteManager.get_website_by_project(self.project)
+        for url in all_urls:
+            UrlManager.push_url(full_address=url, website=website)

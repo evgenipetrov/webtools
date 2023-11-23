@@ -26,3 +26,8 @@ class DataframeService:
         current_data[current_data_column] = current_data[current_data_column].combine_first(merged_data[new_data_column])
 
         return current_data
+
+    @staticmethod
+    def get_unique_column_values(df, column_name):
+        unique_values = df[column_name].unique()
+        return unique_values

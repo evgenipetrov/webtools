@@ -3,6 +3,8 @@ from exports.googlesearchconsole_last_16m_page_query_export import GoogleSearchC
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
+from exports.semrush_analytics_backlinks_rootdomain_export import SemrushAnalyticsBacklinksRootdomainExport
+from exports.semrush_analytics_backlinks_url_export import SemrushAnalyticsBacklinksUrlExport
 from exports.semrush_analytics_organic_competitors import SemrushAnalyticsOrganicCompetitorsExport
 from exports.semrush_analytics_organic_pages_export import SemrushAnalyticsOrganicPagesExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
@@ -19,6 +21,7 @@ class CollectProjectDataWorkflow:
 
     def execute(self):
         project = ProjectManager.get_project(project_id=self.project_id)
+
         screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(project)
         screamingfrog_sitemap_crawl_export.collect()
 
@@ -37,10 +40,17 @@ class CollectProjectDataWorkflow:
         semrush_analytics_organic_pages_export = SemrushAnalyticsOrganicPagesExport(project)
         semrush_analytics_organic_pages_export.collect()
 
+        semrush_analytics_backlinks_rootdomain_export = SemrushAnalyticsBacklinksRootdomainExport(project)
+        semrush_analytics_backlinks_rootdomain_export.collect()
+
+        semrush_analytics_backlinks_url_export = SemrushAnalyticsBacklinksUrlExport(project)
+        semrush_analytics_backlinks_url_export.collect()
+
         googlesearchconsole_last_16m_page_export = GoogleSearchConsoleLast16mPageExport(project)
         googlesearchconsole_last_16m_page_export.collect()
 
         googlesearchconsole_last_16m_page_query_export = GoogleSearchConsoleLast16mPageQueryExport(project)
         googlesearchconsole_last_16m_page_query_export.collect()
 
-        # add workflow to extract URLs and crawl SF list here ~~~~
+        screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(project)
+        screamingfrog_list_crawl_export.collect()

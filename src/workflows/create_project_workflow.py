@@ -22,4 +22,4 @@ class CreateProjectWorkflow:
         )
 
         website = WebsiteManager.create_website(root_url=root_url, project=project)
-        url = UrlManager.create_url(full_address=root_url, website=website)
+        url = UrlManager.push_url(full_address=root_url, website=website)

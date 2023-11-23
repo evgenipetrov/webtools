@@ -1,3 +1,5 @@
+from core.managers.url_manager import UrlManager
+from core.managers.website_manager import WebsiteManager
 from exports.base_export_manager import BaseExportManager
 import logging
 
@@ -15,7 +17,7 @@ class SitebulbUrlInternalExport(BaseExportManager):
         """
         print(f"Please export the Sitebulb crawl data. Export Url -> Internal -> All as CSV using default settings.")
         print(f"Make sure Redirect URL column is added to the report. Verify for 429 error codes.")
-        print(f"Place the exported file(s) in the following directory: {self.export_folder}")
+        print(f"Place the exported file(s) in the following directory: {self.export_path}")
 
     def perform_export(self):
         """
@@ -30,3 +32,11 @@ class SitebulbUrlInternalExport(BaseExportManager):
         """
         # Example: Confirmation or cleanup steps
         input("Press ENTER to continue after placing the exported files.")
+        df = self.get_data()
+        # clean urls
+        df = df[~df["URL"].str.contains("#")]  # remove fragments
+        # process urls
+        all_urls = df["URL"].unique()
+        website = WebsiteManager.get_website_by_project(self.project)
+        for url in all_urls:
+            UrlManager.push_url(full_address=url, website=website)
