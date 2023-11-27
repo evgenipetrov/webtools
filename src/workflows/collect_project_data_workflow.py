@@ -1,3 +1,4 @@
+from exports.googlesearchconsole_last_16m_date_page_query_export import GoogleSearchConsoleLast16mDatePageQueryExport
 from exports.googlesearchconsole_last_16m_page_export import GoogleSearchConsoleLast16mPageExport
 from exports.googlesearchconsole_last_16m_page_query_export import GoogleSearchConsoleLast16mPageQueryExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
@@ -51,6 +52,9 @@ class CollectProjectDataWorkflow:
 
         googlesearchconsole_last_16m_page_query_export = GoogleSearchConsoleLast16mPageQueryExport(project)
         googlesearchconsole_last_16m_page_query_export.collect()
+
+        googlesearchconsole_last_16m_date_page_query_export = GoogleSearchConsoleLast16mDatePageQueryExport(project)
+        googlesearchconsole_last_16m_date_page_query_export.collect()
 
         screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(project)
         screamingfrog_list_crawl_export.collect()
