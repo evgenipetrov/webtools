@@ -1,5 +1,6 @@
 import pandas as pd
 import logging
+from django.core.exceptions import FieldError
 
 logger = logging.getLogger(__name__)
 
@@ -31,3 +32,26 @@ class DataframeService:
     def get_unique_column_values(df, column_name):
         unique_values = df[column_name].unique()
         return unique_values
+
+    @staticmethod
+    def queryset_to_dataframe(queryset):
+        """
+        Converts a Django QuerySet to a pandas DataFrame.
+
+        Args:
+        - queryset: A Django QuerySet object
+
+        Returns:
+        - A pandas DataFrame containing the data from the QuerySet.
+
+        Raises:
+        - FieldError: If the QuerySet contains fields that are not compatible with DataFrame.
+        """
+        try:
+            # Extracting the values from the queryset
+            values = queryset.values()
+            # Creating a DataFrame from the values
+            df = pd.DataFrame(list(values))
+            return df
+        except FieldError as e:
+            raise FieldError(f"Error converting QuerySet to DataFrame: {e}")

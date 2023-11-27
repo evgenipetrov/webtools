@@ -27,3 +27,5 @@ class GenerateProjectReportsWorkflow:
 
         googlesearchconsole_last_16m_page_report = GoogleSearchConsoleLast16mPageReport(project)
         googlesearchconsole_last_16m_page_report.run()
+
+        a = 1

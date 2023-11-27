@@ -9,13 +9,13 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Generates the reports."
+    help = "Generates the _reports."
 
     def add_arguments(self, parser):
         parser.add_argument(
             "--project-name",
             type=str,
-            help="Name of the project for which to generate the reports",
+            help="Name of the project for which to generate the _reports",
             required=True,
         )
 
