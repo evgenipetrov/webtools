@@ -99,6 +99,9 @@ class GoogleSearchConsoleLast16mPageQueryReport(BaseReportGenerator):
         # Group by 'redirect_url' and 'query'
         grouped = joined_df.groupby(["redirect_url", "query"])
 
+        # Calculate the sum of query counts for each redirect_url
+        query_count_per_url = joined_df.groupby("redirect_url")["query"].count()
+
         # Preallocate a list for aggregated results
         aggregated_results = []
 
@@ -112,6 +115,7 @@ class GoogleSearchConsoleLast16mPageQueryReport(BaseReportGenerator):
                 "impressions_sum": group["impressions"].sum(),
                 "ctr_mean": group["ctr"].mean().round(2),
                 "position_mean": group["position"].mean().round(2),
+                "query_count_sum": query_count_per_url[redirect_url],  # Query count sum for the redirect_url
             }
             aggregated_results.append(aggregated_data)
 
@@ -124,7 +128,7 @@ class GoogleSearchConsoleLast16mPageQueryReport(BaseReportGenerator):
         final_df = joined_df.merge(aggregated_results_df, on=["redirect_url", "query"], how="left")
 
         # Selecting the required columns for the report
-        report_df = final_df[["page", "query", "clicks_sum", "impressions_sum", "ctr_mean", "position_mean"]]
+        report_df = final_df[["page", "query", "clicks_sum", "impressions_sum", "ctr_mean", "position_mean", "query_count_sum"]]
 
         report_path = os.path.join(self.project.data_folder, "_reports", "google_search_console_last_16m_page_query_report.csv")
         report_df.to_csv(report_path, index=False)
