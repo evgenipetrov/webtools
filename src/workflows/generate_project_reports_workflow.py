@@ -13,6 +13,8 @@ from exports.sitebulb_url_internal_export import SitebulbUrlInternalExport
 from core.managers.project_manager import ProjectManager
 import logging
 
+from reports.googlesearchconsole_last_16m_lead_query_report import GoogleSearchConsoleLast16mLeadQueryReport
+from reports.googlesearchconsole_last_16m_page_query_report import GoogleSearchConsoleLast16mPageQueryReport
 from reports.googlesearchconsole_last_16m_page_report import GoogleSearchConsoleLast16mPageReport
 
 logger = logging.getLogger(__name__)
@@ -26,6 +28,10 @@ class GenerateProjectReportsWorkflow:
         project = ProjectManager.get_project(project_id=self.project.id)
 
         googlesearchconsole_last_16m_page_report = GoogleSearchConsoleLast16mPageReport(project)
-        googlesearchconsole_last_16m_page_report.run()
+        googlesearchconsole_last_16m_page_report.run2()
 
-        a = 1
+        googlesearchconsole_last_16m_page_query_report = GoogleSearchConsoleLast16mPageQueryReport(project)
+        googlesearchconsole_last_16m_page_query_report.run2()
+
+        googlesearchconsole_last_16m_lead_query_report = GoogleSearchConsoleLast16mLeadQueryReport(project)
+        googlesearchconsole_last_16m_lead_query_report.run2()
