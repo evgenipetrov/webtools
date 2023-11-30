@@ -21,25 +21,6 @@ class GoogleSearchConsoleLast16mPageReport(BaseReportGenerator):
     def __init__(self, project: Project) -> None:
         self.project = project
 
-    # def run(self):
-    #     website = WebsiteManager.get_website_by_project(self.project)
-    #     urls = UrlManager.get_urls_by_website(website)
-    #     urls_df = DataframeService.queryset_to_dataframe(urls)
-    #     urls_df.loc[urls_df["status_code"] == 200, "redirect_url"] = urls_df.loc[urls_df["status_code"] == 200, "full_address"]
-    #
-    #     export = GoogleSearchConsoleLast16mPageExport(self.project)
-    #     export_df = export.get_data()
-    #     export_df = export_df[~export_df["page"].str.contains("#")]
-    #
-    #     joined_df = export_df.merge(urls_df, left_on="page", right_on="full_address", how="inner")
-    #
-    #     grouped_data = joined_df.groupby("redirect_url").agg({"clicks": "sum", "impressions": "sum", "ctr": "mean", "position": "mean"})
-    #     joined_df = joined_df.merge(grouped_data, on="redirect_url", how="left", suffixes=("", "_grouped"))
-    #
-    #     report_df = joined_df[["page", "clicks_grouped", "impressions_grouped", "ctr_grouped", "position_grouped"]]
-    #
-    #     report_path = os.path.join(self.project.data_folder, "_reports", "google_search_console_last_16m_page_report.csv")
-    #     report_df.to_csv(report_path)
     def run(self):
         website = WebsiteManager.get_website_by_project(self.project)
         urls = UrlManager.get_urls_by_website(website)

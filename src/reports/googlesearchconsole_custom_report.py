@@ -34,39 +34,34 @@ class GoogleSearchConsoleCustomReport(BaseReportGenerator):
 
         joined_df = export_df.merge(urls_df, left_on="page", right_on="full_address", how="inner")
 
-        # Group by 'redirect_url' and 'query'
-        grouped = joined_df.groupby(["redirect_url", "query"])
-
-        # Calculate the sum of query counts for each redirect_url
-        query_count_per_url = joined_df.groupby("redirect_url")["query"].count()
+        # Group by 'redirect_url'
+        grouped = joined_df.groupby("redirect_url")
 
         # Preallocate a list for aggregated results
         aggregated_results = []
 
         # Iterate over each group
-        for (redirect_url, query), group in grouped:
+        for redirect_url, group in grouped:
             # Perform the aggregations directly
             aggregated_data = {
                 "redirect_url": redirect_url,
-                "query": query,
                 "clicks_sum": group["clicks"].sum(),
                 "impressions_sum": group["impressions"].sum(),
                 "ctr_mean": group["ctr"].mean().round(2),
                 "position_mean": group["position"].mean().round(2),
-                "query_count_sum": query_count_per_url[redirect_url],
             }
             aggregated_results.append(aggregated_data)
 
-            print(f"Merged data for {redirect_url} - {query}")
+            print(f"Merged data for {redirect_url}")
 
         # Convert the list to a DataFrame
         aggregated_results_df = pd.DataFrame(aggregated_results)
 
         # Merge the aggregated results back with the original DataFrame
-        final_df = joined_df.merge(aggregated_results_df, on=["redirect_url", "query"], how="left")
+        final_df = joined_df.merge(aggregated_results_df, on="redirect_url", how="left")
 
         # Selecting the required columns for the report
-        report_df = final_df[["page", "query", "clicks_sum", "impressions_sum", "ctr_mean", "position_mean", "query_count_sum"]]
+        report_df = final_df[["page", "clicks_sum", "impressions_sum", "ctr_mean", "position_mean"]]
 
         report_path = os.path.join(self.project.data_folder, "_reports", "google_search_console_custom_report.csv")
         report_df.to_csv(report_path, index=False)

@@ -10,7 +10,7 @@ from services.google_search_console_service import GoogleSearchConsoleService
 import logging
 
 logger = logging.getLogger(__name__)
-EXPORT_SUBFOLDER = "googlesearchconsole_custom_page_query_export"
+EXPORT_SUBFOLDER = "googlesearchconsole_custom_export"
 
 
 class GoogleSearchConsoleCustomExport(BaseExportManager):
@@ -54,7 +54,7 @@ class GoogleSearchConsoleCustomExport(BaseExportManager):
         start_date = end_date - relativedelta(months=1)
 
         # Dimensions for the export - Adjust as needed
-        dimensions = ["page", "query"]
+        dimensions = ["page"]
 
         # Fetch and export the data
         df = gsc_service.fetch_data(self.gsc_property_name, start_date, end_date, dimensions)
