@@ -30,15 +30,4 @@ class ScreamingFrogSitemapCrawlExport(BaseExportManager):
         Any post-export actions.
         """
         input("Press ENTER to continue after placing the exported files.")
-        df = self.get_data()
-        # clean urls
-        df = df[~df["Address"].str.contains("#")]  # remove fragments
-        df = df[~df["Content Type"].str.contains("application/xml")]  # remove sitemap urls
-        df = df[~df["Content Type"].str.contains("image/jpeg")]  # remove jpg images
-        df = df[~df["Content Type"].str.contains("image/png")]  # remove png images
-        df = df[~df["Content Type"].str.contains("image/webp")]  # remove webp images
-        # process urls
-        all_urls = df["Address"].unique()
-        website = WebsiteManager.get_website_by_project(self.project)
-        for url in all_urls:
-            UrlManager.push_url(full_address=url, website=website)
+        pass

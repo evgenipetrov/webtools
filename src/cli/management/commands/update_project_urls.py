@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from workflows.update_project_urls import UpdateProjectUrlsWorkflow
-from core.managers.project_manager import ProjectManager
+from core.models.project import ProjectManager
 import logging
 
 logger = logging.getLogger(__name__)

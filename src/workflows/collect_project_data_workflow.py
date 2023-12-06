@@ -10,7 +10,7 @@ from exports.semrush_analytics_organic_competitors import SemrushAnalyticsOrgani
 from exports.semrush_analytics_organic_pages_export import SemrushAnalyticsOrganicPagesExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 from exports.sitebulb_url_internal_export import SitebulbUrlInternalExport
-from core.managers.project_manager import ProjectManager
+from core.models.project import ProjectManager
 import logging
 
 logger = logging.getLogger(__name__)
@@ -21,40 +21,40 @@ class CollectProjectDataWorkflow:
         self.project_id = project.id
 
     def execute(self):
-        project = ProjectManager.get_project(project_id=self.project_id)
+        project = ProjectManager.get_project_by_id(project_id=self.project_id)
 
         screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(project)
-        screamingfrog_sitemap_crawl_export.collect()
+        screamingfrog_sitemap_crawl_export.run()
 
         screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlExport(project)
-        screamingfrog_spider_crawl_export.collect()
+        screamingfrog_spider_crawl_export.run()
 
         sitebulb_url_internal_export = SitebulbUrlInternalExport(project)
-        sitebulb_url_internal_export.collect()
+        sitebulb_url_internal_export.run()
 
         semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(project)
-        semrush_analytics_organic_positions_rootdomain_export.collect()
+        semrush_analytics_organic_positions_rootdomain_export.run()
 
         semrush_analytics_organic_competitors_export = SemrushAnalyticsOrganicCompetitorsExport(project)
-        semrush_analytics_organic_competitors_export.collect()
+        semrush_analytics_organic_competitors_export.run()
 
         semrush_analytics_organic_pages_export = SemrushAnalyticsOrganicPagesExport(project)
-        semrush_analytics_organic_pages_export.collect()
+        semrush_analytics_organic_pages_export.run()
 
         semrush_analytics_backlinks_rootdomain_export = SemrushAnalyticsBacklinksRootdomainExport(project)
-        semrush_analytics_backlinks_rootdomain_export.collect()
+        semrush_analytics_backlinks_rootdomain_export.run()
 
         semrush_analytics_backlinks_url_export = SemrushAnalyticsBacklinksUrlExport(project)
-        semrush_analytics_backlinks_url_export.collect()
+        semrush_analytics_backlinks_url_export.run()
 
         googlesearchconsole_last_16m_page_export = GoogleSearchConsoleLast16mPageExport(project)
-        googlesearchconsole_last_16m_page_export.collect()
+        googlesearchconsole_last_16m_page_export.run()
 
         googlesearchconsole_last_16m_page_query_export = GoogleSearchConsoleLast16mPageQueryExport(project)
-        googlesearchconsole_last_16m_page_query_export.collect()
+        googlesearchconsole_last_16m_page_query_export.run()
 
         googlesearchconsole_last_16m_date_page_query_export = GoogleSearchConsoleLast16mDatePageQueryExport(project)
-        googlesearchconsole_last_16m_date_page_query_export.collect()
+        googlesearchconsole_last_16m_date_page_query_export.run()
 
         screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(project)
-        screamingfrog_list_crawl_export.collect()
+        screamingfrog_list_crawl_export.run()

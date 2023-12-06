@@ -70,12 +70,4 @@ class GoogleSearchConsoleLast16mPageExport(BaseExportManager):
         Any post-export actions, such as logging or confirmation.
         """
         print("Export from Google Search Console completed.")
-        df = self.get_data()
-        # clean urls
-        df = df[~df["page"].str.contains("#")]  # remove fragments
-        df = df[~df["page"].str.contains(".jpg")]  # remove jpg
-        # process urls
-        all_urls = df["page"].unique()
-        website = WebsiteManager.get_website_by_project(self.project)
-        for url in all_urls:
-            UrlManager.push_url(full_address=url, website=website)
+

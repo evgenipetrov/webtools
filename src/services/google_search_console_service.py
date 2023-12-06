@@ -97,6 +97,10 @@ class GoogleSearchConsoleService:
                 data = self.execute_request(site_url, request_body)
             except GSCFetchError as e:
                 logger.error(str(e))
+                # If the error is 'user does not have access', return an empty DataFrame
+                if "HttpError 403" in str(e):
+                    logger.info("User does not have access.")
+                    return pd.DataFrame()
                 continue
 
             if not data:

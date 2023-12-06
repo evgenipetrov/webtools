@@ -1,15 +1,15 @@
+import logging
+
 from django.core.management.base import BaseCommand
 
-from workflows.custom_workflow import CustomWorkflow
-from workflows.update_project_urls import UpdateProjectUrlsWorkflow
 from core.models.project import ProjectManager
-import logging
+from reports.website_performance_report import WebsitePagesReport
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Runs special report."
+    help = "Runs website performance report."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -24,10 +24,9 @@ class Command(BaseCommand):
         project = ProjectManager.get_project_by_name(project_name)
 
         if not project:
-            self.stdout.write(self.style.ERROR(f"Project '{project_name}' not found."))
-            return
+            project = ProjectManager.create_project_by_name(project_name)
 
-        custom_workflow = CustomWorkflow(project)
-        custom_workflow.execute()
+        report = WebsitePagesReport(project)
+        report.run()
 
-        self.stdout.write(self.style.SUCCESS(f"Url update for project '{project_name}' completed."))
+        logger.info(f"Report run for '{project_name}' completed.")

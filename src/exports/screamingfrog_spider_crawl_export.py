@@ -29,13 +29,4 @@ class ScreamingFrogSpiderCrawlExport(BaseExportManager):
         """
         Any post-export actions.
         """
-        # Example: Confirmation or cleanup steps
-        input("Press ENTER to continue after placing the exported files.")
-        df = self.get_data()
-        # clean urls
-        df = df[~df["Content Type"].str.contains("#")]  # remove fragments
-        # process urls
-        all_urls = df["Address"].unique()
-        website = WebsiteManager.get_website_by_project(self.project)
-        for url in all_urls:
-            UrlManager.push_url(full_address=url, website=website)
+        pass

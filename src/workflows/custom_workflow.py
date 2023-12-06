@@ -12,7 +12,7 @@ from exports.semrush_analytics_organic_competitors import SemrushAnalyticsOrgani
 from exports.semrush_analytics_organic_pages_export import SemrushAnalyticsOrganicPagesExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 from exports.sitebulb_url_internal_export import SitebulbUrlInternalExport
-from core.managers.project_manager import ProjectManager
+from core.models.project import ProjectManager
 import logging
 
 from reports.googlesearchconsole_custom_report import GoogleSearchConsoleCustomReport
@@ -25,13 +25,13 @@ class CustomWorkflow:
         self.project_id = project.id
 
     def execute(self):
-        project = ProjectManager.get_project(project_id=self.project_id)
+        project = ProjectManager.get_project_by_id(project_id=self.project_id)
 
         googlesearchconsole_custom_export = GoogleSearchConsoleCustomExport(project)
-        googlesearchconsole_custom_export.collect()
+        googlesearchconsole_custom_export.run()
 
         screamingfrog_custom_export = ScreamingFrogCustomExport(project)
-        screamingfrog_custom_export.collect()
+        screamingfrog_custom_export.run()
 
         googlesearchconsole_custom_report = GoogleSearchConsoleCustomReport(project)
         googlesearchconsole_custom_report.run2()

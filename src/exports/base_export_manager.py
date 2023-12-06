@@ -3,6 +3,8 @@ import os
 import pandas as pd
 import logging
 
+from pandas.errors import EmptyDataError
+
 logger = logging.getLogger(__name__)
 
 
@@ -20,7 +22,7 @@ class BaseExportManager:
         if not os.path.exists(self.export_path):
             os.makedirs(self.export_path)
 
-    def collect(self):
+    def run(self):
         """
         Template method that defines the export collection workflow.
         """
@@ -75,8 +77,12 @@ class BaseExportManager:
         for filename in os.listdir(self.export_path):
             if filename.endswith(".csv"):
                 file_path = os.path.join(self.export_path, filename)
-                df = pd.read_csv(file_path)
-                all_dataframes.append(df)
+                try:
+                    df = pd.read_csv(file_path)
+                    all_dataframes.append(df)
+                except EmptyDataError:
+                    # Skip file if it is empty or contains no parseable data
+                    continue
 
         # Concatenate all dataframes if there are any, else return an empty dataframe
         if all_dataframes:

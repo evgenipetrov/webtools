@@ -10,7 +10,7 @@ from exports.semrush_analytics_organic_competitors import SemrushAnalyticsOrgani
 from exports.semrush_analytics_organic_pages_export import SemrushAnalyticsOrganicPagesExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 from exports.sitebulb_url_internal_export import SitebulbUrlInternalExport
-from core.managers.project_manager import ProjectManager
+from core.models.project import ProjectManager
 import logging
 
 from reports.googlesearchconsole_last_16m_lead_query_report import GoogleSearchConsoleLast16mLeadQueryReport
@@ -25,7 +25,7 @@ class GenerateProjectReportsWorkflow:
         self.project = project
 
     def execute(self):
-        project = ProjectManager.get_project(project_id=self.project.id)
+        project = ProjectManager.get_project_by_id(project_id=self.project.id)
 
         googlesearchconsole_last_16m_page_report = GoogleSearchConsoleLast16mPageReport(project)
         googlesearchconsole_last_16m_page_report.run2()

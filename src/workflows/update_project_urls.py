@@ -8,7 +8,7 @@ from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
 from exports.sitebulb_url_internal_export import SitebulbUrlInternalExport
-from core.managers.project_manager import ProjectManager
+from core.models.project import ProjectManager
 from services.dataframe_service import DataframeService
 import logging
 
@@ -20,7 +20,7 @@ class UpdateProjectUrlsWorkflow:
         self.project_id = project.id
 
     def execute(self):
-        project = ProjectManager.get_project(project_id=self.project_id)
+        project = ProjectManager.get_project_by_id(project_id=self.project_id)
         website = WebsiteManager.get_website_by_project(project=project)
         master_url_data = pd.DataFrame(
             columns=[
@@ -81,7 +81,7 @@ class UpdateProjectUrlsWorkflow:
         urls_with_nan_status_code.to_clipboard(index=False, header=False)
 
         screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(project)
-        screamingfrog_list_crawl_export.collect()
+        screamingfrog_list_crawl_export.run()
         print(urls_with_nan_status_code)
 
         screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(project)

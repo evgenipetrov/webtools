@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from workflows.collect_project_data_workflow import CollectProjectDataWorkflow
-from core.managers.project_manager import ProjectManager
+from core.models.project import ProjectManager
 from workflows.update_project_urls import UpdateProjectUrlsWorkflow
 import logging
 
