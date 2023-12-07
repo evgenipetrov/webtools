@@ -33,11 +33,4 @@ class SemrushAnalyticsOrganicPositionsRootdomainExport(BaseExportManager):
         Any post-export actions.
         """
         input("Press ENTER to continue after placing the exported files.")
-        df = self.get_data()
-        # clean urls
-        df = df[~df["URL"].str.contains("#")]  # remove fragments
-        # process urls
-        all_urls = df["URL"].unique()
-        website = WebsiteManager.get_website_by_project(self.project)
-        for url in all_urls:
-            UrlManager.push_url(full_address=url, website=website)
+

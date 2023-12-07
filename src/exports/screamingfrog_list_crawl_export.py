@@ -10,7 +10,7 @@ EXPORT_SUBFOLDER = "screamingfrog_list_crawl_export"
 
 
 class ScreamingFrogListCrawlExport(BaseExportManager):
-    def __init__(self, project, urls):
+    def __init__(self, project, urls=None):
         super().__init__(project, EXPORT_SUBFOLDER)
         self.urls = urls
 

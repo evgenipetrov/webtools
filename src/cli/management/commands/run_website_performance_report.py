@@ -3,13 +3,13 @@ import logging
 from django.core.management.base import BaseCommand
 
 from core.models.project import ProjectManager
-from reports.website_page_report import WebsitePagesReport
+from reports.website_performance_report import WebsitePerformanceReport
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Runs website page report."
+    help = "Runs website performance report."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -26,7 +26,7 @@ class Command(BaseCommand):
         if not project:
             project = ProjectManager.create_project_by_name(project_name)
 
-        report = WebsitePagesReport(project)
+        report = WebsitePerformanceReport(project)
         report.run()
 
         logger.info(f"Report run for '{project_name}' completed.")
