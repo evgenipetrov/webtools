@@ -1,6 +1,7 @@
 import pandas as pd
 
 from exports.googlesearchconsole_page_query_last_1m_export import GoogleSearchConsolePageQueryExportLast1m
+from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSearchConsolePageQueryExportPrevious1m
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 from reports.base_report import BaseReport
@@ -22,43 +23,84 @@ class WebsitePerformanceReport(BaseReport):
         self.screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self.project)
         self.semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(self.project)
         self.googlesearchconsole_page_query_last_1m_export = GoogleSearchConsolePageQueryExportLast1m(self.project)
+        self.googlesearchconsole_page_query_previous_1m_export = GoogleSearchConsolePageQueryExportPrevious1m(self.project)
 
         self.file_name = REPORT_FILENAME
 
     def fetch_data(self):
         self.semrush_analytics_organic_positions_rootdomain_export.run()
         self.googlesearchconsole_page_query_last_1m_export.run()
+        self.googlesearchconsole_page_query_previous_1m_export.run()
 
 
     def process_data(self):
         screamingfrog_list_crawl_data = self.screamingfrog_list_crawl_export.get_data()
         semrush_analytics_organic_positions_rootdomain_data = self.semrush_analytics_organic_positions_rootdomain_export.get_data()
         googlesearchconsole_page_query_last_1m_data = self.googlesearchconsole_page_query_last_1m_export.get_data()
+        googlesearchconsole_page_query_previous_1m_data = self.googlesearchconsole_page_query_previous_1m_export.get_data()
 
         processed_data = self._get_processed_data(screamingfrog_list_crawl_data)
+
         processed_data = self._join_semrush_analytics_organic_positions_rootdomain_by_volume(processed_data, semrush_analytics_organic_positions_rootdomain_data)
         processed_data = self._join_semrush_analytics_organic_positions_rootdomain_by_position(processed_data, semrush_analytics_organic_positions_rootdomain_data)
 
+        processed_data = self._join_gsc_page_query_by_impressions(processed_data, googlesearchconsole_page_query_last_1m_data)
+        processed_data = self._join_gsc_page_query_by_clicks(processed_data, googlesearchconsole_page_query_last_1m_data)
+        processed_data = self._join_gsc_page_query_by_position(processed_data, googlesearchconsole_page_query_last_1m_data)
+
+        processed_data = self._join_gsc_page_query_by_impressions(processed_data, googlesearchconsole_page_query_previous_1m_data)
+        processed_data = self._join_gsc_page_query_by_clicks(processed_data, googlesearchconsole_page_query_previous_1m_data)
+        processed_data = self._join_gsc_page_query_by_position(processed_data, googlesearchconsole_page_query_previous_1m_data)
+
+        self.processed_data = processed_data
+
+    def _join_gsc_page_query_by_position(self, processed_data, googlesearchconsole_page_query_last_1m_data):
+        ### adding GSC highest position keyword
+        # Selecting relevant columns and sorting by 'position'
+        selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
+        join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
+        # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
+        join_data = join_data.sort_values(by='position', ascending=True).groupby('page').first().reset_index()
+        # Add suffix to all columns in join_data except 'URL'
+        join_key = "page"
+        join_data.columns = [col + " (by position)" if col != join_key else col for col in join_data.columns]
+        # Merge on 'URL'
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="outer")
+        # Drop the 'URL' column as it's redundant
+        processed_data.drop(columns=['page'], inplace=True)
+        return processed_data
+
+    def _join_gsc_page_query_by_clicks(self, processed_data, googlesearchconsole_page_query_last_1m_data):
+        ### adding GSC highest clicks keyword
+        # Selecting relevant columns and sorting by 'impressions'
+        selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
+        join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
+        # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
+        join_data = join_data.sort_values(by='clicks', ascending=False).groupby('page').first().reset_index()
+        # Add suffix to all columns in join_data except 'URL'
+        join_key = "page"
+        join_data.columns = [col + " (by clicks)" if col != join_key else col for col in join_data.columns]
+        # Merge on 'URL'
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="outer")
+        # Drop the 'URL' column as it's redundant
+        processed_data.drop(columns=['page'], inplace=True)
+        return processed_data
+
+    def _join_gsc_page_query_by_impressions(self, processed_data, googlesearchconsole_page_query_last_1m_data):
         ### adding GSC highest impression keyword
         # Selecting relevant columns and sorting by 'impressions'
         selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
-
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
         join_data = join_data.sort_values(by='impressions', ascending=False).groupby('page').first().reset_index()
-
         # Add suffix to all columns in join_data except 'URL'
         join_key = "page"
         join_data.columns = [col + " (by impressions)" if col != join_key else col for col in join_data.columns]
-
         # Merge on 'URL'
         processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="outer")
-
         # Drop the 'URL' column as it's redundant
         processed_data.drop(columns=['page'], inplace=True)
-
-
-        self.processed_data = processed_data
+        return processed_data
 
     def _join_semrush_analytics_organic_positions_rootdomain_by_position(self, processed_data, semrush_analytics_organic_positions_rootdomain_data):
         ### adding Semrush highest ranking keyword
