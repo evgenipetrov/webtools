@@ -12,6 +12,9 @@ class Project(models.Model):
     gsc_auth_domain = models.CharField(max_length=255, blank=True, null=True)
     gsc_property_name = models.CharField(max_length=255, blank=True, null=True)
 
+    ga4_auth_domain = models.CharField(max_length=255, blank=True, null=True)
+    ga4_property_id = models.CharField(max_length=255, blank=True, null=True)
+
     def __str__(self):
         return f"Project {self.id} - {self.base_url}"
 

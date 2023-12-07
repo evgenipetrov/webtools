@@ -73,3 +73,7 @@ class UrlManager:
         """
         urls = Url.objects.filter(website=website)
         return urls
+    @staticmethod
+    def get_relative_url(full_url):
+        parsed_url = urlparse(full_url)
+        return parsed_url.path + ('?' + parsed_url.query if parsed_url.query else '')
