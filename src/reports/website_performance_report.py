@@ -3,6 +3,8 @@ import pandas as pd
 from core.managers.url_manager import UrlManager
 from exports.googleanalytics_last_1m_export import GoogleAnalytics4ExportLast1m
 from exports.googleanalytics_previous_1m_export import GoogleAnalytics4ExportPrevious1m
+from exports.googlesearchconsole_page_last_1m_export import GoogleSearchConsolePageExportLast1m
+from exports.googlesearchconsole_page_previous_1m_export import GoogleSearchConsolePageExportPrevious1m
 from exports.googlesearchconsole_page_query_last_1m_export import GoogleSearchConsolePageQueryExportLast1m
 from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSearchConsolePageQueryExportPrevious1m
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
@@ -27,6 +29,8 @@ class WebsitePerformanceReport(BaseReport):
         self.semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(self.project)
         self.googlesearchconsole_page_query_last_1m_export = GoogleSearchConsolePageQueryExportLast1m(self.project)
         self.googlesearchconsole_page_query_previous_1m_export = GoogleSearchConsolePageQueryExportPrevious1m(self.project)
+        self.googlesearchconsole_page_last_1m_export = GoogleSearchConsolePageExportLast1m(self.project)
+        self.googlesearchconsole_page_previous_1m_export = GoogleSearchConsolePageExportPrevious1m(self.project)
         self.googleanalytics4_last_1m_export = GoogleAnalytics4ExportLast1m(self.project)
         self.googleanalytics4_previous_1m_export = GoogleAnalytics4ExportPrevious1m(self.project)
 
@@ -36,12 +40,16 @@ class WebsitePerformanceReport(BaseReport):
         self.semrush_analytics_organic_positions_rootdomain_export.run()
         self.googlesearchconsole_page_query_last_1m_export.run()
         self.googlesearchconsole_page_query_previous_1m_export.run()
+        self.googlesearchconsole_page_last_1m_export.run()
+        self.googlesearchconsole_page_previous_1m_export.run()
         self.googleanalytics4_last_1m_export.run()
         self.googleanalytics4_previous_1m_export.run()
 
     def process_data(self):
         screamingfrog_list_crawl_data = self.screamingfrog_list_crawl_export.get_data()
         semrush_analytics_organic_positions_rootdomain_data = self.semrush_analytics_organic_positions_rootdomain_export.get_data()
+        googlesearchconsole_page_last_1m_data = self.googlesearchconsole_page_last_1m_export.get_data()
+        googlesearchconsole_page_previous_1m_data = self.googlesearchconsole_page_previous_1m_export.get_data()
         googlesearchconsole_page_query_last_1m_data = self.googlesearchconsole_page_query_last_1m_export.get_data()
         googlesearchconsole_page_query_previous_1m_data = self.googlesearchconsole_page_query_previous_1m_export.get_data()
         googleanalytics4_last_1m_data = self.googleanalytics4_last_1m_export.get_data()
@@ -51,6 +59,9 @@ class WebsitePerformanceReport(BaseReport):
 
         processed_data = self._join_semrush_analytics_organic_positions_rootdomain_by_volume(processed_data, semrush_analytics_organic_positions_rootdomain_data)
         processed_data = self._join_semrush_analytics_organic_positions_rootdomain_by_position(processed_data, semrush_analytics_organic_positions_rootdomain_data)
+
+        processed_data = self._join_gsc_page_last_1m(processed_data, googlesearchconsole_page_last_1m_data)
+        processed_data = self._join_gsc_page_previous_1m(processed_data, googlesearchconsole_page_previous_1m_data)
 
         processed_data = self._join_gsc_page_query_last_1m_by_impressions(processed_data, googlesearchconsole_page_query_last_1m_data)
         processed_data = self._join_gsc_page_query_last_1m_by_clicks(processed_data, googlesearchconsole_page_query_last_1m_data)
@@ -66,7 +77,7 @@ class WebsitePerformanceReport(BaseReport):
         self.processed_data = processed_data
 
     def _join_ga4_previous_1m(self, processed_data, googleanalytics4_previous_1m_data):
-        selected_columns = ["pagePath", "sessionDefaultChannelGrouping", "sessions", "activeUsers", "activeUsers", "engagedSessions", "totalRevenue", "totalRevenue", "conversions"]
+        selected_columns = ["pagePath", "sessionDefaultChannelGrouping", "sessions", "activeUsers", "averageSessionDuration", "bounceRate", "engagedSessions", "totalRevenue", "totalRevenue", "conversions"]
         join_data = googleanalytics4_previous_1m_data[selected_columns]
 
         # Filter only Organic Search
@@ -81,7 +92,7 @@ class WebsitePerformanceReport(BaseReport):
         return processed_data
 
     def _join_ga4_last_1m(self, processed_data, googleanalytics4_last_1m_data):
-        selected_columns = ["pagePath", "sessionDefaultChannelGrouping", "sessions", "activeUsers", "activeUsers", "engagedSessions", "totalRevenue", "totalRevenue", "conversions"]
+        selected_columns = ["pagePath", "sessionDefaultChannelGrouping", "sessions", "activeUsers", "averageSessionDuration", "bounceRate", "engagedSessions", "totalRevenue", "totalRevenue", "conversions"]
         join_data = googleanalytics4_last_1m_data[selected_columns]
 
         # Filter only Organic Search
@@ -185,6 +196,34 @@ class WebsitePerformanceReport(BaseReport):
         # Add suffix to all columns in join_data except 'URL'
         join_key = "page"
         join_data.columns = [col + " (GSC last 1m by impressions)" if col != join_key else col for col in join_data.columns]
+        # Merge on 'URL'
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="left")
+        # Drop the 'URL' column as it's redundant
+        processed_data.drop(columns=[join_key], inplace=True)
+        return processed_data
+
+    def _join_gsc_page_previous_1m(self, processed_data, googlesearchconsole_page_previous_1m_data):
+        ### adding GSC highest impression keyword
+        # Selecting relevant columns and sorting by 'impressions'
+        selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
+        join_data = googlesearchconsole_page_previous_1m_data[selected_columns]
+        # Add suffix to all columns in join_data except 'URL'
+        join_key = "page"
+        join_data.columns = [col + " (GSC previous 1m)" if col != join_key else col for col in join_data.columns]
+        # Merge on 'URL'
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="left")
+        # Drop the 'URL' column as it's redundant
+        processed_data.drop(columns=[join_key], inplace=True)
+        return processed_data
+
+    def _join_gsc_page_last_1m(self, processed_data, googlesearchconsole_page_last_1m_data):
+        ### adding GSC highest impression keyword
+        # Selecting relevant columns and sorting by 'impressions'
+        selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
+        join_data = googlesearchconsole_page_last_1m_data[selected_columns]
+        # Add suffix to all columns in join_data except 'URL'
+        join_key = "page"
+        join_data.columns = [col + " (GSC last 1m)" if col != join_key else col for col in join_data.columns]
         # Merge on 'URL'
         processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="left")
         # Drop the 'URL' column as it's redundant

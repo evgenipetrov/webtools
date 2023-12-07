@@ -62,6 +62,8 @@ class GoogleAnalytics4ExportLast1m(BaseExportManager):
         metrics = [
             {"name": "sessions"},
             {"name": "activeUsers"},
+            {"name": "averageSessionDuration"},
+            {"name": "bounceRate"},
             {"name": "engagedSessions"},
             {"name": "totalRevenue"},  # Optional based on your tracking setup
             {"name": "conversions"},  # Ensure you have conversions set up in GA4

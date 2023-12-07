@@ -51,8 +51,8 @@ class GoogleAnalytics4ExportPrevious1m(BaseExportManager):
         Implement the actual export logic here, utilizing GoogleSearchConsoleService.
         """
         ga4_service = GoogleAnalytics4Service(self.ga4_auth_domain)
-        end_date = datetime.date.today()
-        start_date = end_date - relativedelta(months=1)
+        end_date = datetime.date.today() - relativedelta(months=1)
+        start_date = datetime.date.today() - relativedelta(months=2)
 
         # Dimensions & metrics for the export - Adjust as needed
         dimensions = [
@@ -62,6 +62,8 @@ class GoogleAnalytics4ExportPrevious1m(BaseExportManager):
         metrics = [
             {"name": "sessions"},
             {"name": "activeUsers"},
+            {"name": "averageSessionDuration"},
+            {"name": "bounceRate"},
             {"name": "engagedSessions"},
             {"name": "totalRevenue"},  # Optional based on your tracking setup
             {"name": "conversions"},  # Ensure you have conversions set up in GA4
