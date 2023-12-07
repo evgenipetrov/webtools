@@ -75,7 +75,7 @@ class WebsitePerformanceReport(BaseReport):
         join_key = "pagePath"
         join_data.columns = [col + " (GA4 previous 1m)" if col != join_key else col for col in join_data.columns]
         # Merge on 'URL'
-        processed_data = pd.merge(processed_data, join_data, left_on="Path", right_on=join_key, how="outer")
+        processed_data = pd.merge(processed_data, join_data, left_on="Path", right_on=join_key, how="left")
         # Drop the 'URL' column as it's redundant
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
@@ -90,7 +90,7 @@ class WebsitePerformanceReport(BaseReport):
         join_key = "pagePath"
         join_data.columns = [col + " (GA4 last 1m)" if col != join_key else col for col in join_data.columns]
         # Merge on 'URL'
-        processed_data = pd.merge(processed_data, join_data, left_on="Path", right_on=join_key, how="outer")
+        processed_data = pd.merge(processed_data, join_data, left_on="Path", right_on=join_key, how="left")
         # Drop the 'URL' column as it's redundant
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
@@ -106,7 +106,7 @@ class WebsitePerformanceReport(BaseReport):
         join_key = "page"
         join_data.columns = [col + " (GSC previous 1m by position)" if col != join_key else col for col in join_data.columns]
         # Merge on 'URL'
-        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="outer")
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="left")
         # Drop the 'URL' column as it's redundant
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
@@ -122,7 +122,7 @@ class WebsitePerformanceReport(BaseReport):
         join_key = "page"
         join_data.columns = [col + " (GSC previous 1m by clicks)" if col != join_key else col for col in join_data.columns]
         # Merge on 'URL'
-        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="outer")
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="left")
         # Drop the 'URL' column as it's redundant
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
@@ -138,7 +138,7 @@ class WebsitePerformanceReport(BaseReport):
         join_key = "page"
         join_data.columns = [col + " (GSC previous 1m by impressions)" if col != join_key else col for col in join_data.columns]
         # Merge on 'URL'
-        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="outer")
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="left")
         # Drop the 'URL' column as it's redundant
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
@@ -154,7 +154,7 @@ class WebsitePerformanceReport(BaseReport):
         join_key = "page"
         join_data.columns = [col + " (GSC last 1m by position)" if col != join_key else col for col in join_data.columns]
         # Merge on 'URL'
-        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="outer")
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="left")
         # Drop the 'URL' column as it's redundant
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
@@ -170,7 +170,7 @@ class WebsitePerformanceReport(BaseReport):
         join_key = "page"
         join_data.columns = [col + " (GSC last 1m by clicks)" if col != join_key else col for col in join_data.columns]
         # Merge on 'URL'
-        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="outer")
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="left")
         # Drop the 'URL' column as it's redundant
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
@@ -186,7 +186,7 @@ class WebsitePerformanceReport(BaseReport):
         join_key = "page"
         join_data.columns = [col + " (GSC last 1m by impressions)" if col != join_key else col for col in join_data.columns]
         # Merge on 'URL'
-        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="outer")
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="left")
         # Drop the 'URL' column as it's redundant
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
@@ -202,7 +202,7 @@ class WebsitePerformanceReport(BaseReport):
         join_key = "URL"
         join_data.columns = [col + " (Semrush by position)" if col != join_key else col for col in join_data.columns]
         # Merge on 'URL'
-        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="outer")
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="left")
         # Drop the 'URL' column as it's redundant
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
@@ -218,7 +218,7 @@ class WebsitePerformanceReport(BaseReport):
         join_key = "URL"
         join_data.columns = [col + " (Semrush by volume)" if col != join_key else col for col in join_data.columns]
         # Merge on 'URL'
-        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="outer")
+        processed_data = pd.merge(processed_data, join_data, left_on="Address", right_on=join_key, how="left")
         # Drop the 'URL' column as it's redundant
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
