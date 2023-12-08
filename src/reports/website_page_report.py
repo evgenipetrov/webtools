@@ -69,5 +69,20 @@ class WebsitePagesReport(BaseReport):
         self.screamingfrog_list_crawl_export.run()
 
         self.report = self.screamingfrog_list_crawl_export.get_data()
+        self.report = self.report.drop(columns=['Crawl Depth'])
+
+        # add In Sitemap column
+        screamingfrog_sitemap_crawl_data = self.screamingfrog_sitemap_crawl_export.get_data()
+        sitemap_addresses = set(screamingfrog_sitemap_crawl_data['Address'])
+        self.report['In Sitemap'] = self.report['Address'].isin(sitemap_addresses)
+
+        # add Crawl Depth column from spider crawl data
+        screamingfrog_spider_crawl_data = self.screamingfrog_spider_crawl_export.get_data()
+        # Perform a left join to add the 'Crawl Depth' column
+        self.report = self.report.merge(
+            screamingfrog_spider_crawl_data[['Address', 'Crawl Depth']],
+            on='Address',
+            how='left'
+        )
 
         return self.report
