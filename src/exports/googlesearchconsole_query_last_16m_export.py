@@ -1,22 +1,24 @@
 import datetime
-import logging
 import os
 
 from dateutil.relativedelta import relativedelta  # Provides more accurate date manipulation
 
+from core.managers.url_manager import UrlManager
+from core.managers.website_manager import WebsiteManager
 from exports.base_export_manager import BaseExportManager
 from services.google_search_console_service import GoogleSearchConsoleService
+import logging
 
 logger = logging.getLogger(__name__)
 # Export Variables
-EXPORT_SUBFOLDER = "googlesearchconsole_page_last_16m_export"
+EXPORT_SUBFOLDER = "googlesearchconsole_query_last_16m_export"
 EXPORT_FILENAME = EXPORT_SUBFOLDER + ".csv"
 BASE_DATE = datetime.date.today() - relativedelta(days=5)
 START_DATE = BASE_DATE - relativedelta(months=16)
 END_DATE = BASE_DATE
 
 
-class GoogleSearchConsolePageLast16mExport(BaseExportManager):
+class GoogleSearchConsoleQueryLast16mExport(BaseExportManager):
     def __init__(self, project):
         super().__init__(project, EXPORT_SUBFOLDER)
         self.gsc_auth_domain = None
@@ -63,7 +65,7 @@ class GoogleSearchConsolePageLast16mExport(BaseExportManager):
         end_date = END_DATE
 
         # Dimensions for the export - Adjust as needed
-        dimensions = ["page"]
+        dimensions = ["query"]
 
         # Fetch and export the data
         df = gsc_service.fetch_data(self.gsc_property_name, start_date, end_date, dimensions)

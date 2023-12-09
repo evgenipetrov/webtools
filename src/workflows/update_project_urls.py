@@ -7,7 +7,7 @@ from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsole
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
-from exports.sitebulb_url_internal_export import SitebulbUrlInternalExport
+from exports.sitebulb_spider_crawl_url_internal_export import SitebulbSpiderCrawlUrlInternalExport
 from core.models.project import ProjectManager
 from services.dataframe_service import DataframeService
 import logging
@@ -49,7 +49,7 @@ class UpdateProjectUrlsWorkflow:
         # merge clean urls in master data
         master_url_data = DataframeService.merge_keys(master_url_data, screamingfrog_spider_crawl_data, "url", "Address")
 
-        sitebulb_url_internal_export = SitebulbUrlInternalExport(project)
+        sitebulb_url_internal_export = SitebulbSpiderCrawlUrlInternalExport(project)
         sitebulb_url_internal_data = sitebulb_url_internal_export.get_data()
         # clean urls
 

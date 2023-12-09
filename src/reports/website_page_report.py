@@ -4,7 +4,7 @@ from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsole
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
-from exports.sitebulb_url_internal_export import SitebulbUrlInternalExport
+from exports.sitebulb_spider_crawl_url_internal_export import SitebulbSpiderCrawlUrlInternalExport
 from reports.base_report import BaseReport
 
 
@@ -23,7 +23,7 @@ class WebsitePagesReport(BaseReport):
         self.screamingfrog_list_crawl_export = None
         self.screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(self.project)
         self.screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlExport(self.project)
-        self.sitebulb_url_internal_export = SitebulbUrlInternalExport(self.project)
+        self.sitebulb_url_internal_export = SitebulbSpiderCrawlUrlInternalExport(self.project)
 
         self.googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(self.project)
 

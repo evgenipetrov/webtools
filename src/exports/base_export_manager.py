@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 class BaseExportManager:
     def __init__(self, project, export_subfolder):
+        self.force = False
         self.project = project
         self.export_subfolder = export_subfolder
         self.export_path = os.path.join(project.data_folder, self.export_subfolder)
@@ -22,12 +23,13 @@ class BaseExportManager:
         if not os.path.exists(self.export_path):
             os.makedirs(self.export_path)
 
-    def run(self):
+    def run(self, force=False):
         """
         Template method that defines the export collection workflow.
+        If 'force' is True, skips user confirmation.
         """
-        # Ask user for confirmation before proceeding
-        if self.confirm_export(self.export_subfolder):
+        self.force = force
+        if force or self.confirm_export(self.export_subfolder):
             self.perform_pre_export_action()
             self.perform_export()
             self.perform_post_export_action()
@@ -36,9 +38,14 @@ class BaseExportManager:
     def confirm_export(export_description):
         """
         Asks the user whether to proceed with a specific export process.
+        Adds distinct color and formatting to the export name for visibility.
         """
-        default_response = "n"  # Default to no
-        response = input(f"Do you want to proceed with {export_description} export? (y/n) [{default_response}]: ")
+        default_response = "N"  # Default to no
+        # ANSI escape code for bold and blue text
+        blue_bold_start = "\033[1;34m"
+        # ANSI escape code to reset to default text color
+        color_end = "\033[0m"
+        response = input(f"Do you want to proceed with {blue_bold_start}{export_description.upper()}{color_end} export? (y/n) [{default_response}]: ")
 
         if response.strip().lower() not in ("y", "n"):
             return False

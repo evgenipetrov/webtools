@@ -139,12 +139,13 @@ LOGGING = {
     },
     "handlers": {
         "file": {
-            "level": "DEBUG",
+            "level": "INFO",
             "class": "logging.FileHandler",
             "filename": os.path.abspath(os.path.join(BASE_DIR, "..", "logs", "logfile.log")),
             "formatter": "verbose",
         },
         "console": {
+            "level": "INFO",  # Set console logging to INFO
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
@@ -152,11 +153,11 @@ LOGGING = {
     "loggers": {
         "": {  # This is the root logger
             "handlers": ["console"],
-            "level": "INFO",
+            "level": "INFO",  # Set the default level to INFO for console
         },
         "django": {
             "handlers": ["file", "console"],
-            "level": "ERROR",
+            "level": "ERROR",  # Keeping Django's logger at ERROR
             "propagate": True,
         },
         # Add more loggers for your applications here

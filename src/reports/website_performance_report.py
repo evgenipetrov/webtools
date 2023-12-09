@@ -1,9 +1,9 @@
 import pandas as pd
 
 from core.managers.url_manager import UrlManager
-from exports.googleanalytics_last_1m_export import GoogleAnalytics4ExportLast1m
-from exports.googleanalytics_previous_1m_export import GoogleAnalytics4ExportPrevious1m
-from exports.googlesearchconsole_page_last_1m_export import GoogleSearchConsolePageExportLast1m
+from exports.googleanalytics4_last_1m_export import GoogleAnalytics4ExportLast1m
+from exports.googleanalytics4_previous_1m_export import GoogleAnalytics4ExportPrevious1m
+from exports.googlesearchconsole_page_last_1m_export import GoogleSearchConsolePageLast1mExport
 from exports.googlesearchconsole_page_previous_1m_export import GoogleSearchConsolePageExportPrevious1m
 from exports.googlesearchconsole_page_query_last_1m_export import GoogleSearchConsolePageQueryExportLast1m
 from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSearchConsolePageQueryExportPrevious1m
@@ -29,7 +29,7 @@ class WebsitePerformanceReport(BaseReport):
         self.semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(self.project)
         self.googlesearchconsole_page_query_last_1m_export = GoogleSearchConsolePageQueryExportLast1m(self.project)
         self.googlesearchconsole_page_query_previous_1m_export = GoogleSearchConsolePageQueryExportPrevious1m(self.project)
-        self.googlesearchconsole_page_last_1m_export = GoogleSearchConsolePageExportLast1m(self.project)
+        self.googlesearchconsole_page_last_1m_export = GoogleSearchConsolePageLast1mExport(self.project)
         self.googlesearchconsole_page_previous_1m_export = GoogleSearchConsolePageExportPrevious1m(self.project)
         self.googleanalytics4_last_1m_export = GoogleAnalytics4ExportLast1m(self.project)
         self.googleanalytics4_previous_1m_export = GoogleAnalytics4ExportPrevious1m(self.project)
@@ -81,7 +81,7 @@ class WebsitePerformanceReport(BaseReport):
         join_data = googleanalytics4_previous_1m_data[selected_columns]
 
         # Filter only Organic Search
-        join_data = join_data[join_data['sessionDefaultChannelGrouping'] == 'Organic Search']
+        join_data = join_data[join_data["sessionDefaultChannelGrouping"] == "Organic Search"]
 
         join_key = "pagePath"
         join_data.columns = [col + " (GA4 previous 1m)" if col != join_key else col for col in join_data.columns]
@@ -96,7 +96,7 @@ class WebsitePerformanceReport(BaseReport):
         join_data = googleanalytics4_last_1m_data[selected_columns]
 
         # Filter only Organic Search
-        join_data = join_data[join_data['sessionDefaultChannelGrouping'] == 'Organic Search']
+        join_data = join_data[join_data["sessionDefaultChannelGrouping"] == "Organic Search"]
 
         join_key = "pagePath"
         join_data.columns = [col + " (GA4 last 1m)" if col != join_key else col for col in join_data.columns]
@@ -112,7 +112,7 @@ class WebsitePerformanceReport(BaseReport):
         selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
-        join_data = join_data.sort_values(by='position', ascending=True).groupby('page').first().reset_index()
+        join_data = join_data.sort_values(by="position", ascending=True).groupby("page").first().reset_index()
         # Add suffix to all columns in join_data except 'URL'
         join_key = "page"
         join_data.columns = [col + " (GSC previous 1m by position)" if col != join_key else col for col in join_data.columns]
@@ -128,7 +128,7 @@ class WebsitePerformanceReport(BaseReport):
         selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
-        join_data = join_data.sort_values(by='clicks', ascending=False).groupby('page').first().reset_index()
+        join_data = join_data.sort_values(by="clicks", ascending=False).groupby("page").first().reset_index()
         # Add suffix to all columns in join_data except 'URL'
         join_key = "page"
         join_data.columns = [col + " (GSC previous 1m by clicks)" if col != join_key else col for col in join_data.columns]
@@ -144,7 +144,7 @@ class WebsitePerformanceReport(BaseReport):
         selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
-        join_data = join_data.sort_values(by='impressions', ascending=False).groupby('page').first().reset_index()
+        join_data = join_data.sort_values(by="impressions", ascending=False).groupby("page").first().reset_index()
         # Add suffix to all columns in join_data except 'URL'
         join_key = "page"
         join_data.columns = [col + " (GSC previous 1m by impressions)" if col != join_key else col for col in join_data.columns]
@@ -160,7 +160,7 @@ class WebsitePerformanceReport(BaseReport):
         selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
-        join_data = join_data.sort_values(by='position', ascending=True).groupby('page').first().reset_index()
+        join_data = join_data.sort_values(by="position", ascending=True).groupby("page").first().reset_index()
         # Add suffix to all columns in join_data except 'URL'
         join_key = "page"
         join_data.columns = [col + " (GSC last 1m by position)" if col != join_key else col for col in join_data.columns]
@@ -176,7 +176,7 @@ class WebsitePerformanceReport(BaseReport):
         selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
-        join_data = join_data.sort_values(by='clicks', ascending=False).groupby('page').first().reset_index()
+        join_data = join_data.sort_values(by="clicks", ascending=False).groupby("page").first().reset_index()
         # Add suffix to all columns in join_data except 'URL'
         join_key = "page"
         join_data.columns = [col + " (GSC last 1m by clicks)" if col != join_key else col for col in join_data.columns]
@@ -192,7 +192,7 @@ class WebsitePerformanceReport(BaseReport):
         selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
-        join_data = join_data.sort_values(by='impressions', ascending=False).groupby('page').first().reset_index()
+        join_data = join_data.sort_values(by="impressions", ascending=False).groupby("page").first().reset_index()
         # Add suffix to all columns in join_data except 'URL'
         join_key = "page"
         join_data.columns = [col + " (GSC last 1m by impressions)" if col != join_key else col for col in join_data.columns]
@@ -236,7 +236,7 @@ class WebsitePerformanceReport(BaseReport):
         selected_columns = ["URL", "Keyword", "Position", "Search Volume"]
         join_data = semrush_analytics_organic_positions_rootdomain_data[selected_columns]
         # Group by 'URL', sort by 'Search Volume' and keep the row with the highest 'Search Volume'
-        join_data = join_data.sort_values(by='Position', ascending=True).groupby('URL').first().reset_index()
+        join_data = join_data.sort_values(by="Position", ascending=True).groupby("URL").first().reset_index()
         # Add suffix to all columns in join_data except 'URL'
         join_key = "URL"
         join_data.columns = [col + " (Semrush by position)" if col != join_key else col for col in join_data.columns]
@@ -252,7 +252,7 @@ class WebsitePerformanceReport(BaseReport):
         selected_columns = ["URL", "Keyword", "Position", "Search Volume"]
         join_data = semrush_analytics_organic_positions_rootdomain_data[selected_columns]
         # Group by 'URL', sort by 'Search Volume' and keep the row with the highest 'Search Volume'
-        join_data = join_data.sort_values(by='Search Volume', ascending=False).groupby('URL').first().reset_index()
+        join_data = join_data.sort_values(by="Search Volume", ascending=False).groupby("URL").first().reset_index()
         # Add suffix to all columns in join_data except 'URL'
         join_key = "URL"
         join_data.columns = [col + " (Semrush by volume)" if col != join_key else col for col in join_data.columns]
@@ -270,7 +270,7 @@ class WebsitePerformanceReport(BaseReport):
         processed_data = processed_data.copy()
 
         # Now apply the changes to the copy
-        processed_data['Path'] = processed_data['Address'].apply(UrlManager.get_relative_url)
+        processed_data["Path"] = processed_data["Address"].apply(UrlManager.get_relative_url)
 
         return processed_data
 

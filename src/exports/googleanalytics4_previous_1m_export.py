@@ -1,20 +1,23 @@
 import datetime
+import logging
 import os
 
 from dateutil.relativedelta import relativedelta  # Provides more accurate date manipulation
 
-from core.managers.url_manager import UrlManager
-from core.managers.website_manager import WebsiteManager
 from exports.base_export_manager import BaseExportManager
 from services.google_analytics_service import GoogleAnalytics4Service
-from services.google_search_console_service import GoogleSearchConsoleService
-import logging
 
 logger = logging.getLogger(__name__)
-EXPORT_SUBFOLDER = "googleanalytics4_last_1m_export"
+
+# Export Variables
+EXPORT_SUBFOLDER = "googleanalytics4_previous_1m_export"
+EXPORT_FILENAME = EXPORT_SUBFOLDER + ".csv"
+BASE_DATE = datetime.date.today() - relativedelta(days=5)
+START_DATE = BASE_DATE - relativedelta(months=2)
+END_DATE = BASE_DATE - relativedelta(months=1)
 
 
-class GoogleAnalytics4ExportLast1m(BaseExportManager):
+class GoogleAnalytics4ExportPrevious1m(BaseExportManager):
     def __init__(self, project):
         super().__init__(project, EXPORT_SUBFOLDER)
         self.ga4_auth_domain = None
@@ -22,16 +25,21 @@ class GoogleAnalytics4ExportLast1m(BaseExportManager):
 
     def perform_pre_export_action(self):
         """
-        Obtain or confirm authentication details for Google Search Console.
+        Obtain or confirm authentication details for Google Analytics 4.
+        If 'force' is True and auth details are present, skip user input.
         """
-        # Check if auth_domain and gsc_property are already set in the project
+        # Check if auth_domain and property_id are already set in the project
         if self.project.ga4_auth_domain and self.project.ga4_property_id:
-            use_existing = input(f"Use existing GA4 settings? (Auth Domain: {self.project.ga4_auth_domain}, Property: {self.project.ga4_property_id}) [Y/n]: ")
-            if use_existing.lower() != "n":
+            if self.force:
                 self.ga4_auth_domain = self.project.ga4_auth_domain
                 self.ga4_property_id = self.project.ga4_property_id
             else:
-                self._gather_user_input()
+                use_existing = input(f"Use existing GA4 settings? (Auth Domain: {self.project.ga4_auth_domain}, Property: {self.project.ga4_property_id}) [Y/n]: ")
+                if use_existing.lower() != "n":
+                    self.ga4_auth_domain = self.project.ga4_auth_domain
+                    self.ga4_property_id = self.project.ga4_property_id
+                else:
+                    self._gather_user_input()
         else:
             self._gather_user_input()
             # Update project with new values
@@ -51,14 +59,12 @@ class GoogleAnalytics4ExportLast1m(BaseExportManager):
         Implement the actual export logic here, utilizing GoogleSearchConsoleService.
         """
         ga4_service = GoogleAnalytics4Service(self.ga4_auth_domain)
-        end_date = datetime.date.today()
-        start_date = end_date - relativedelta(months=1)
+
+        start_date = START_DATE
+        end_date = END_DATE
 
         # Dimensions & metrics for the export - Adjust as needed
-        dimensions = [
-            {"name": "pagePath"},
-            {"name": "sessionDefaultChannelGrouping"}
-        ]
+        dimensions = [{"name": "pagePath"}, {"name": "sessionDefaultChannelGrouping"}]
         metrics = [
             {"name": "sessions"},
             {"name": "activeUsers"},
@@ -73,14 +79,10 @@ class GoogleAnalytics4ExportLast1m(BaseExportManager):
         df = ga4_service.fetch_data(self.ga4_property_id, start_date, end_date, dimensions, metrics)
 
         # Save DataFrame to CSV in export folder
-        csv_file_path = os.path.join(self.export_path, "googleanalytics4_last_1m_export.csv")
+        csv_file_path = os.path.join(self.export_path, EXPORT_FILENAME)
         df.to_csv(csv_file_path, index=False)
-
-        print(f"Exported GA4 data to {csv_file_path}")
 
     def perform_post_export_action(self):
         """
         Any post-export actions, such as logging or confirmation.
         """
-        print("Export from Google Analytics 4 completed.")
-

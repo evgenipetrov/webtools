@@ -4,15 +4,22 @@ import pandas as pd
 from googleapiclient.discovery import build
 
 from services.google_auth_service import GoogleAuthService
+
 logger = logging.getLogger(__name__)
 
 
 class GA4FetchError(Exception):
     pass
 
+
 class GoogleAnalytics4Service:
     def __init__(self, auth_domain):
-        self.service = self._authenticate_ga4(auth_domain)
+        try:
+            self.service = self._authenticate_ga4(auth_domain)
+            logger.info("Successfully authenticated Google Analytics 4 service.")
+        except Exception as e:
+            logger.error(f"Failed to authenticate Google Analytics 4: {e}")
+            raise GA4FetchError("Authentication failed") from e
 
     @staticmethod
     def _authenticate_ga4(auth_domain):
@@ -39,34 +46,42 @@ class GoogleAnalytics4Service:
                 {"name": "averageSessionDuration"},
             ]
 
+        # Log the dimensions and metrics being used for the request
+        dimension_names = [dim["name"] for dim in dimensions]
+        metric_names = [metric["name"] for metric in metrics]
+        logger.info(f"Fetching GA4 data for property {ga_property_id} from {start_date} to {end_date} with dimensions {dimension_names} and metrics {metric_names}")
+
         property_id = f"properties/{ga_property_id}"
 
-        logger.info(f"Fetching GA data from {start_date} to {end_date} for property {ga_property_id}")
-
-        response = (
-            self.service.properties()
-            .runReport(
-                property=property_id,
-                body={
-                    "date_ranges": [
-                        {
-                            "start_date": start_date.strftime("%Y-%m-%d"),
-                            "end_date": end_date.strftime("%Y-%m-%d"),
-                        }
-                    ],
-                    "dimensions": dimensions,
-                    "metrics": metrics,
-                },
+        try:
+            response = (
+                self.service.properties()
+                .runReport(
+                    property=property_id,
+                    body={
+                        "date_ranges": [
+                            {
+                                "start_date": start_date.strftime("%Y-%m-%d"),
+                                "end_date": end_date.strftime("%Y-%m-%d"),
+                            }
+                        ],
+                        "dimensions": dimensions,
+                        "metrics": metrics,
+                    },
+                )
+                .execute()
             )
-            .execute()
-        )
+            logger.info("Data fetched successfully.")
+            return self._flatten_data(response)
+        except Exception as e:
+            logger.error(f"Failed to fetch GA4 data: {e}")
+            raise GA4FetchError("Data fetch failed") from e
 
-        logger.info("GA data fetch completed")
-        return self._flatten_data(response)
-
-    def _flatten_data(self, response):
+    @staticmethod
+    def _flatten_data(response):
         # Check if the response has the necessary parts
         if "rows" not in response or "dimensionHeaders" not in response or "metricHeaders" not in response:
+            logger.warning("Received incomplete data response")
             return pd.DataFrame()  # Return an empty DataFrame if necessary parts are missing
 
         # Initialize empty lists for headers

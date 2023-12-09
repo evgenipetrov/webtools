@@ -20,7 +20,12 @@ class GoogleSearchConsoleService:
     ROW_LIMIT = 25000
 
     def __init__(self, auth_domain):
-        self.service = self._authenticate_gsc(auth_domain)
+        try:
+            self.service = self._authenticate_gsc(auth_domain)
+            logger.info("Successfully authenticated Google Search Console service.")
+        except Exception as e:
+            logger.error(f"Failed to authenticate Google Search Console: {e}")
+            raise GSCFetchError("Authentication failed") from e
 
     def _create_request(
         self,
@@ -63,8 +68,10 @@ class GoogleSearchConsoleService:
     def execute_request(self, site_url, request_body) -> list:
         try:
             response = self.service.searchanalytics().query(siteUrl=site_url, body=request_body).execute()
+            logger.info("Search Analytics query executed successfully.")
             return response.get("rows", [])
         except Exception as e:
+            logger.error(f"Error while executing Search Analytics query: {e}")
             raise GSCFetchError(f"Error while fetching GSC data: {e}")
 
     def _flatten_entry(self, dimensions, entry):
@@ -117,8 +124,8 @@ class GoogleSearchConsoleService:
         # Convert list of flat data to pandas DataFrame
         df = pd.DataFrame(all_data)
 
-        # Ensure data types
-        df = df.astype(
+        logger.info(f"Fetched {len(all_data)} rows of GSC data")
+        return pd.DataFrame(all_data).astype(
             {
                 "clicks": "int",
                 "impressions": "int",
@@ -126,5 +133,3 @@ class GoogleSearchConsoleService:
                 "position": "float64",
             }
         )
-
-        return df

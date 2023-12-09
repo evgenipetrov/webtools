@@ -1,22 +1,20 @@
-import pandas as pd
-
 from core.managers.url_manager import UrlManager
 from core.managers.website_manager import WebsiteManager
 from exports.base_export_manager import BaseExportManager
 import logging
 
 logger = logging.getLogger(__name__)
-EXPORT_SUBFOLDER = "screamingfrog_list_crawl_export"
+EXPORT_SUBFOLDER = "sitebulb_list_crawl_url_internal_export"
 
 
-class ScreamingFrogListCrawlExport(BaseExportManager):
+class SitebulbListCrawlUrlInternalExport(BaseExportManager):
     def __init__(self, project, urls=None):
         super().__init__(project, EXPORT_SUBFOLDER)
         self.urls = urls
 
     def perform_pre_export_action(self):
         """
-        Provides instructions for Screaming Frog list crawl export in a step-by-step format.
+        Provide instructions for Sitebulb URL internal crawl export in a step-by-step format.
         """
         # Check if the user wants to proceed
         if not self.force and not self.confirm_export(EXPORT_SUBFOLDER):
@@ -27,20 +25,21 @@ class ScreamingFrogListCrawlExport(BaseExportManager):
         color_yellow = "\033[93m"
         color_reset = "\033[0m"
 
-        # Copy URLs to clipboard
         self.urls.to_clipboard(index=False, header=False)
 
         instructions = [
-            "The URLs to crawl have been copied to the clipboard.",
-            "Export the Screaming Frog list crawl data as CSV. Verify for 429 error codes.",
+            "The urls to crawl are copied to clipboard.",
+            "Export the Sitebulb list crawl data. Export Url -> Internal -> All as CSV using default settings.",
+            "Make sure the 'Redirect URL' column is added to the report.",
+            "Verify for 429 error codes in the export.",
             f"Place the exported file(s) in the following directory: {self.export_path}",
         ]
 
-        print(f"{color_yellow}Please follow these steps for Screaming Frog list crawl export:{color_reset}")
+        print(f"{color_yellow}Please follow these steps for Sitebulb URL internal crawl export:{color_reset}")
         for i, instruction in enumerate(instructions, start=1):
             print(f"{color_yellow}{i}. {instruction}{color_reset}")
 
-        print(f"\n{color_yellow}After completing these steps, press ENTER to continue.{color_reset}")
+        print("\nAfter completing these steps:")
         input("Press ENTER to continue after placing the exported files.")
 
     def perform_export(self):
