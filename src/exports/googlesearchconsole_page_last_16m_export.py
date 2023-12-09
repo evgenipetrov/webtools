@@ -10,10 +10,10 @@ from services.google_search_console_service import GoogleSearchConsoleService
 import logging
 
 logger = logging.getLogger(__name__)
-EXPORT_SUBFOLDER = "googlesearchconsole_last_16m_page_export"
+EXPORT_SUBFOLDER = "googlesearchconsole_page_last_16m_export"
 
 
-class GoogleSearchConsoleLast16mPageExport(BaseExportManager):
+class GoogleSearchConsolePageLast16mExport(BaseExportManager):
     def __init__(self, project):
         super().__init__(project, EXPORT_SUBFOLDER)
         self.gsc_auth_domain = None
@@ -70,4 +70,3 @@ class GoogleSearchConsoleLast16mPageExport(BaseExportManager):
         Any post-export actions, such as logging or confirmation.
         """
         print("Export from Google Search Console completed.")
-

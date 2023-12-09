@@ -1,6 +1,6 @@
 import pandas as pd
 
-from exports.googlesearchconsole_last_16m_page_export import GoogleSearchConsoleLast16mPageExport
+from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
@@ -23,9 +23,9 @@ class WebsitePagesReport(BaseReport):
         self.screamingfrog_list_crawl_export = None
         self.screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(self.project)
         self.screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlExport(self.project)
-
         self.sitebulb_url_internal_export = SitebulbUrlInternalExport(self.project)
-        self.googlesearchconsole_last_16m_page_export = GoogleSearchConsoleLast16mPageExport(self.project)
+
+        self.googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(self.project)
 
         self.file_name = REPORT_FILENAME
 
@@ -33,30 +33,30 @@ class WebsitePagesReport(BaseReport):
         self.screamingfrog_sitemap_crawl_export.run()
         self.screamingfrog_spider_crawl_export.run()
         self.sitebulb_url_internal_export.run()
-        self.googlesearchconsole_last_16m_page_export.run()
+        self.googlesearchconsole_page_last_16m_export.run()
 
     def process_data(self):
         # get unique URLs and clean up
         screamingfrog_sitemap_crawl_data = self.screamingfrog_sitemap_crawl_export.get_data()
         screamingfrog_spider_crawl_data = self.screamingfrog_spider_crawl_export.get_data()
         sitebulb_url_internal_data = self.sitebulb_url_internal_export.get_data()
-        googlesearchconsole_last_16m_page_data = self.googlesearchconsole_last_16m_page_export.get_data()
+        googlesearchconsole_page_last_16m_data = self.googlesearchconsole_page_last_16m_export.get_data()
 
         # Prepare a list for URLs
         urls = []
 
         # Extract URLs from each DataFrame, if not empty
         if not screamingfrog_sitemap_crawl_data.empty:
-            urls.extend(screamingfrog_sitemap_crawl_data['Address'].dropna().tolist())
+            urls.extend(screamingfrog_sitemap_crawl_data["Address"].dropna().tolist())
         if not screamingfrog_spider_crawl_data.empty:
-            urls.extend(screamingfrog_spider_crawl_data['Address'].dropna().tolist())
+            urls.extend(screamingfrog_spider_crawl_data["Address"].dropna().tolist())
         if not sitebulb_url_internal_data.empty:
-            urls.extend(sitebulb_url_internal_data['URL'].dropna().tolist())
-        if not googlesearchconsole_last_16m_page_data.empty:
-            urls.extend(googlesearchconsole_last_16m_page_data['page'].dropna().tolist())
+            urls.extend(sitebulb_url_internal_data["URL"].dropna().tolist())
+        if not googlesearchconsole_page_last_16m_data.empty:
+            urls.extend(googlesearchconsole_page_last_16m_data["page"].dropna().tolist())
 
         # Combine URLs into a single DataFrame with one column
-        stacked_data = pd.DataFrame(urls, columns=['full_address'])
+        stacked_data = pd.DataFrame(urls, columns=["full_address"])
         stacked_data.drop_duplicates(inplace=True)
 
         # clean images
@@ -69,20 +69,16 @@ class WebsitePagesReport(BaseReport):
         self.screamingfrog_list_crawl_export.run()
 
         self.report = self.screamingfrog_list_crawl_export.get_data()
-        self.report = self.report.drop(columns=['Crawl Depth'])
+        self.report = self.report.drop(columns=["Crawl Depth"])
 
         # add In Sitemap column
         screamingfrog_sitemap_crawl_data = self.screamingfrog_sitemap_crawl_export.get_data()
-        sitemap_addresses = set(screamingfrog_sitemap_crawl_data['Address'])
-        self.report['In Sitemap'] = self.report['Address'].isin(sitemap_addresses)
+        sitemap_addresses = set(screamingfrog_sitemap_crawl_data["Address"])
+        self.report["In Sitemap"] = self.report["Address"].isin(sitemap_addresses)
 
         # add Crawl Depth column from spider crawl data
         screamingfrog_spider_crawl_data = self.screamingfrog_spider_crawl_export.get_data()
         # Perform a left join to add the 'Crawl Depth' column
-        self.report = self.report.merge(
-            screamingfrog_spider_crawl_data[['Address', 'Crawl Depth']],
-            on='Address',
-            how='left'
-        )
+        self.report = self.report.merge(screamingfrog_spider_crawl_data[["Address", "Crawl Depth"]], on="Address", how="left")
 
         return self.report

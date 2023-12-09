@@ -34,7 +34,9 @@ class BaseReport:
         Save the report to a file.
         This method can be overridden by subclasses if they need a specific saving mechanism.
         """
-        file_path = os.path.join(self.project.data_folder, "_reports", self.file_name)
+        reports_folder = os.path.join(self.project.data_folder, "_reports")
+        os.makedirs(reports_folder, exist_ok=True)  # Create _reports folder if it doesn't exist
+        file_path = os.path.join(reports_folder, self.file_name)
         report.to_csv(file_path)
 
     def run(self):

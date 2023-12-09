@@ -29,4 +29,4 @@ class ScreamingFrogSpiderCrawlExport(BaseExportManager):
         """
         Any post-export actions.
         """
-        pass
+        input("Press ENTER to continue after placing the exported files.")

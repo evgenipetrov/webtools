@@ -8,7 +8,7 @@ import pandas as pd
 from core.managers.url_manager import UrlManager
 from core.managers.website_manager import WebsiteManager
 from core.models import Project
-from exports.googlesearchconsole_last_16m_page_export import GoogleSearchConsoleLast16mPageExport
+from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from reports.base_report_generator import BaseReportGenerator
 from services.dataframe_service import DataframeService
 
@@ -27,7 +27,7 @@ class GoogleSearchConsoleLast16mPageReport(BaseReportGenerator):
         urls_df = DataframeService.queryset_to_dataframe(urls)
         urls_df.loc[urls_df["status_code"] == 200, "redirect_url"] = urls_df.loc[urls_df["status_code"] == 200, "full_address"]
 
-        export = GoogleSearchConsoleLast16mPageExport(self.project)
+        export = GoogleSearchConsolePageLast16mExport(self.project)
         export_df = export.get_data()
         export_df = export_df[~export_df["page"].str.contains("#")]
 
@@ -70,7 +70,7 @@ class GoogleSearchConsoleLast16mPageReport(BaseReportGenerator):
         urls_df = DataframeService.queryset_to_dataframe(urls)
         urls_df.loc[urls_df["status_code"] == 200, "redirect_url"] = urls_df.loc[urls_df["status_code"] == 200, "full_address"]
 
-        export = GoogleSearchConsoleLast16mPageExport(self.project)
+        export = GoogleSearchConsolePageLast16mExport(self.project)
         export_df = export.get_data()
         export_df = export_df[~export_df["page"].str.contains("#")]
 

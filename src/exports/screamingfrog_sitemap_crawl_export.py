@@ -30,4 +30,3 @@ class ScreamingFrogSitemapCrawlExport(BaseExportManager):
         Any post-export actions.
         """
         input("Press ENTER to continue after placing the exported files.")
-        pass

@@ -1,5 +1,5 @@
 from exports.googlesearchconsole_last_16m_date_page_query_export import GoogleSearchConsoleLast16mDatePageQueryExport
-from exports.googlesearchconsole_last_16m_page_export import GoogleSearchConsoleLast16mPageExport
+from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from exports.googlesearchconsole_last_16m_page_query_export import GoogleSearchConsoleLast16mPageQueryExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
@@ -47,7 +47,7 @@ class CollectProjectDataWorkflow:
         semrush_analytics_backlinks_url_export = SemrushAnalyticsBacklinksUrlExport(project)
         semrush_analytics_backlinks_url_export.run()
 
-        googlesearchconsole_last_16m_page_export = GoogleSearchConsoleLast16mPageExport(project)
+        googlesearchconsole_last_16m_page_export = GoogleSearchConsolePageLast16mExport(project)
         googlesearchconsole_last_16m_page_export.run()
 
         googlesearchconsole_last_16m_page_query_export = GoogleSearchConsoleLast16mPageQueryExport(project)

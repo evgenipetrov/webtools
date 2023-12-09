@@ -3,7 +3,7 @@ import pandas as pd
 
 from core.managers.url_manager import UrlManager
 from core.managers.website_manager import WebsiteManager
-from exports.googlesearchconsole_last_16m_page_export import GoogleSearchConsoleLast16mPageExport
+from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
@@ -56,7 +56,7 @@ class UpdateProjectUrlsWorkflow:
         # merge clean urls in master data
         master_url_data = DataframeService.merge_keys(master_url_data, sitebulb_url_internal_data, "url", "URL")
 
-        googlesearchconsole_last_16m_page_export = GoogleSearchConsoleLast16mPageExport(project)
+        googlesearchconsole_last_16m_page_export = GoogleSearchConsolePageLast16mExport(project)
         googlesearchconsole_last_16m_page_data = googlesearchconsole_last_16m_page_export.get_data()
         # clean urls
         googlesearchconsole_last_16m_page_data_clean = googlesearchconsole_last_16m_page_data[~googlesearchconsole_last_16m_page_data["page"].str.contains("#")]
