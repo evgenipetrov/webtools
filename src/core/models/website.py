@@ -41,6 +41,7 @@ class WebsiteManager:
             website = Website.objects.get(project=project)
             return website
         except Website.DoesNotExist:
-            print("No website found for this project.")
+            website = WebsiteManager.create_website(project.base_url, project)
+            return website
         except Website.MultipleObjectsReturned:
             print("Multiple websites found for this project.")

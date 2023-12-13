@@ -39,33 +39,38 @@ logger = logging.getLogger(__name__)
 
 
 class ExportProjectDataWorkflow:
-    googlesearchconsole_date_page_query_last_16m_export: GoogleSearchConsoleDatePageQueryLast16mExport
-    googlesearchconsole_query_previous_15m_export: GoogleSearchConsoleQueryPrevious15mExport
-    googlesearchconsole_page_query_previous_1m_export: GoogleSearchConsolePageQueryPrevious1mExport
-    googlesearchconsole_page_query_last_1m_previous_year_export: GoogleSearchConsolePageQueryLast1mPreviousYearExport
-    googlesearchconsole_page_query_last_1m_export: GoogleSearchConsolePageQueryLast1mExport
-    googlesearchconsole_query_previous_1m_export: GoogleSearchConsoleQueryPrevious1mExport
-    googlesearchconsole_query_last_1m_previous_year_export: GoogleSearchConsoleQueryLast1mPreviousYearExport
-    googlesearchconsole_query_last_1m_export: GoogleSearchConsoleQueryLast1mExport
-    googlesearchconsole_page_previous_1m_export: GoogleSearchConsolePagePrevious1mExport
-    googlesearchconsole_page_last_1m_previous_year_export: GoogleSearchConsolePageLast1mPreviousYearExport
-    googlesearchconsole_page_last_1m_export: GoogleSearchConsolePageLast1mExport
-    googlesearchconsole_page_query_last_16m_export: GoogleSearchConsolePageQueryLast16mExport
-    googlesearchconsole_query_last_16m_export: GoogleSearchConsoleQueryLast16mExport
-    googleanalytics4_previous_1m_export: GoogleAnalytics4Previous1mExport
-    googleanalytics4_last_1m_previous_year_export: GoogleAnalytics4Last1mPreviousYearExport
+    # googleanalytics4
+    googleanalytics4_last_14m_export: GoogleAnalytics4Last14mExport
     googleanalytics4_last_1m_export: GoogleAnalytics4Last1mExport
+    googleanalytics4_last_1m_previous_year_export: GoogleAnalytics4Last1mPreviousYearExport
+    googleanalytics4_previous_1m_export: GoogleAnalytics4Previous1mExport
+    # googlesearchconsole
+    googlesearchconsole_date_page_query_last_16m_export: GoogleSearchConsoleDatePageQueryLast16mExport
+    googlesearchconsole_page_last_16m_export: GoogleSearchConsolePageLast16mExport
+    googlesearchconsole_page_last_1m_export: GoogleSearchConsolePageLast1mExport
+    googlesearchconsole_page_last_1m_previous_year_export: GoogleSearchConsolePageLast1mPreviousYearExport
+    googlesearchconsole_page_previous_1m_export: GoogleSearchConsolePagePrevious1mExport
+    googlesearchconsole_page_query_last_16m_export: GoogleSearchConsolePageQueryLast16mExport
+    googlesearchconsole_page_query_last_1m_export: GoogleSearchConsolePageQueryLast1mExport
+    googlesearchconsole_page_query_last_1m_previous_year_export: GoogleSearchConsolePageQueryLast1mPreviousYearExport
+    googlesearchconsole_page_query_previous_1m_export: GoogleSearchConsolePageQueryPrevious1mExport
+    googlesearchconsole_query_last_16m_export: GoogleSearchConsoleQueryLast16mExport
+    googlesearchconsole_query_last_1m_export: GoogleSearchConsoleQueryLast1mExport
+    googlesearchconsole_query_last_1m_previous_year_export: GoogleSearchConsoleQueryLast1mPreviousYearExport
+    googlesearchconsole_query_previous_15m_export: GoogleSearchConsoleQueryPrevious15mExport
+    googlesearchconsole_query_previous_1m_export: GoogleSearchConsoleQueryPrevious1mExport
+    # screamingfrog
+    screamingfrog_list_crawl_export: ScreamingFrogListCrawlExport
+    screamingfrog_sitemap_crawl_export: ScreamingFrogSitemapCrawlExport
+    screamingfrog_spider_crawl_export: ScreamingFrogSpiderCrawlExport
+    # semrush
     semrush_analytics_backlinks_rootdomain_export: SemrushAnalyticsBacklinksRootdomainExport
     semrush_analytics_organic_competitors_export: SemrushAnalyticsOrganicCompetitorsExport
-    sitebulb_list_crawl_url_internal_export: SitebulbListCrawlUrlInternalExport
-    screamingfrog_list_crawl_export: ScreamingFrogListCrawlExport
-    googlesearchconsole_page_last_16m_export: GoogleSearchConsolePageLast16mExport
-    googleanalytics4_last_14m_export: GoogleAnalytics4Last14mExport
     semrush_analytics_organic_pages_export: SemrushAnalyticsOrganicPagesExport
     semrush_analytics_organic_positions_rootdomain_export: SemrushAnalyticsOrganicPositionsRootdomainExport
+    # sitebulb
+    sitebulb_list_crawl_url_internal_export: SitebulbListCrawlUrlInternalExport
     sitebulb_spider_crawl_url_internal_export: SitebulbSpiderCrawlUrlInternalExport
-    screamingfrog_spider_crawl_export: ScreamingFrogSpiderCrawlExport
-    screamingfrog_sitemap_crawl_export: ScreamingFrogSitemapCrawlExport
 
     def __init__(self, project: Project):
         self._project = project

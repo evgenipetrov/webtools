@@ -7,14 +7,39 @@ from core.models.website import Website
 
 
 class Url(models.Model):
-    full_address = models.URLField(max_length=2048, unique=True)
-    status_code = models.IntegerField(null=True, blank=True)
-    redirect_url = models.URLField(max_length=2048, null=True, blank=True)
+    # relations
+    website = models.ForeignKey(Website, on_delete=models.CASCADE)  # from project website
 
-    website = models.ForeignKey(Website, on_delete=models.CASCADE)
+    # primary attributes
+    full_address = models.URLField(max_length=2048, unique=True)  # from screamingfrog list crawl
+    status_code = models.IntegerField(null=True, blank=True)  # from screamingfrog list crawl
+    redirect_url = models.URLField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    # secondary attributes
+    relative_address = models.CharField(max_length=2048, null=True, blank=True)  # calculate
+    content_type = models.CharField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
+    indexability = models.CharField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
+    indexability_status = models.CharField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
+    title_1 = models.CharField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
+    meta_description_1 = models.CharField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
+    h1_1 = models.CharField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
+    canonical_link_element_1 = models.URLField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
+    word_count = models.IntegerField(null=True, blank=True)  # from screamingfrog list crawl
+    readability = models.CharField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
+    crawl_depth = models.IntegerField(null=True, blank=True)  # from screamingfrog spider crawl
+    unique_inlinks = models.IntegerField(null=True, blank=True)  # from screamingfrog list crawl
+    unique_outlinks = models.IntegerField(null=True, blank=True)  # from screamingfrog list crawl
+    hash = models.CharField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
+    crawl_timestamp = models.DateTimeField(null=True, blank=True)  # from screamingfrog list crawl
+    in_sitemap = models.BooleanField(default=False)  # from screamingfrog sitemap crawl
+    html_template = models.CharField(max_length=2048, null=True, blank=True)  # from sitebulb list crawl
+    content_words_count = models.IntegerField(null=True, blank=True)  # from sitebulb list crawl
+    template_words_count = models.IntegerField(null=True, blank=True)  # from sitebulb list crawl
+    word_count2 = models.IntegerField(null=True, blank=True)  # from sitebulb list crawl
+
+    # system attributes
+    created_at = models.DateTimeField(auto_now_add=True)  # auto
+    updated_at = models.DateTimeField(auto_now=True)  # auto
 
     def __str__(self):
         return self.full_address
