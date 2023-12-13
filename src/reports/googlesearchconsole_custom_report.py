@@ -5,8 +5,8 @@ from typing import Any
 
 import pandas as pd
 
-from core.managers.url_manager import UrlManager
-from core.managers.website_manager import WebsiteManager
+from core.models.url import UrlManager
+from core.models.website import WebsiteManager
 from core.models import Project
 from exports.googlesearchconsole_custom_export import GoogleSearchConsoleCustomExport
 from exports.googlesearchconsole_last_16m_page_query_export import GoogleSearchConsoleLast16mPageQueryExport

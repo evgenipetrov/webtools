@@ -153,7 +153,7 @@ LOGGING = {
     "loggers": {
         "": {  # This is the root logger
             "handlers": ["console"],
-            "level": "INFO",  # Set the default level to INFO for console
+            "level": "WARNING",  # Set the default level to INFO for console
         },
         "django": {
             "handlers": ["file", "console"],

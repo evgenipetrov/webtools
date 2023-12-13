@@ -3,8 +3,8 @@ import os
 
 from dateutil.relativedelta import relativedelta  # Provides more accurate date manipulation
 
-from core.managers.url_manager import UrlManager
-from core.managers.website_manager import WebsiteManager
+from core.models.url import UrlManager
+from core.models.website import WebsiteManager
 from exports.base_export_manager import BaseExportManager
 from services.google_search_console_service import GoogleSearchConsoleService
 import logging

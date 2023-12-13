@@ -25,7 +25,7 @@ class Command(BaseCommand):
         project = ProjectManager.get_project_by_name(project_name)
 
         if not project:
-            project = ProjectManager.create_project_by_name(project_name)
+            project = ProjectManager.create_project_by_name_dialog(project_name)
 
         pages_report = WebsitePagesReport(project)
         pages_report.run()

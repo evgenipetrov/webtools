@@ -1,12 +1,12 @@
 import pandas as pd
 
-from core.managers.url_manager import UrlManager
-from exports.googleanalytics4_last_1m_export import GoogleAnalytics4ExportLast1m
-from exports.googleanalytics4_previous_1m_export import GoogleAnalytics4ExportPrevious1m
+from core.models.url import UrlManager
+from exports.googleanalytics4_last_1m_export import GoogleAnalytics4Last1mExport
+from exports.googleanalytics4_previous_1m_export import GoogleAnalytics4Previous1mExport
 from exports.googlesearchconsole_page_last_1m_export import GoogleSearchConsolePageLast1mExport
-from exports.googlesearchconsole_page_previous_1m_export import GoogleSearchConsolePageExportPrevious1m
-from exports.googlesearchconsole_page_query_last_1m_export import GoogleSearchConsolePageQueryExportLast1m
-from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSearchConsolePageQueryExportPrevious1m
+from exports.googlesearchconsole_page_previous_1m_export import GoogleSearchConsolePagePrevious1mExport
+from exports.googlesearchconsole_page_query_last_1m_export import GoogleSearchConsolePageQueryLast1mExport
+from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSearchConsolePageQueryPrevious1mExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 from reports.base_report import BaseReport
@@ -27,12 +27,12 @@ class WebsitePerformanceReport(BaseReport):
 
         self.screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self.project)
         self.semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(self.project)
-        self.googlesearchconsole_page_query_last_1m_export = GoogleSearchConsolePageQueryExportLast1m(self.project)
-        self.googlesearchconsole_page_query_previous_1m_export = GoogleSearchConsolePageQueryExportPrevious1m(self.project)
+        self.googlesearchconsole_page_query_last_1m_export = GoogleSearchConsolePageQueryLast1mExport(self.project)
+        self.googlesearchconsole_page_query_previous_1m_export = GoogleSearchConsolePageQueryPrevious1mExport(self.project)
         self.googlesearchconsole_page_last_1m_export = GoogleSearchConsolePageLast1mExport(self.project)
-        self.googlesearchconsole_page_previous_1m_export = GoogleSearchConsolePageExportPrevious1m(self.project)
-        self.googleanalytics4_last_1m_export = GoogleAnalytics4ExportLast1m(self.project)
-        self.googleanalytics4_previous_1m_export = GoogleAnalytics4ExportPrevious1m(self.project)
+        self.googlesearchconsole_page_previous_1m_export = GoogleSearchConsolePagePrevious1mExport(self.project)
+        self.googleanalytics4_last_1m_export = GoogleAnalytics4Last1mExport(self.project)
+        self.googleanalytics4_previous_1m_export = GoogleAnalytics4Previous1mExport(self.project)
 
         self.file_name = REPORT_FILENAME
 
@@ -76,7 +76,8 @@ class WebsitePerformanceReport(BaseReport):
 
         self.processed_data = processed_data
 
-    def _join_ga4_previous_1m(self, processed_data, googleanalytics4_previous_1m_data):
+    @staticmethod
+    def _join_ga4_previous_1m(processed_data, googleanalytics4_previous_1m_data):
         selected_columns = ["pagePath", "sessionDefaultChannelGrouping", "sessions", "activeUsers", "averageSessionDuration", "bounceRate", "engagedSessions", "totalRevenue", "totalRevenue", "conversions"]
         join_data = googleanalytics4_previous_1m_data[selected_columns]
 
@@ -91,7 +92,8 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _join_ga4_last_1m(self, processed_data, googleanalytics4_last_1m_data):
+    @staticmethod
+    def _join_ga4_last_1m(processed_data, googleanalytics4_last_1m_data):
         selected_columns = ["pagePath", "sessionDefaultChannelGrouping", "sessions", "activeUsers", "averageSessionDuration", "bounceRate", "engagedSessions", "totalRevenue", "totalRevenue", "conversions"]
         join_data = googleanalytics4_last_1m_data[selected_columns]
 
@@ -106,10 +108,11 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _join_gsc_page_query_previous_1m_by_position(self, processed_data, googlesearchconsole_page_query_last_1m_data):
+    @staticmethod
+    def _join_gsc_page_query_previous_1m_by_position(processed_data, googlesearchconsole_page_query_last_1m_data):
         ### adding GSC highest position keyword
         # Selecting relevant columns and sorting by 'position'
-        selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
+        selected_columns = ["page", "query", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
         join_data = join_data.sort_values(by="position", ascending=True).groupby("page").first().reset_index()
@@ -122,10 +125,11 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _join_gsc_page_query_previous_1m_by_clicks(self, processed_data, googlesearchconsole_page_query_last_1m_data):
+    @staticmethod
+    def _join_gsc_page_query_previous_1m_by_clicks(processed_data, googlesearchconsole_page_query_last_1m_data):
         ### adding GSC highest clicks keyword
         # Selecting relevant columns and sorting by 'impressions'
-        selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
+        selected_columns = ["page", "query", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
         join_data = join_data.sort_values(by="clicks", ascending=False).groupby("page").first().reset_index()
@@ -138,10 +142,11 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _join_gsc_page_query_previous_1m_by_impressions(self, processed_data, googlesearchconsole_page_query_last_1m_data):
+    @staticmethod
+    def _join_gsc_page_query_previous_1m_by_impressions(processed_data, googlesearchconsole_page_query_last_1m_data):
         ### adding GSC highest impression keyword
         # Selecting relevant columns and sorting by 'impressions'
-        selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
+        selected_columns = ["page", "query", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
         join_data = join_data.sort_values(by="impressions", ascending=False).groupby("page").first().reset_index()
@@ -154,10 +159,11 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _join_gsc_page_query_last_1m_by_position(self, processed_data, googlesearchconsole_page_query_last_1m_data):
+    @staticmethod
+    def _join_gsc_page_query_last_1m_by_position(processed_data, googlesearchconsole_page_query_last_1m_data):
         ### adding GSC highest position keyword
         # Selecting relevant columns and sorting by 'position'
-        selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
+        selected_columns = ["page", "query", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
         join_data = join_data.sort_values(by="position", ascending=True).groupby("page").first().reset_index()
@@ -170,10 +176,11 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _join_gsc_page_query_last_1m_by_clicks(self, processed_data, googlesearchconsole_page_query_last_1m_data):
+    @staticmethod
+    def _join_gsc_page_query_last_1m_by_clicks(processed_data, googlesearchconsole_page_query_last_1m_data):
         ### adding GSC highest clicks keyword
         # Selecting relevant columns and sorting by 'impressions'
-        selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
+        selected_columns = ["page", "query", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
         join_data = join_data.sort_values(by="clicks", ascending=False).groupby("page").first().reset_index()
@@ -186,10 +193,11 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _join_gsc_page_query_last_1m_by_impressions(self, processed_data, googlesearchconsole_page_query_last_1m_data):
+    @staticmethod
+    def _join_gsc_page_query_last_1m_by_impressions(processed_data, googlesearchconsole_page_query_last_1m_data):
         ### adding GSC highest impression keyword
         # Selecting relevant columns and sorting by 'impressions'
-        selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
+        selected_columns = ["page", "query", "clicks", "impressions", "ctr", "position"]
         join_data = googlesearchconsole_page_query_last_1m_data[selected_columns]
         # Group by 'page', sort by 'impressions' and keep the row with the highest 'impressions'
         join_data = join_data.sort_values(by="impressions", ascending=False).groupby("page").first().reset_index()
@@ -202,7 +210,8 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _join_gsc_page_previous_1m(self, processed_data, googlesearchconsole_page_previous_1m_data):
+    @staticmethod
+    def _join_gsc_page_previous_1m(processed_data, googlesearchconsole_page_previous_1m_data):
         ### adding GSC highest impression keyword
         # Selecting relevant columns and sorting by 'impressions'
         selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
@@ -216,7 +225,8 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _join_gsc_page_last_1m(self, processed_data, googlesearchconsole_page_last_1m_data):
+    @staticmethod
+    def _join_gsc_page_last_1m(processed_data, googlesearchconsole_page_last_1m_data):
         ### adding GSC highest impression keyword
         # Selecting relevant columns and sorting by 'impressions'
         selected_columns = ["page", "clicks", "impressions", "ctr", "position"]
@@ -230,7 +240,8 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _join_semrush_analytics_organic_positions_rootdomain_by_position(self, processed_data, semrush_analytics_organic_positions_rootdomain_data):
+    @staticmethod
+    def _join_semrush_analytics_organic_positions_rootdomain_by_position(processed_data, semrush_analytics_organic_positions_rootdomain_data):
         ### adding Semrush highest ranking keyword
         # Selecting relevant columns and sorting by 'Position'
         selected_columns = ["URL", "Keyword", "Position", "Search Volume"]
@@ -246,7 +257,8 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _join_semrush_analytics_organic_positions_rootdomain_by_volume(self, processed_data, semrush_analytics_organic_positions_rootdomain_data):
+    @staticmethod
+    def _join_semrush_analytics_organic_positions_rootdomain_by_volume(processed_data, semrush_analytics_organic_positions_rootdomain_data):
         ### adding Semrush highest volume keyword
         # Selecting relevant columns and sorting by 'Search Volume'
         selected_columns = ["URL", "Keyword", "Position", "Search Volume"]
@@ -262,7 +274,8 @@ class WebsitePerformanceReport(BaseReport):
         processed_data.drop(columns=[join_key], inplace=True)
         return processed_data
 
-    def _generate_processed_data(self, screamingfrog_list_crawl_data):
+    @staticmethod
+    def _generate_processed_data(screamingfrog_list_crawl_data):
         selected_columns = ["Address", "Status Code", "Redirect URL"]
         processed_data = screamingfrog_list_crawl_data[selected_columns]
         # Assuming processed_data is a subset/slice of another DataFrame

@@ -17,7 +17,7 @@ START_DATE = BASE_DATE - relativedelta(months=13)
 END_DATE = BASE_DATE - relativedelta(months=12)
 
 
-class GoogleAnalytics4ExportLast1mPreviousYearExport(BaseExportManager):
+class GoogleAnalytics4Last1mPreviousYearExport(BaseExportManager):
     def __init__(self, project):
         super().__init__(project, EXPORT_SUBFOLDER)
         self.ga4_auth_domain = None

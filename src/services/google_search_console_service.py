@@ -22,13 +22,13 @@ class GoogleSearchConsoleService:
     def __init__(self, auth_domain):
         try:
             self.service = self._authenticate_gsc(auth_domain)
-            logger.info("Successfully authenticated Google Search Console service.")
+            logger.debug("Successfully authenticated Google Search Console service.")
         except Exception as e:
             logger.error(f"Failed to authenticate Google Search Console: {e}")
             raise GSCFetchError("Authentication failed") from e
 
+    @staticmethod
     def _create_request(
-        self,
         start_date,
         end_date,
         dimensions,
@@ -68,13 +68,14 @@ class GoogleSearchConsoleService:
     def execute_request(self, site_url, request_body) -> list:
         try:
             response = self.service.searchanalytics().query(siteUrl=site_url, body=request_body).execute()
-            logger.info("Search Analytics query executed successfully.")
+            logger.debug("Search Analytics query executed successfully.")
             return response.get("rows", [])
         except Exception as e:
             logger.error(f"Error while executing Search Analytics query: {e}")
             raise GSCFetchError(f"Error while fetching GSC data: {e}")
 
-    def _flatten_entry(self, dimensions, entry):
+    @staticmethod
+    def _flatten_entry(dimensions, entry):
         flat_entry = {}
         for dim, value in zip(dimensions, entry["keys"]):
             flat_entry[dim] = value
@@ -100,13 +101,13 @@ class GoogleSearchConsoleService:
                 start_row,
             )
             try:
-                logger.info(f"Fetching GSC data from {start_date} to {end_date} for {site_url}, dimensions {dimensions}, start row {start_row}")
+                logger.debug(f"Fetching GSC data from {start_date} to {end_date} for {site_url}, dimensions {dimensions}, start row {start_row}")
                 data = self.execute_request(site_url, request_body)
             except GSCFetchError as e:
                 logger.error(str(e))
                 # If the error is 'user does not have access', return an empty DataFrame
                 if "HttpError 403" in str(e):
-                    logger.info("User does not have access.")
+                    logger.error("User does not have access.")
                     return pd.DataFrame()
                 continue
 
@@ -119,12 +120,9 @@ class GoogleSearchConsoleService:
 
             start_row += len(data)
 
-        logger.info(f"Fetched {len(all_data)} rows of GSC data")
+        logger.debug(f"Fetched {len(all_data)} rows of GSC data")
 
-        # Convert list of flat data to pandas DataFrame
-        df = pd.DataFrame(all_data)
-
-        logger.info(f"Fetched {len(all_data)} rows of GSC data")
+        logger.debug(f"Fetched {len(all_data)} rows of GSC data")
         return pd.DataFrame(all_data).astype(
             {
                 "clicks": "int",

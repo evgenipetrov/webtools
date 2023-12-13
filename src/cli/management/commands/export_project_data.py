@@ -3,19 +3,19 @@ import logging
 from django.core.management.base import BaseCommand
 
 from core.models.project import ProjectManager
-from reports.website_page_report import WebsitePagesReport
+from workflows.export_project_data_workflow import ExportProjectDataWorkflow
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Runs website page report."
+    help = "Runs all exports."
 
     def add_arguments(self, parser):
         parser.add_argument(
             "--project-name",
             type=str,
-            help="Name of the project to generate report for",
+            help="Name of the project to run exports for",
             required=True,
         )
 
@@ -25,8 +25,8 @@ class Command(BaseCommand):
 
         if not project:
             project = ProjectManager.create_project_by_name_dialog(project_name)
+        else:
+            ProjectManager.update_project_details_dialog(project)
 
-        report = WebsitePagesReport(project)
-        report.run()
-
-        logger.info(f"Report run for '{project_name}' completed.")
+        workflow = ExportProjectDataWorkflow(project)
+        workflow.run()
