@@ -1,5 +1,4 @@
 import logging
-from concurrent.futures import ThreadPoolExecutor, wait
 
 import pandas as pd
 
@@ -87,18 +86,31 @@ class ExportProjectDataWorkflow:
         pass
 
     def run_stage_1_exports(self):
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            # Submit parallel tasks
-            stage_1_manual_exports = executor.submit(self.run_stage_1_manual_exports, self._project)
-            stage_1_automated_exports = executor.submit(self.run_stage_1_automated_exports, self._project)
+        # GA4 14 month window
+        self.googleanalytics4_last_14m_export = GoogleAnalytics4Last14mExport(self._project)
+        self.googleanalytics4_last_14m_export.run(force=True)
 
-            # Wait for all tasks to complete
-            wait(
-                [
-                    stage_1_manual_exports,
-                    stage_1_automated_exports,
-                ]
-            )
+        # GSC 16 month window [page]
+        self.googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(self._project)
+        self.googlesearchconsole_page_last_16m_export.run(force=True)
+
+        self.screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(self._project)
+        self.screamingfrog_sitemap_crawl_export.run(force=True)
+
+        self.screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlExport(self._project)
+        self.screamingfrog_spider_crawl_export.run(force=True)
+
+        self.sitebulb_spider_crawl_url_internal_export = SitebulbSpiderCrawlUrlInternalExport(self._project)
+        self.sitebulb_spider_crawl_url_internal_export.run(force=True)
+
+        self.semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(self._project)
+        self.semrush_analytics_organic_positions_rootdomain_export.run(force=True)
+
+        self.semrush_analytics_organic_pages_export = SemrushAnalyticsOrganicPagesExport(self._project)
+        self.semrush_analytics_organic_pages_export.run(force=True)
+
+        self.semrush_analytics_backlinks_rootdomain_export = SemrushAnalyticsBacklinksRootdomainExport(self._project)
+        self.semrush_analytics_backlinks_rootdomain_export.run(force=True)
 
     def prepare_stage_2(self):
         if self.screamingfrog_sitemap_crawl_export:
@@ -140,109 +152,66 @@ class ExportProjectDataWorkflow:
         self._project_urls.drop_duplicates(inplace=True)
 
     def run_stage_2_exports(self):
-        with ThreadPoolExecutor(max_workers=1) as executor:
-            # Submit parallel tasks
-            stage_2_manual_exports = executor.submit(self.run_stage_2_manual_exports, self._project)
-            stage_2_automated_exports = executor.submit(self.run_stage_2_automated_exports, self._project)
-
-            # Wait for all tasks to complete
-            wait(
-                [
-                    stage_2_manual_exports,
-                    stage_2_automated_exports,
-                ]
-            )
-
-    def run_stage_1_manual_exports(self, project):
-        self.screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(project)
-        self.screamingfrog_sitemap_crawl_export.run(force=True)
-
-        self.screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlExport(project)
-        self.screamingfrog_spider_crawl_export.run(force=True)
-
-        self.sitebulb_spider_crawl_url_internal_export = SitebulbSpiderCrawlUrlInternalExport(project)
-        self.sitebulb_spider_crawl_url_internal_export.run(force=True)
-
-        self.semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(project)
-        self.semrush_analytics_organic_positions_rootdomain_export.run(force=True)
-
-        self.semrush_analytics_organic_pages_export = SemrushAnalyticsOrganicPagesExport(project)
-        self.semrush_analytics_organic_pages_export.run(force=True)
-
-        self.semrush_analytics_backlinks_rootdomain_export = SemrushAnalyticsBacklinksRootdomainExport(project)
-        self.semrush_analytics_backlinks_rootdomain_export.run(force=True)
-
-    def run_stage_1_automated_exports(self, project):
-        # GA4 14 month window
-        self.googleanalytics4_last_14m_export = GoogleAnalytics4Last14mExport(project)
-        self.googleanalytics4_last_14m_export.run(force=True)
-
-        # GSC 16 month window [page]
-        self.googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(project)
-        self.googlesearchconsole_page_last_16m_export.run(force=True)
-
-    def run_stage_2_manual_exports(self, project):
-        self.screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(project, self._project_urls)
+        self.screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self._project, self._project_urls)
         self.screamingfrog_list_crawl_export.run(force=True)
 
-        self.sitebulb_list_crawl_url_internal_export = SitebulbListCrawlUrlInternalExport(project, self._project_urls)
+        self.sitebulb_list_crawl_url_internal_export = SitebulbListCrawlUrlInternalExport(self._project, self._project_urls)
         self.sitebulb_list_crawl_url_internal_export.run(force=True)
 
-        self.semrush_analytics_organic_competitors_export = SemrushAnalyticsOrganicCompetitorsExport(project)
+        self.semrush_analytics_organic_competitors_export = SemrushAnalyticsOrganicCompetitorsExport(self._project)
         self.semrush_analytics_organic_competitors_export.run(force=True)
 
-    def run_stage_2_automated_exports(self, project):
         # GA4 1 month window
-        self.googleanalytics4_last_1m_export = GoogleAnalytics4Last1mExport(project)
+        self.googleanalytics4_last_1m_export = GoogleAnalytics4Last1mExport(self._project)
         self.googleanalytics4_last_1m_export.run(force=True)
 
-        self.googleanalytics4_last_1m_previous_year_export = GoogleAnalytics4Last1mPreviousYearExport(project)
+        self.googleanalytics4_last_1m_previous_year_export = GoogleAnalytics4Last1mPreviousYearExport(self._project)
         self.googleanalytics4_last_1m_previous_year_export.run(force=True)
 
-        self.googleanalytics4_previous_1m_export = GoogleAnalytics4Previous1mExport(project)
+        self.googleanalytics4_previous_1m_export = GoogleAnalytics4Previous1mExport(self._project)
         self.googleanalytics4_previous_1m_export.run(force=True)
 
         # GSC 16 month window [query]
-        self.googlesearchconsole_query_last_16m_export = GoogleSearchConsoleQueryLast16mExport(project)
+        self.googlesearchconsole_query_last_16m_export = GoogleSearchConsoleQueryLast16mExport(self._project)
         self.googlesearchconsole_query_last_16m_export.run(force=True)
 
         # GSC 16 month window [page, query]
-        self.googlesearchconsole_page_query_last_16m_export = GoogleSearchConsolePageQueryLast16mExport(project)
+        self.googlesearchconsole_page_query_last_16m_export = GoogleSearchConsolePageQueryLast16mExport(self._project)
         self.googlesearchconsole_page_query_last_16m_export.run(force=True)
 
         # GSC 1 month window [page]
-        self.googlesearchconsole_page_last_1m_export = GoogleSearchConsolePageLast1mExport(project)
+        self.googlesearchconsole_page_last_1m_export = GoogleSearchConsolePageLast1mExport(self._project)
         self.googlesearchconsole_page_last_1m_export.run(force=True)
 
-        self.googlesearchconsole_page_last_1m_previous_year_export = GoogleSearchConsolePageLast1mPreviousYearExport(project)
+        self.googlesearchconsole_page_last_1m_previous_year_export = GoogleSearchConsolePageLast1mPreviousYearExport(self._project)
         self.googlesearchconsole_page_last_1m_previous_year_export.run(force=True)
 
-        self.googlesearchconsole_page_previous_1m_export = GoogleSearchConsolePagePrevious1mExport(project)
+        self.googlesearchconsole_page_previous_1m_export = GoogleSearchConsolePagePrevious1mExport(self._project)
         self.googlesearchconsole_page_previous_1m_export.run(force=True)
 
         # GSC 1 month window [query]
-        self.googlesearchconsole_query_last_1m_export = GoogleSearchConsoleQueryLast1mExport(project)
+        self.googlesearchconsole_query_last_1m_export = GoogleSearchConsoleQueryLast1mExport(self._project)
         self.googlesearchconsole_query_last_1m_export.run(force=True)
 
-        self.googlesearchconsole_query_last_1m_previous_year_export = GoogleSearchConsoleQueryLast1mPreviousYearExport(project)
+        self.googlesearchconsole_query_last_1m_previous_year_export = GoogleSearchConsoleQueryLast1mPreviousYearExport(self._project)
         self.googlesearchconsole_query_last_1m_previous_year_export.run(force=True)
 
-        self.googlesearchconsole_query_previous_1m_export = GoogleSearchConsoleQueryPrevious1mExport(project)
+        self.googlesearchconsole_query_previous_1m_export = GoogleSearchConsoleQueryPrevious1mExport(self._project)
         self.googlesearchconsole_query_previous_1m_export.run(force=True)
 
         # GSC 1 month window [page, query]
-        self.googlesearchconsole_page_query_last_1m_export = GoogleSearchConsolePageQueryLast1mExport(project)
+        self.googlesearchconsole_page_query_last_1m_export = GoogleSearchConsolePageQueryLast1mExport(self._project)
         self.googlesearchconsole_page_query_last_1m_export.run(force=True)
 
-        self.googlesearchconsole_page_query_last_1m_previous_year_export = GoogleSearchConsolePageQueryLast1mPreviousYearExport(project)
+        self.googlesearchconsole_page_query_last_1m_previous_year_export = GoogleSearchConsolePageQueryLast1mPreviousYearExport(self._project)
         self.googlesearchconsole_page_query_last_1m_previous_year_export.run(force=True)
 
-        self.googlesearchconsole_page_query_previous_1m_export = GoogleSearchConsolePageQueryPrevious1mExport(project)
+        self.googlesearchconsole_page_query_previous_1m_export = GoogleSearchConsolePageQueryPrevious1mExport(self._project)
         self.googlesearchconsole_page_query_previous_1m_export.run(force=True)
 
         # GSC special exports
-        self.googlesearchconsole_query_previous_15m_export = GoogleSearchConsoleQueryPrevious15mExport(project)
+        self.googlesearchconsole_query_previous_15m_export = GoogleSearchConsoleQueryPrevious15mExport(self._project)
         self.googlesearchconsole_query_previous_15m_export.run(force=True)
 
-        self.googlesearchconsole_date_page_query_last_16m_export = GoogleSearchConsoleDatePageQueryLast16mExport(project)
+        self.googlesearchconsole_date_page_query_last_16m_export = GoogleSearchConsoleDatePageQueryLast16mExport(self._project)
         self.googlesearchconsole_date_page_query_last_16m_export.run(force=True)

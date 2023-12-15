@@ -56,6 +56,6 @@ class GoogleAuthService:
 
     @staticmethod
     def __save_credentials(creds, token_file):
-        logger.debug(f"Saving credentials to {token_file}")
+        logger.info(f"Saving credentials to {token_file}")
         with open(token_file, "wb") as f:
             pickle.dump(creds, f)
