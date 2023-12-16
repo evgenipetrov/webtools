@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 class GoogleAuthService:
     def __init__(self, auth_domain):
         self.auth_domain = auth_domain
-        self.token_file_path = os.path.join(settings.BASE_DIR, "..", "secrets", f"{self.auth_domain}.token.pickle")
+        self.token_file_path = os.path.abspath(os.path.join(settings.BASE_DIR, "..", "secrets", f"{self.auth_domain}.token.pickle"))
 
     # Constants
-    CLIENT_SECRET_FILE = os.path.join(settings.BASE_DIR, "..", "secrets", "client_secret.json")
+    CLIENT_SECRET_FILE = os.path.abspath(os.path.join(settings.BASE_DIR, "..", "secrets", "client_secret.json"))
     GOOGLE_DEV_CONSOLE_URL = "https://console.developers.google.com/"
 
     SCOPES = [
