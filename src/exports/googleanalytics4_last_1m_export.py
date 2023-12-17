@@ -4,7 +4,7 @@ import os
 
 from dateutil.relativedelta import relativedelta
 
-from exports.base_export_manager import BaseExportManager
+from base_models.base_export_manager import BaseExportManager
 from services.google_analytics_service import GoogleAnalytics4Service
 
 logger = logging.getLogger(__name__)

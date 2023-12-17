@@ -283,7 +283,7 @@ class WebsitePerformanceReport(BaseReport):
         processed_data = processed_data.copy()
 
         # Now apply the changes to the copy
-        processed_data["Path"] = processed_data["Address"].apply(UrlManager.get_relative_url)
+        processed_data["Path"] = processed_data["Address"].apply(UrlManager.parse_relative_url)
 
         return processed_data
 

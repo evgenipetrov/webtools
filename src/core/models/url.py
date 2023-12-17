@@ -31,7 +31,12 @@ class Url(models.Model):
     unique_outlinks = models.IntegerField(null=True, blank=True)  # from screamingfrog list crawl
     hash = models.CharField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
     crawl_timestamp = models.DateTimeField(null=True, blank=True)  # from screamingfrog list crawl
-    in_sitemap = models.BooleanField(default=False)  # from screamingfrog sitemap crawl
+    in_sitemap = models.BooleanField(default=False)
+    in_crawl = models.BooleanField(default=False)
+    in_ga4 = models.BooleanField(default=False)
+    in_gsc = models.BooleanField(default=False)
+    in_semrush_pages = models.BooleanField(default=False)
+    in_semrush_backlinks = models.BooleanField(default=False)
     html_template = models.CharField(max_length=2048, null=True, blank=True)  # from sitebulb list crawl
     content_words_count = models.IntegerField(null=True, blank=True)  # from sitebulb list crawl
     template_words_count = models.IntegerField(null=True, blank=True)  # from sitebulb list crawl
@@ -122,7 +127,7 @@ class UrlManager:
         return urls
 
     @staticmethod
-    def get_relative_url(full_url):
+    def parse_relative_url(full_url):
         parsed_url = urlparse(full_url)
         return parsed_url.path + ("?" + parsed_url.query if parsed_url.query else "")
 
@@ -135,3 +140,58 @@ class UrlManager:
     def get_url_by_website(website):
         urls = Url.objects.filter(website=website)
         return urls
+
+    @staticmethod
+    def get_relative_address(full_address):
+        url = Url.objects.get(full_address=full_address)
+        return url.relative_address if url else None
+
+    @staticmethod
+    def get_meta_title(full_address):
+        url = Url.objects.get(full_address=full_address)
+        return url.title_1 if url else None
+
+    @staticmethod
+    def get_meta_description(full_address):
+        url = Url.objects.get(full_address=full_address)
+        return url.meta_description_1 if url else None
+
+    @staticmethod
+    def get_status_code(full_address):
+        url = Url.objects.get(full_address=full_address)
+        return url.status_code if url else None
+
+    @staticmethod
+    def get_redirect_to(full_address):
+        url = Url.objects.get(full_address=full_address)
+        return url.redirect_url if url else None
+
+    @staticmethod
+    def get_h1(full_address):
+        url = Url.objects.get(full_address=full_address)
+        return url.h1_1 if url else None
+
+    @staticmethod
+    def get_canonical_link(full_address):
+        url = Url.objects.get(full_address=full_address)
+        return url.canonical_link_element_1 if url else None
+
+    @staticmethod
+    def get_indexability(full_address):
+        url = Url.objects.get(full_address=full_address)
+        return url.indexability if url else None
+
+    @staticmethod
+    def get_indexability_status(full_address):
+        url = Url.objects.get(full_address=full_address)
+        return url.indexability_status if url else None
+
+    @staticmethod
+    def get_page_template(full_address):
+        url = Url.objects.get(full_address=full_address)
+        return url.html_template if url else None
+
+    @staticmethod
+    def get_in_sitemap(full_address):
+        url = Url.objects.get(full_address=full_address)
+        return url.in_sitemap if url else None

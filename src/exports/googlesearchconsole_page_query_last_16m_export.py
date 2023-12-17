@@ -1,13 +1,11 @@
 import datetime
+import logging
 import os
 
 from dateutil.relativedelta import relativedelta  # Provides more accurate date manipulation
 
-from core.models.url import UrlManager
-from core.models.website import WebsiteManager
-from exports.base_export_manager import BaseExportManager
+from base_models.base_export_manager import BaseExportManager
 from services.google_search_console_service import GoogleSearchConsoleService
-import logging
 
 logger = logging.getLogger(__name__)
 # Export Variables

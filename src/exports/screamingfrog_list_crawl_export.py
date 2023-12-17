@@ -1,9 +1,6 @@
-import pandas as pd
-
-from core.models.url import UrlManager
-from core.models.website import WebsiteManager
-from exports.base_export_manager import BaseExportManager
 import logging
+
+from base_models.base_export_manager import BaseExportManager
 
 logger = logging.getLogger(__name__)
 EXPORT_SUBFOLDER = "screamingfrog_list_crawl_export"
