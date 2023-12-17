@@ -1,7 +1,8 @@
 import logging
+from datetime import datetime
 
 import pandas as pd
-from django.db import transaction
+from django.utils import timezone
 
 from core.models import Project
 from core.models.url import UrlManager
@@ -207,7 +208,13 @@ class ProcessProjectDataWorkflow:
             "Address",
             "Crawl Depth",
         ]
-        df = pd.merge(df, self.screamingfrog_spider_crawl_data[screamingfrog_spider_crawl_data_columns], left_on="Address", right_on="Address", how="left")
+        df = pd.merge(
+            df,
+            self.screamingfrog_spider_crawl_data[screamingfrog_spider_crawl_data_columns],
+            left_on="Address",
+            right_on="Address",
+            how="left",
+        )
 
         # join sitemap crawl data
         self.screamingfrog_sitemap_crawl_data["In Sitemap"] = True
@@ -215,7 +222,13 @@ class ProcessProjectDataWorkflow:
             "Address",
             "In Sitemap",
         ]
-        df = pd.merge(df, self.screamingfrog_sitemap_crawl_data[screamingfrog_sitemap_crawl_data_columns], left_on="Address", right_on="Address", how="left")
+        df = pd.merge(
+            df,
+            self.screamingfrog_sitemap_crawl_data[screamingfrog_sitemap_crawl_data_columns],
+            left_on="Address",
+            right_on="Address",
+            how="left",
+        )
         df["In Sitemap"].fillna(False, inplace=True)
 
         # join sitebulb crawl data
@@ -226,7 +239,13 @@ class ProcessProjectDataWorkflow:
             "No. Template Words",
             "No. Words",
         ]
-        df = pd.merge(df, self.sitebulb_list_crawl_url_internal_data[sitebulb_list_crawl_url_internal_data_columns], left_on="Address", right_on="URL", how="left")
+        df = pd.merge(
+            df,
+            self.sitebulb_list_crawl_url_internal_data[sitebulb_list_crawl_url_internal_data_columns],
+            left_on="Address",
+            right_on="URL",
+            how="left",
+        )
 
         # calculate relative url column
         df["Path"] = df["Address"].apply(UrlManager.get_relative_url)
@@ -252,6 +271,13 @@ class ProcessProjectDataWorkflow:
             # Extract required data from the row
             full_address = row["Address"]
 
+            #
+            # Parse the string to a naive datetime object
+            naive_datetime = datetime.strptime(row["Crawl Timestamp"], "%Y-%m-%d %H:%M:%S")
+
+            # Convert the naive datetime to a timezone-aware datetime
+            aware_datetime = timezone.make_aware(naive_datetime, timezone.get_default_timezone())
+
             # Use UrlManager's method to push the URL to the database
             UrlManager.push_url(
                 full_address=full_address,
@@ -261,7 +287,7 @@ class ProcessProjectDataWorkflow:
                 content_type=row["Content Type"],
                 canonical_link_element_1=row["Canonical Link Element 1"],
                 content_words_count=row["No. Content Words"],
-                crawl_timestamp=row["Crawl Timestamp"],
+                crawl_timestamp=aware_datetime,
                 h1_1=row["H1-1"],
                 hash=row["Hash"],
                 in_sitemap=row["In Sitemap"],
@@ -279,4 +305,4 @@ class ProcessProjectDataWorkflow:
                 word_count=row["Word Count"],
                 word_count2=row["No. Words"],
             )
-        logger.info("Data successfully stored in database using UrlManager.")
+        logger.info("Data successfully processed using UrlManager.")

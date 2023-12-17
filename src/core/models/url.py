@@ -108,9 +108,9 @@ class UrlManager:
         """
         url, create = Url.objects.update_or_create(full_address=full_address, website=website, defaults=kwargs)
         if create:
-            logger.info(f"Created new URL instance for address '{full_address}'.")
+            logger.info(f"URL instance does not exist - creating: '{full_address}'")
         else:
-            logger.info(f"URL instance for address '{full_address}' already exists.")
+            logger.info(f"URL instance already exists - updating: '{full_address}'")
         return url
 
     @staticmethod
@@ -130,3 +130,8 @@ class UrlManager:
     def build_full_address(root_url, path):
         parsed_url = urlparse(root_url)
         return urlunparse((parsed_url.scheme, parsed_url.netloc, path, "", "", ""))
+
+    @staticmethod
+    def get_url_by_website(website):
+        urls = Url.objects.filter(website=website)
+        return urls
