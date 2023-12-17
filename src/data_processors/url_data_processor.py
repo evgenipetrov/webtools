@@ -25,14 +25,14 @@ class UrlDataProcessor:
 
         self._data = None
 
-        self.sitebulb_list_crawl_url_internal_data = None
-        self.semrush_analytics_backlinks_rootdomain_data = None
-        self.semrush_analytics_organic_pages_data = None
-        self.googlesearchconsole_page_last_16m_data = None
-        self.googleanalytics4_last_14m_data = None
-        self.screamingfrog_sitemap_crawl_data = None
-        self.screamingfrog_spider_crawl_data = None
         self.screamingfrog_list_crawl_data = None
+        self.screamingfrog_spider_crawl_data = None
+        self.screamingfrog_sitemap_crawl_data = None
+        self.googleanalytics4_last_14m_data = None
+        self.googlesearchconsole_page_last_16m_data = None
+        self.semrush_analytics_organic_pages_data = None
+        self.semrush_analytics_backlinks_rootdomain_data = None
+        self.sitebulb_list_crawl_url_internal_data = None
 
     def run(self):
         self.collect_data()
