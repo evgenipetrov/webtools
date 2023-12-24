@@ -1,12 +1,8 @@
 from django.db import models
 
-from core.models import Project
-
 
 class Website(models.Model):
     root_url = models.URLField(max_length=2048, unique=True)
-
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.root_url
@@ -18,11 +14,11 @@ class Website(models.Model):
 
 class WebsiteManager:
     @staticmethod
-    def create_website(root_url, project=None):
+    def create_website(root_url):
         """
         Create a new website instance.
         """
-        website, _ = Website.objects.get_or_create(root_url=root_url, project=project)
+        website, _ = Website.objects.get_or_create(root_url=root_url)
         return website
 
     @staticmethod

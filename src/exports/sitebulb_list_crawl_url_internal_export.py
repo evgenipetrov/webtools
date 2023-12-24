@@ -1,9 +1,24 @@
+import contextlib
 import logging
+import os
+import sys
 
 from base_models.base_export_manager import BaseExportManager
 
 logger = logging.getLogger(__name__)
 EXPORT_SUBFOLDER = "sitebulb_list_crawl_url_internal_export"
+
+
+@contextlib.contextmanager
+def suppress_stdout():
+    """Context manager to suppress standard output."""
+    with open(os.devnull, 'w') as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout
 
 
 class SitebulbListCrawlUrlInternalExport(BaseExportManager):
@@ -24,7 +39,9 @@ class SitebulbListCrawlUrlInternalExport(BaseExportManager):
         color_yellow = "\033[93m"
         color_reset = "\033[0m"
 
-        self.urls.to_clipboard(index=False, header=False)
+        # Usage
+        with suppress_stdout():
+            self.urls.to_clipboard(index=False, header=False)
 
         instructions = [
             "The urls to crawl are copied to clipboard.",

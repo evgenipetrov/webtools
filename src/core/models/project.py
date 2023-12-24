@@ -2,6 +2,8 @@ import logging
 
 from django.db import models
 
+from core.models.website import Website, WebsiteManager
+
 logger = logging.getLogger(__name__)
 
 
@@ -15,6 +17,8 @@ class Project(models.Model):
 
     ga4_auth_domain = models.CharField(max_length=255, blank=True, null=True)
     ga4_property_id = models.CharField(max_length=255, blank=True, null=True)
+
+    website = models.ForeignKey(Website, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Project {self.id} - {self.base_url}"
@@ -41,7 +45,7 @@ class ProjectManager:
         # Iterate through the other fields and prompt for input
         for field in Project._meta.get_fields():
             # Skip the 'id' field, relational fields, and already set fields
-            if field.name in ["id", "name"] or isinstance(field, (models.ManyToOneRel, models.ManyToManyField, models.ManyToOneRel)):
+            if field.name in ["id", "name", "website"] or isinstance(field, (models.ManyToOneRel, models.ManyToManyField, models.ManyToOneRel)):
                 continue
 
             # Prompt for input based on field type
@@ -57,6 +61,7 @@ class ProjectManager:
                     setattr(project, field.name, user_input)
 
         # Save the new project instance
+        project.website = WebsiteManager.create_website(project.base_url)
         project.save()
         logger.info(f"Created project: '{name}'.")
         return project

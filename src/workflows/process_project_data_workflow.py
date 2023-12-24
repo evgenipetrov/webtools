@@ -2,6 +2,7 @@ import logging
 
 from core.models import Project
 from data_processors.url_data_processor import UrlDataProcessor
+from data_processors.gsc_data_processor import GscDataProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +12,7 @@ class ProcessProjectDataWorkflow:
         self._project = project
 
         self.url_data_processor = UrlDataProcessor(project)
+        self.gsc_data_processor = GscDataProcessor(project)
 
     def run(self):
         """
@@ -25,4 +27,5 @@ class ProcessProjectDataWorkflow:
         Processes the retrieved data.
         """
         # self._process_url_data()
-        self.url_data_processor.run()
+        ## self.url_data_processor.run() #todo uncomment
+        self.gsc_data_processor.run()

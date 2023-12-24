@@ -5,6 +5,8 @@ from django.db import models
 
 from core.models.website import Website
 
+logger = logging.getLogger(__name__)
+
 
 class Url(models.Model):
     # relations
@@ -52,9 +54,6 @@ class Url(models.Model):
     class Meta:
         verbose_name = "Url"
         verbose_name_plural = "Urls"
-
-
-logger = logging.getLogger(__name__)
 
 
 class UrlManager:
@@ -135,11 +134,6 @@ class UrlManager:
     def build_full_address(root_url, path):
         parsed_url = urlparse(root_url)
         return urlunparse((parsed_url.scheme, parsed_url.netloc, path, "", "", ""))
-
-    @staticmethod
-    def get_url_by_website(website):
-        urls = Url.objects.filter(website=website)
-        return urls
 
     @staticmethod
     def get_relative_address(full_address):

@@ -2,7 +2,7 @@ import logging
 
 import pandas as pd
 
-from core.models import Project
+from core.models.project import Project
 from core.models.url import UrlManager
 from exports.googleanalytics4_last_14m_export import GoogleAnalytics4Last14mExport
 from exports.googleanalytics4_last_1m_export import GoogleAnalytics4Last1mExport
