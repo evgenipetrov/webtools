@@ -1,9 +1,9 @@
+import logging
+
 from django.core.management.base import BaseCommand
 
-from workflows.custom_workflow import CustomWorkflow
-from workflows.update_project_urls import UpdateProjectUrlsWorkflow
 from core.models.project import ProjectManager
-import logging
+from workflows._custom_workflow import CustomWorkflow
 
 logger = logging.getLogger(__name__)
 

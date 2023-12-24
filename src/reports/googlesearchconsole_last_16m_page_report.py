@@ -1,13 +1,10 @@
-import logging
 import os
-from datetime import datetime, timedelta
-from typing import Any
 
 import pandas as pd
 
+from core.models import Project
 from core.models.url import UrlManager
 from core.models.website import WebsiteManager
-from core.models import Project
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from reports.base_report_generator import BaseReportGenerator
 from services.dataframe_service import DataframeService

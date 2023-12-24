@@ -86,14 +86,7 @@ class ExportProjectDataWorkflow:
         pass
 
     def run_stage_1_exports(self):
-        # GA4 14 month window
-        self.googleanalytics4_last_14m_export = GoogleAnalytics4Last14mExport(self._project)
-        self.googleanalytics4_last_14m_export.run(force=True)
-
-        # GSC 16 month window [page]
-        self.googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(self._project)
-        self.googlesearchconsole_page_last_16m_export.run(force=True)
-
+        # Run manual exports first
         self.screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(self._project)
         self.screamingfrog_sitemap_crawl_export.run(force=True)
 
@@ -111,6 +104,14 @@ class ExportProjectDataWorkflow:
 
         self.semrush_analytics_backlinks_rootdomain_export = SemrushAnalyticsBacklinksRootdomainExport(self._project)
         self.semrush_analytics_backlinks_rootdomain_export.run(force=True)
+
+        # GA4 14 month window
+        self.googleanalytics4_last_14m_export = GoogleAnalytics4Last14mExport(self._project)
+        self.googleanalytics4_last_14m_export.run(force=True)
+
+        # GSC 16 month window [page]
+        self.googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(self._project)
+        self.googlesearchconsole_page_last_16m_export.run(force=True)
 
     def prepare_stage_2(self):
         if self.screamingfrog_sitemap_crawl_export:
@@ -152,6 +153,7 @@ class ExportProjectDataWorkflow:
         self._project_urls.drop_duplicates(inplace=True)
 
     def run_stage_2_exports(self):
+        # Run manual exports first
         self.screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self._project, self._project_urls)
         self.screamingfrog_list_crawl_export.run(force=True)
 
@@ -213,5 +215,6 @@ class ExportProjectDataWorkflow:
         self.googlesearchconsole_query_previous_15m_export = GoogleSearchConsoleQueryPrevious15mExport(self._project)
         self.googlesearchconsole_query_previous_15m_export.run(force=True)
 
-        self.googlesearchconsole_date_page_query_last_16m_export = GoogleSearchConsoleDatePageQueryLast16mExport(self._project)
-        self.googlesearchconsole_date_page_query_last_16m_export.run(force=True)
+        # Big fat export that is probably not needed.
+        # self.googlesearchconsole_date_page_query_last_16m_export = GoogleSearchConsoleDatePageQueryLast16mExport(self._project)
+        # self.googlesearchconsole_date_page_query_last_16m_export.run(force=True)

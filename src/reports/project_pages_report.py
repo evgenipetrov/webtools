@@ -6,7 +6,6 @@ from core.models.website import WebsiteManager
 
 REPORT_FILENAME = "project_pages_report.csv"
 
-
 logger = logging.getLogger(__name__)
 
 

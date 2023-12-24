@@ -1,6 +1,9 @@
+import logging
+
 import numpy as np
 import pandas as pd
 
+from core.models.project import ProjectManager
 from core.models.url import UrlManager
 from core.models.website import WebsiteManager
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
@@ -8,9 +11,7 @@ from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
 from exports.sitebulb_spider_crawl_url_internal_export import SitebulbSpiderCrawlUrlInternalExport
-from core.models.project import ProjectManager
 from services.dataframe_service import DataframeService
-import logging
 
 logger = logging.getLogger(__name__)
 

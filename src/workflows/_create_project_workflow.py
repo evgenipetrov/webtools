@@ -1,7 +1,8 @@
+import logging
+
 from core.models.project import ProjectManager
 from core.models.url import UrlManager
 from core.models.website import WebsiteManager
-import logging
 
 logger = logging.getLogger(__name__)
 

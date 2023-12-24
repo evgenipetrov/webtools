@@ -1,8 +1,7 @@
+import logging
 import os
 
 import pandas as pd
-import logging
-
 from pandas.errors import EmptyDataError
 
 logger = logging.getLogger(__name__)

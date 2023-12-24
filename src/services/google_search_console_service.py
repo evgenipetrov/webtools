@@ -4,9 +4,10 @@ import logging
 import pandas as pd
 import requests.exceptions
 from googleapiclient.discovery import build
-from services.google_auth_service import GoogleAuthService
 from tenacity import retry, retry_if_exception_type, stop_after_attempt
 from tenacity import wait_exponential
+
+from services.google_auth_service import GoogleAuthService
 
 logger = logging.getLogger(__name__)
 
@@ -28,13 +29,13 @@ class GoogleSearchConsoleService:
 
     @staticmethod
     def _create_request(
-        start_date,
-        end_date,
-        dimensions,
-        start_row,
-        dimension_filter_groups=None,
-        aggregation_type=None,
-        data_type=None,
+            start_date,
+            end_date,
+            dimensions,
+            start_row,
+            dimension_filter_groups=None,
+            aggregation_type=None,
+            data_type=None,
     ):
         request = {
             "startDate": start_date,
@@ -93,7 +94,7 @@ class GoogleSearchConsoleService:
         return flat_entry
 
     def fetch_data(
-        self, site_url, start_date: datetime.date, end_date: datetime.date, dimensions
+            self, site_url, start_date: datetime.date, end_date: datetime.date, dimensions
     ) -> pd.DataFrame:
         all_data = []
         start_row = 0
