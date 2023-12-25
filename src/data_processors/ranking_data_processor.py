@@ -83,11 +83,14 @@ class RankingDataProcessor:
             row = row.apply(lambda x: None if isna(x) else x)
 
             keyword = KeywordManager.push_keyword(row["keyword"])
-            semrush_url = UrlManager.push_url(row["URL (Semrush)"], self._website)
-
-            # Parse the string to a naive datetime object
-            naive_datetime = datetime.strptime(row["Timestamp (Semrush)"], "%Y-%m-%d")
-            aware_datetime = timezone.make_aware(naive_datetime, timezone.get_default_timezone())
+            if row["URL (Semrush)"] is not None:
+                semrush_url = UrlManager.push_url(row["URL (Semrush)"], self._website)
+                # Parse the string to a naive datetime object
+                naive_datetime = datetime.strptime(row["Timestamp (Semrush)"], "%Y-%m-%d")
+                semrush_timestamp = timezone.make_aware(naive_datetime, timezone.get_default_timezone())
+            else:
+                semrush_url = None
+                semrush_timestamp = None
 
             # Use UrlManager's method to push the URL to the database
             RankingManager.push_ranking(
@@ -96,7 +99,7 @@ class RankingDataProcessor:
                 semrush_url=semrush_url,
                 semrush_current_position=row["Position (Semrush)"],
                 semrush_previous_position=row["Previous position (Semrush)"],
-                semrush_timestamp=aware_datetime,
+                semrush_timestamp=semrush_timestamp,
                 semrush_position_type=row["Position Type (Semrush)"],
             )
             if index % 100 == 0 or index == total_rows:

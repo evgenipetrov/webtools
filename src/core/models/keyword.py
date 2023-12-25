@@ -10,6 +10,7 @@ class Keyword(models.Model):
     phrase = models.CharField(max_length=255, unique=True)
 
     volume = models.IntegerField(default=0)
+    # todo add in_semrush / in_gsc
 
     # system attributes
     created_at = models.DateTimeField(auto_now_add=True)  # auto

@@ -14,11 +14,11 @@ class Ranking(models.Model):
     keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE)
     website = models.ForeignKey(Website, on_delete=models.CASCADE)
 
-    semrush_url = models.ForeignKey(Url, on_delete=models.CASCADE)
-    semrush_current_position = models.PositiveSmallIntegerField(default=0)
-    semrush_previous_position = models.PositiveSmallIntegerField(default=0)
-    semrush_timestamp = models.DateField()
-    semrush_position_type = models.CharField(max_length=255)
+    semrush_url = models.ForeignKey(Url, on_delete=models.CASCADE, null=True, blank=True)
+    semrush_current_position = models.PositiveSmallIntegerField(null=True, blank=True)
+    semrush_previous_position = models.PositiveSmallIntegerField(null=True, blank=True)
+    semrush_timestamp = models.DateField(null=True, blank=True)
+    semrush_position_type = models.CharField(max_length=255, null=True, blank=True)
 
     # system attributes
     created_at = models.DateTimeField(auto_now_add=True)  # auto
