@@ -3,7 +3,7 @@ import logging
 from core.models import Project
 from data_processors.gscpage_data_processor import GscPageDataProcessor
 from data_processors.gscquery_data_processor import GscQueryDataProcessor
-from data_processors.ranking_data_processor import RankingDataProcessor
+from data_processors.keywordranking_data_processor import KeywordRankingDataProcessor
 from data_processors.url_data_processor import UrlDataProcessor
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class ProcessProjectDataWorkflow:
         self.url_data_processor = UrlDataProcessor(project)
         self.gscpage_data_processor = GscPageDataProcessor(project)
         self.gscquery_data_processor = GscQueryDataProcessor(project)
-        self.ranking_data_processor = RankingDataProcessor(project)
+        self.keywordranking_data_processor = KeywordRankingDataProcessor(project)
 
     def run(self):
         """
@@ -34,4 +34,4 @@ class ProcessProjectDataWorkflow:
         # self.url_data_processor.run()
         # self.gscpage_data_processor.run()
         #  self.gscquery_data_processor.run()
-        self.ranking_data_processor.run()
+        self.keywordranking_data_processor.run()

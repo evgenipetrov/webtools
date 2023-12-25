@@ -7,19 +7,20 @@ from pandas import isna
 
 from core.models import Project
 from core.models.keyword import KeywordManager
-from core.models.ranking import RankingManager
+from core.models.keywordranking import RankingManager
 from core.models.url import UrlManager
 from core.models.website import WebsiteManager
 from exports.googlesearchconsole_page_query_last_1m_export import GoogleSearchConsolePageQueryLast1mExport
 from exports.googlesearchconsole_page_query_last_1m_previous_year_export import GoogleSearchConsolePageQueryLast1mPreviousYearExport
 from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSearchConsolePageQueryPrevious1mExport
 from exports.googlesearchconsole_query_last_16m_export import GoogleSearchConsoleQueryLast16mExport
+from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 
 logger = logging.getLogger(__name__)
 
 
-class RankingDataProcessor:
+class KeywordRankingDataProcessor:
     def __init__(self, project: Project):
         self._project = project
         self._website = WebsiteManager.get_website_by_project(project)
@@ -32,6 +33,9 @@ class RankingDataProcessor:
         self.store_data()
 
     def collect_data(self):
+        screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self._project)
+        self.screamingfrog_list_crawl_data = screamingfrog_list_crawl_export.get_data()
+
         googlesearchconsole_query_last_16m_export = GoogleSearchConsoleQueryLast16mExport(self._project)
         self.googlesearchconsole_query_last_16m_data = googlesearchconsole_query_last_16m_export.get_data()
 
@@ -68,12 +72,42 @@ class RankingDataProcessor:
         ]
         df = pd.merge(
             df,
-            semrush_analytics_organic_positions_rootdomain_data[semrush_analytics_organic_positions_rootdomain_data_columns],
+            semrush_analytics_organic_positions_rootdomain_data[semrush_analytics_organic_positions_rootdomain_data_columns].sort_values(by="Position (Semrush)", ascending=True).drop_duplicates(subset="Keyword", keep="first"),
             left_on="keyword",
             right_on="Keyword",
             how="left",
         )
         df.drop("Keyword", axis=1, inplace=True)
+
+        googlesearchconsole_page_query_last_1m_data = self.googlesearchconsole_page_query_last_1m_data.rename(columns=lambda x: "gsc_" + x + "_last_1m" if x != "query" else x)
+        df = pd.merge(
+            df,
+            googlesearchconsole_page_query_last_1m_data.sort_values(by=["gsc_clicks_last_1m", "gsc_impressions_last_1m"], ascending=[False, False]).drop_duplicates(subset="query", keep="first"),
+            left_on="keyword",
+            right_on="query",
+            how="left",
+        )
+        df.drop("query", axis=1, inplace=True)
+
+        googlesearchconsole_page_query_previous_1m_data = self.googlesearchconsole_page_query_previous_1m_data.rename(columns=lambda x: "gsc_" + x + "_previous_1m" if x != "query" else x)
+        df = pd.merge(
+            df,
+            googlesearchconsole_page_query_previous_1m_data.sort_values(by=["gsc_clicks_previous_1m", "gsc_impressions_previous_1m"], ascending=[False, False]).drop_duplicates(subset="query", keep="first"),
+            left_on="keyword",
+            right_on="query",
+            how="left",
+        )
+        df.drop("query", axis=1, inplace=True)
+
+        googlesearchconsole_page_query_last_1m_previous_year_data = self.googlesearchconsole_page_query_last_1m_previous_year_data.rename(columns=lambda x: "gsc_" + x + "_last_1m_previous_year" if x != "query" else x)
+        df = pd.merge(
+            df,
+            googlesearchconsole_page_query_last_1m_previous_year_data.sort_values(by=["gsc_clicks_last_1m_previous_year", "gsc_impressions_last_1m_previous_year"], ascending=[False, False]).drop_duplicates(subset="query", keep="first"),
+            left_on="keyword",
+            right_on="query",
+            how="left",
+        )
+        df.drop("query", axis=1, inplace=True)
 
         self._data = df
 
@@ -92,6 +126,21 @@ class RankingDataProcessor:
                 semrush_url = None
                 semrush_timestamp = None
 
+            if row["gsc_page_last_1m"] is not None:
+                gsc_page_last_1m = UrlManager.push_url(row["gsc_page_last_1m"], self._website)
+            else:
+                gsc_page_last_1m = None
+
+            if row["gsc_page_previous_1m"] is not None:
+                gsc_page_previous_1m = UrlManager.push_url(row["gsc_page_previous_1m"], self._website)
+            else:
+                gsc_page_previous_1m = None
+
+            if row["gsc_page_last_1m_previous_year"] is not None:
+                gsc_page_last_1m_previous_year = UrlManager.push_url(row["gsc_page_last_1m_previous_year"], self._website)
+            else:
+                gsc_page_last_1m_previous_year = None
+
             # Use UrlManager's method to push the URL to the database
             RankingManager.push_ranking(
                 keyword=keyword,
@@ -101,6 +150,21 @@ class RankingDataProcessor:
                 semrush_previous_position=row["Previous position (Semrush)"],
                 semrush_timestamp=semrush_timestamp,
                 semrush_position_type=row["Position Type (Semrush)"],
+                gsc_page_last_1m=gsc_page_last_1m,
+                gsc_impressions_last_1m=row["gsc_impressions_last_1m"],
+                gsc_clicks_last_1m=row["gsc_clicks_last_1m"],
+                gsc_ctr_last_1m=row["gsc_ctr_last_1m"],
+                gsc_position_last_1m=row["gsc_position_last_1m"],
+                gsc_page_previous_1m=gsc_page_previous_1m,
+                gsc_impressions_previous_1m=row["gsc_impressions_previous_1m"],
+                gsc_clicks_previous_1m=row["gsc_clicks_previous_1m"],
+                gsc_ctr_previous_1m=row["gsc_ctr_previous_1m"],
+                gsc_position_previous_1m=row["gsc_position_previous_1m"],
+                gsc_page_last_1m_previous_year=gsc_page_last_1m_previous_year,
+                gsc_impressions_last_1m_previous_year=row["gsc_impressions_last_1m_previous_year"],
+                gsc_clicks_last_1m_previous_year=row["gsc_clicks_last_1m_previous_year"],
+                gsc_ctr_last_1m_previous_year=row["gsc_ctr_last_1m_previous_year"],
+                gsc_position_last_1m_previous_year=row["gsc_position_last_1m_previous_year"],
             )
             if index % 100 == 0 or index == total_rows:
                 logger.info(f"RankingManager: Processing Ranking Data: Row {index} of {total_rows} ({(index / total_rows) * 100:.2f}% complete)")

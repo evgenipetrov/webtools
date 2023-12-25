@@ -43,6 +43,9 @@ class GscPageDataProcessor:
         self.store_data()
 
     def collect_data(self):
+        screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self._project)
+        self.screamingfrog_list_crawl_data = screamingfrog_list_crawl_export.get_data()
+
         googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(self._project)
         self.googlesearchconsole_page_last_16m_data = googlesearchconsole_page_last_16m_export.get_data()
 
@@ -70,14 +73,16 @@ class GscPageDataProcessor:
         mask = df["full_address"].apply(UrlManager.has_fragment)
         df = df[~mask]
 
-        urls = UrlManager.get_urls_by_website(self._website)
-        url_table = [{"full_address": url.full_address, "status_code": url.status_code, "redirect_url": url.redirect_url} for url in urls]
-        redirect_data = pd.DataFrame(url_table)
-        # Fill empty 'redirect_url' with 'full_address'
-        redirect_data["redirect_url"] = redirect_data.apply(lambda row: row["full_address"] if pd.isna(row["redirect_url"]) or row["redirect_url"] == "" else row["redirect_url"], axis=1)
-        df = df.merge(
-            redirect_data,
-            on="full_address",
+        screamingfrog_list_crawl_data_columns = [
+            "Address",
+            "Status Code",
+            "Redirect URL",
+        ]
+        df = pd.merge(
+            df,
+            self.screamingfrog_list_crawl_data[screamingfrog_list_crawl_data_columns].drop_duplicates(subset="Address", keep="first"),
+            left_on="full_address",
+            right_on="Address",
             how="left",
         )
 
