@@ -35,6 +35,8 @@ class GscQuery(models.Model):
     position_last_1m_previous_year = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     position_previous_1m = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
+    in_last_1m_only = models.BooleanField(null=True, blank=True)
+
     # system attributes
     created_at = models.DateTimeField(auto_now_add=True)  # auto
     updated_at = models.DateTimeField(auto_now=True)  # auto
@@ -51,16 +53,16 @@ class GscQuery(models.Model):
 
 class GscQueryManager:
     @staticmethod
-    def push_gscquery(term, website, **kwargs):
+    def push_gscquery(query, website, **kwargs):
         """
         Pushes query instance to gsc query entries.
         """
-        keyword = KeywordManager.push_keyword(term)
+        keyword = KeywordManager.push_keyword(query)
         gscquery, created = GscQuery.objects.update_or_create(keyword=keyword, website=website, defaults=kwargs)
         if created:
-            logger.debug(f"GSCQUERY instance does not exist - creating: '{term}'")
+            logger.debug(f"GSCQUERY instance does not exist - creating: '{query}'")
         else:
-            logger.debug(f"GSCQUERY instance already exists - updating: '{term}'")
+            logger.debug(f"GSCQUERY instance already exists - updating: '{query}'")
         return gscquery
 
     @staticmethod

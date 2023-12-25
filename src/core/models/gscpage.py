@@ -2,6 +2,8 @@ import logging
 
 from django.db import models
 
+from core.models.url import Url
+from core.models.url import UrlManager
 from core.models.website import Website
 
 logger = logging.getLogger(__name__)
@@ -11,10 +13,7 @@ class GscPage(models.Model):
     # relations
     website = models.ForeignKey(Website, on_delete=models.CASCADE)
 
-    # primary attributes
-    full_address = models.URLField(max_length=2048, unique=True)
-    status_code = models.IntegerField(null=True, blank=True)
-    redirect_url = models.URLField(max_length=2048, null=True, blank=True)
+    url = models.ForeignKey(Url, on_delete=models.CASCADE)
 
     impressions_last_1m = models.IntegerField(null=True, blank=True)
     impressions_last_16m = models.IntegerField(null=True, blank=True)
@@ -41,7 +40,7 @@ class GscPage(models.Model):
     updated_at = models.DateTimeField(auto_now=True)  # auto
 
     def __str__(self):
-        return self.full_address
+        return self.url.full_address
 
     class Meta:
         verbose_name = "GscPage"
@@ -54,7 +53,8 @@ class GscPageManager:
         """
         Pushes page instance to gsc page entries.
         """
-        gscpage, create = GscPage.objects.update_or_create(full_address=full_address, website=website, defaults=kwargs)
+        url = UrlManager.push_url(full_address, website)
+        gscpage, create = GscPage.objects.update_or_create(url=url, website=website, defaults=kwargs)
         if create:
             logger.debug(f"GSCPAGE instance does not exist - creating: '{full_address}'")
         else:
