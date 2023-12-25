@@ -56,7 +56,7 @@ class GscQueryManager:
         """
         gscquery, created = GscQuery.objects.update_or_create(keyword=keyword, website=website, defaults=kwargs)
         if created:
-            logger.debug(f"GSCQUERY instance does not exist - creating: '{keyword.phras}'")
+            logger.debug(f"GSCQUERY instance does not exist - creating: '{keyword.phrase}'")
         else:
             logger.debug(f"GSCQUERY instance already exists - updating: '{keyword.phrase}'")
         return gscquery

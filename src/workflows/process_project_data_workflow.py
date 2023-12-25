@@ -31,7 +31,7 @@ class ProcessProjectDataWorkflow:
         Processes the retrieved data.
         """
         # todo activate processors after debug sessions
-        # self.url_data_processor.run()
-        # self.gscpage_data_processor.run()
-        #  self.gscquery_data_processor.run()
+        self.url_data_processor.run()
+        self.gscpage_data_processor.run()
+        self.gscquery_data_processor.run()
         self.keywordranking_data_processor.run()

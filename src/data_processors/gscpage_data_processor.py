@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def aggregate_gscpage_data(df):
-    return df.groupby("redirect_url").agg({"impressions": "sum", "clicks": "sum", "ctr": "mean", "position": "mean"})
+    return df.groupby("Redirect URL").agg({"impressions": "sum", "clicks": "sum", "ctr": "mean", "position": "mean"})
 
 
 def get_aggregated_gscpage_data_for_url(agg_data, redirect_url, default_value=0):
@@ -91,7 +91,7 @@ class GscPageDataProcessor:
         googlesearchconsole_page_last_1m_aggregated_data = googlesearchconsole_page_last_1m_aggregated_data.rename(columns=lambda x: x + "_last_1m" if x != "redirect_url" else x)
         df = df.merge(
             googlesearchconsole_page_last_1m_aggregated_data,
-            left_on="redirect_url",
+            left_on="Redirect URL",
             right_index=True,
             how="left",
         )
@@ -100,7 +100,7 @@ class GscPageDataProcessor:
         googlesearchconsole_page_last_1m_previous_year_aggregated_data = googlesearchconsole_page_last_1m_previous_year_aggregated_data.rename(columns=lambda x: x + "_last_1m_previous_year" if x != "redirect_url" else x)
         df = df.merge(
             googlesearchconsole_page_last_1m_previous_year_aggregated_data,
-            left_on="redirect_url",
+            left_on="Redirect URL",
             right_index=True,
             how="left",
         )
@@ -108,7 +108,7 @@ class GscPageDataProcessor:
         googlesearchconsole_page_last_16m_aggregated_data = googlesearchconsole_page_last_16m_aggregated_data.rename(columns=lambda x: x + "_last_16m" if x != "redirect_url" else x)
         df = df.merge(
             googlesearchconsole_page_last_16m_aggregated_data,
-            left_on="redirect_url",
+            left_on="Redirect URL",
             right_index=True,
             how="left",
         )
@@ -116,7 +116,7 @@ class GscPageDataProcessor:
         googlesearchconsole_page_previous_1m_aggregated_data = googlesearchconsole_page_previous_1m_aggregated_data.rename(columns=lambda x: x + "_previous_1m" if x != "redirect_url" else x)
         df = df.merge(
             googlesearchconsole_page_previous_1m_aggregated_data,
-            left_on="redirect_url",
+            left_on="Redirect URL",
             right_index=True,
             how="left",
         )
