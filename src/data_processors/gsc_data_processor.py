@@ -1,8 +1,11 @@
 import logging
 
 import pandas as pd
+from pandas import isna
+
 from core.models import Project
-from core.models.gscpage import GscManager
+from core.models.gscpage import GscPageManager
+from core.models.gscquery import GscQueryManager
 from core.models.url import UrlManager
 from core.models.website import WebsiteManager
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
@@ -16,12 +19,13 @@ from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSear
 from exports.googlesearchconsole_query_last_16m_export import GoogleSearchConsoleQueryLast16mExport
 from exports.googlesearchconsole_query_last_1m_export import GoogleSearchConsoleQueryLast1mExport
 from exports.googlesearchconsole_query_last_1m_previous_year_export import GoogleSearchConsoleQueryLast1mPreviousYearExport
+from exports.googlesearchconsole_query_previous_15m_export import GoogleSearchConsoleQueryPrevious15mExport
 from exports.googlesearchconsole_query_previous_1m_export import GoogleSearchConsoleQueryPrevious1mExport
 
 logger = logging.getLogger(__name__)
 
 
-def aggregate_gsc_data(df):
+def aggregate_gscpage_data(df):
     return df.groupby('redirect_url').agg({
         'impressions': 'sum',
         'clicks': 'sum',
@@ -30,7 +34,7 @@ def aggregate_gsc_data(df):
     })
 
 
-def get_aggregated_data_for_url(agg_data, redirect_url, default_value=0):
+def get_aggregated_gscpage_data_for_url(agg_data, redirect_url, default_value=0):
     return agg_data.loc[redirect_url] if redirect_url in agg_data.index else {
         'impressions': default_value,
         'clicks': default_value,
@@ -42,12 +46,15 @@ def get_aggregated_data_for_url(agg_data, redirect_url, default_value=0):
 class GscDataProcessor:
     def __init__(self, project: Project):
         self._project = project
+        self._website = WebsiteManager.get_website_by_project(project)
 
-        self._data = None
+        self._gscpage_data = None
+        self._gscquery_data = None
 
     def run(self):
         self.collect_data()
-        self.process_data()
+        self.process_gscpage_data()
+        self.process_gscquery_data()
         self.store_data()
 
     def collect_data(self):
@@ -72,6 +79,9 @@ class GscDataProcessor:
         googlesearchconsole_query_previous_1m_export = GoogleSearchConsoleQueryPrevious1mExport(self._project)
         self.googlesearchconsole_query_previous_1m_data = googlesearchconsole_query_previous_1m_export.get_data()
 
+        googlesearchconsole_query_previous_15m_export = GoogleSearchConsoleQueryPrevious15mExport(self._project)
+        self.googlesearchconsole_query_previous_15m_data = googlesearchconsole_query_previous_15m_export.get_data()
+
         googlesearchconsole_query_last_1m_previous_year_export = GoogleSearchConsoleQueryLast1mPreviousYearExport(self._project)
         self.googlesearchconsole_query_last_1m_previous_year_data = googlesearchconsole_query_last_1m_previous_year_export.get_data()
 
@@ -87,9 +97,8 @@ class GscDataProcessor:
         googlesearchconsole_page_query_last_1m_previous_year_export = GoogleSearchConsolePageQueryLast1mPreviousYearExport(self._project)
         self.googlesearchconsole_page_query_last_1m_previous_year_data = googlesearchconsole_page_query_last_1m_previous_year_export.get_data()
 
-    def process_data(self):
-        website = WebsiteManager.get_website_by_project(self._project)
-        urls = UrlManager.get_urls_by_website(website)
+    def process_gscpage_data(self):
+        urls = UrlManager.get_urls_by_website(self._website)
 
         url_table = [{'full_address': url.full_address, 'status_code': url.status_code, 'redirect_url': url.redirect_url} for url in urls]
 
@@ -98,68 +107,95 @@ class GscDataProcessor:
         # Fill empty 'redirect_url' with 'full_address'
         df['redirect_url'] = df.apply(lambda row: row['full_address'] if pd.isna(row['redirect_url']) or row['redirect_url'] == '' else row['redirect_url'], axis=1)
 
-        self._data = df
+        self._gscpage_data = df
 
         # group data
-        googlesearchconsole_page_last_1m_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_page_last_1m_data, left_on='full_address', right_on='page', how='left'))
+        googlesearchconsole_page_last_1m_aggregated_data = aggregate_gscpage_data(df.merge(self.googlesearchconsole_page_last_1m_data, left_on='full_address', right_on='page', how='left'))
         googlesearchconsole_page_last_1m_aggregated_data = googlesearchconsole_page_last_1m_aggregated_data.rename(columns=lambda x: x + '_last_1m' if x != 'redirect_url' else x)
-        self._data = self._data.merge(
+        self._gscpage_data = self._gscpage_data.merge(
             googlesearchconsole_page_last_1m_aggregated_data,
             left_on='redirect_url',
             right_index=True,
             how='left',
         )
 
-        googlesearchconsole_page_last_1m_previous_year_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_page_last_1m_previous_year_data, left_on='full_address', right_on='page', how='left'))
+        googlesearchconsole_page_last_1m_previous_year_aggregated_data = aggregate_gscpage_data(df.merge(self.googlesearchconsole_page_last_1m_previous_year_data, left_on='full_address', right_on='page', how='left'))
         googlesearchconsole_page_last_1m_previous_year_aggregated_data = googlesearchconsole_page_last_1m_previous_year_aggregated_data.rename(columns=lambda x: x + '_last_1m_previous_year' if x != 'redirect_url' else x)
-        self._data = self._data.merge(
+        self._gscpage_data = self._gscpage_data.merge(
             googlesearchconsole_page_last_1m_previous_year_aggregated_data,
             left_on='redirect_url',
             right_index=True,
             how='left',
         )
-        googlesearchconsole_page_last_16m_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_page_last_16m_data, left_on='full_address', right_on='page', how='left'))
+        googlesearchconsole_page_last_16m_aggregated_data = aggregate_gscpage_data(df.merge(self.googlesearchconsole_page_last_16m_data, left_on='full_address', right_on='page', how='left'))
         googlesearchconsole_page_last_16m_aggregated_data = googlesearchconsole_page_last_16m_aggregated_data.rename(columns=lambda x: x + 'last_16m' if x != 'redirect_url' else x)
-        self._data = self._data.merge(
+        self._gscpage_data = self._gscpage_data.merge(
             googlesearchconsole_page_last_16m_aggregated_data,
             left_on='redirect_url',
             right_index=True,
             how='left',
         )
-        googlesearchconsole_page_previous_1m_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_page_previous_1m_data, left_on='full_address', right_on='page', how='left'))
+        googlesearchconsole_page_previous_1m_aggregated_data = aggregate_gscpage_data(df.merge(self.googlesearchconsole_page_previous_1m_data, left_on='full_address', right_on='page', how='left'))
         googlesearchconsole_page_previous_1m_aggregated_data = googlesearchconsole_page_previous_1m_aggregated_data.rename(columns=lambda x: x + 'previous_1m' if x != 'redirect_url' else x)
-        self._data = self._data.merge(
+        self._gscpage_data = self._gscpage_data.merge(
             googlesearchconsole_page_previous_1m_aggregated_data,
             left_on='redirect_url',
             right_index=True,
             how='left',
         )
 
-        # googlesearchconsole_query_last_1m_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_query_last_1m_data, left_on='full_address', right_on='page', how='left'))
-        # googlesearchconsole_query_last_16m_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_query_last_16m_data, left_on='full_address', right_on='page', how='left'))
-        # googlesearchconsole_query_previous_1m_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_query_previous_1m_data, left_on='full_address', right_on='page', how='left'))
-        # googlesearchconsole_query_last_1m_previous_year_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_query_last_1m_previous_year_data, left_on='full_address', right_on='page', how='left'))
         # googlesearchconsole_page_query_last_1m_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_page_query_last_1m_data, left_on='full_address', right_on='page', how='left'))
         # googlesearchconsole_page_query_last_16m_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_page_query_last_16m_data, left_on='full_address', right_on='page', how='left'))
         # googlesearchconsole_page_query_previous_1m_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_page_query_previous_1m_data, left_on='full_address', right_on='page', how='left'))
         # googlesearchconsole_page_query_last_1m_previous_year_aggregated_data = aggregate_gsc_data(df.merge(self.googlesearchconsole_page_query_last_1m_previous_year_data, left_on='full_address', right_on='page', how='left'))
 
-        # Generic approach to handle NaN values based on column data type
-        for col in self._data.columns:
-            if pd.api.types.is_numeric_dtype(self._data[col]):
-                self._data[col].fillna(0, inplace=True)  # Replace NaN with 0 for numeric columns
-            else:
-                self._data[col].fillna("", inplace=True)  # Replace NaN with empty string for non-numeric columns
-                
-    def store_data(self):
-        website = WebsiteManager.get_website_by_project(self._project)
+    def process_gscquery_data(self):
+        googlesearchconsole_query_last_16m_data = self.googlesearchconsole_query_last_16m_data.rename(columns=lambda x: x + '_last_16m' if x != 'query' else x)
+        self._gscquery_data = googlesearchconsole_query_last_16m_data
 
-        for _, row in self._data.iterrows():
-            GscManager.push_gscpage(
+        googlesearchconsole_query_last_1m_data = self.googlesearchconsole_query_last_1m_data.rename(columns=lambda x: x + '_last_1m' if x != 'query' else x)
+
+        self._gscquery_data = self._gscquery_data.merge(
+            googlesearchconsole_query_last_1m_data,
+            left_on='query',
+            right_on='query',
+            how='left',
+        )
+
+        googlesearchconsole_query_previous_1m_data = self.googlesearchconsole_query_previous_1m_data.rename(columns=lambda x: x + '_previous_1m' if x != 'query' else x)
+        self._gscquery_data = self._gscquery_data.merge(
+            googlesearchconsole_query_previous_1m_data,
+            left_on='query',
+            right_on='query',
+            how='left',
+        )
+
+        googlesearchconsole_query_last_1m_previous_year_data = self.googlesearchconsole_query_last_1m_previous_year_data.rename(columns=lambda x: x + '_last_1m_previous_year' if x != 'query' else x)
+        self._gscquery_data = self._gscquery_data.merge(
+            googlesearchconsole_query_last_1m_previous_year_data,
+            left_on='query',
+            right_on='query',
+            how='left',
+        )
+
+        googlesearchconsole_query_previous_15m_data = self.googlesearchconsole_query_previous_15m_data.rename(columns=lambda x: x + '_previous_15m' if x != 'query' else x)
+        self._gscquery_data = self._gscquery_data.merge(
+            googlesearchconsole_query_previous_15m_data,
+            left_on='query',
+            right_on='query',
+            how='left',
+        )
+
+    def store_data(self):
+        total_gscpages = len(self._gscpage_data)
+        for index, row in self._gscpage_data.iterrows():
+            row = row.apply(lambda x: None if isna(x) else x)
+
+            GscPageManager.push_gscpage(
                 full_address=row["full_address"],
                 status_code=row["status_code"],
                 redirect_url=row["redirect_url"],
-                website=website,
+                website=self._website,
 
                 impressions_last_1m=row.get('impressions_last_1m', 0),
                 impressions_last_16m=row.get('impressions_last_16m', 0),
@@ -181,4 +217,41 @@ class GscDataProcessor:
                 position_last_1m_previous_year=row.get('position_last_1m_previous_year', 0),
                 position_previous_1m=row.get('position_previous_1m', 0),
             )
-        logger.info("Data successfully processed using GscManager.")
+            if index % 100 == 0 or index == total_gscpages:  # Log every 100 rows or on the last row
+                logger.info(f"Processing GSC Page Data: Row {index} of {total_gscpages}")
+
+        logger.info("GSC Page Data successfully processed using GscPageManager.")
+
+        total_gscqueries = len(self._gscquery_data)
+        for index, row in self._gscquery_data.iterrows():
+            row = row.apply(lambda x: None if isna(x) else x)
+
+            GscQueryManager.push_gscquery(
+                term=row["query"],
+
+                website=self._website,
+
+                impressions_last_1m=row.get('impressions_last_1m', 0),
+                impressions_last_16m=row.get('impressions_last_16m', 0),
+                impressions_last_1m_previous_year=row.get('impressions_last_1m_previous_year', 0),
+                impressions_previous_1m=row.get('impressions_previous_1m', 0),
+
+                clicks_last_1m=row.get('clicks_last_1m', 0),
+                clicks_last_16m=row.get('clicks_last_16m', 0),
+                clicks_last_1m_previous_year=row.get('clicks_last_1m_previous_year', 0),
+                clicks_previous_1m=row.get('clicks_previous_1m', 0),
+
+                ctr_last_1m=row.get('ctr_last_1m', 0),
+                ctr_last_16m=row.get('ctr_last_16m', 0),
+                ctr_last_1m_previous_year=row.get('ctr_last_1m_previous_year', 0),
+                ctr_previous_1m=row.get('ctr_previous_1m', 0),
+
+                position_last_1m=row.get('position_last_1m', 0),
+                position_last_16m=row.get('position_last_16m', 0),
+                position_last_1m_previous_year=row.get('position_last_1m_previous_year', 0),
+                position_previous_1m=row.get('position_previous_1m', 0),
+            )
+            if index % 100 == 0 or index == total_gscqueries:  # Log every 100 rows or on the last row
+                logger.info(f"Processing GSC Query Data: Row {index} of {total_gscqueries}")
+
+        logger.info("GSC Query Data successfully processed using GscPageManager.")

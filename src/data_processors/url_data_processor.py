@@ -1,12 +1,14 @@
 import logging
 from datetime import datetime
 
+import numpy as np
 import pandas as pd
 from django.utils import timezone
+from pandas import isna
 
 from core.models import Project
 from core.models.url import UrlManager
-from core.models.website import WebsiteManager
+from core.models.website import WebsiteManager, Website
 from exports.googleanalytics4_last_14m_export import GoogleAnalytics4Last14mExport
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
@@ -22,8 +24,9 @@ logger = logging.getLogger(__name__)
 class UrlDataProcessor:
     def __init__(self, project: Project):
         self._project = project
+        self._website = WebsiteManager.get_website_by_project(project)
 
-        self._data = None
+        self._url_data = None
 
         self.screamingfrog_list_crawl_data = None
         self.screamingfrog_spider_crawl_data = None
@@ -194,22 +197,16 @@ class UrlDataProcessor:
         )
         df.drop("URL", axis=1, inplace=True)
 
-        # Generic approach to handle NaN values based on column data type
-        for col in df.columns:
-            if pd.api.types.is_numeric_dtype(df[col]):
-                df[col].fillna(0, inplace=True)  # Replace NaN with 0 for numeric columns
-            else:
-                df[col].fillna("", inplace=True)  # Replace NaN with empty string for non-numeric columns
-
-        self._data = df
+        self._url_data = df
 
     def store_data(self):
-        website = WebsiteManager.get_website_by_project(self._project)
-        for _, row in self._data.iterrows():
+        total_urls = len(self._url_data)
+        for index, row in self._url_data.iterrows():
+            row = row.apply(lambda x: None if isna(x) else x)
+
             # Extract required data from the row
             full_address = row["Address"]
 
-            #
             # Parse the string to a naive datetime object
             naive_datetime = datetime.strptime(row["Crawl Timestamp"], "%Y-%m-%d %H:%M:%S")
 
@@ -219,7 +216,7 @@ class UrlDataProcessor:
             # Use UrlManager's method to push the URL to the database
             UrlManager.push_url(
                 full_address=full_address,
-                website=website,
+                website=self._website,
                 status_code=row["Status Code"],
                 redirect_url=row["Redirect URL"],
                 content_type=row["Content Type"],
@@ -248,4 +245,7 @@ class UrlDataProcessor:
                 in_semrush_pages=row["In Semrush Pages"],
                 in_semrush_backlinks=row["In Semrush Backlinks"],
             )
+            if index % 100 == 0 or index == total_urls:  # Log every 100 rows or on the last row
+                logger.info(f"Processing Url Data: Row {index} of {total_urls}")
+
         logger.info("Data successfully processed using UrlManager.")

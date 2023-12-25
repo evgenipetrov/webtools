@@ -27,5 +27,5 @@ class ProcessProjectDataWorkflow:
         Processes the retrieved data.
         """
         # self._process_url_data()
-        ## self.url_data_processor.run() #todo uncomment
+        self.url_data_processor.run()
         self.gsc_data_processor.run()

@@ -2,19 +2,18 @@ import logging
 
 from django.db import models
 
+from core.models.keyword import Keyword, KeywordManager
 from core.models.website import Website
 
 logger = logging.getLogger(__name__)
 
 
-class GscPage(models.Model):
+class GscQuery(models.Model):
     # relations
     website = models.ForeignKey(Website, on_delete=models.CASCADE)
 
     # primary attributes
-    full_address = models.URLField(max_length=2048, unique=True)
-    status_code = models.IntegerField(null=True, blank=True)
-    redirect_url = models.URLField(max_length=2048, null=True, blank=True)
+    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE)
 
     impressions_last_1m = models.IntegerField(null=True, blank=True)
     impressions_last_16m = models.IntegerField(null=True, blank=True)
@@ -41,27 +40,30 @@ class GscPage(models.Model):
     updated_at = models.DateTimeField(auto_now=True)  # auto
 
     def __str__(self):
-        return self.full_address
+        return self.keyword.phrase
 
     class Meta:
-        verbose_name = "GscPage"
-        verbose_name_plural = "GscPages"
+        verbose_name = "GscQuery"
+        verbose_name_plural = "GscQueries"
+
+        unique_together = ("website", "keyword")
 
 
-class GscPageManager:
+class GscQueryManager:
     @staticmethod
-    def push_gscpage(full_address, website, **kwargs):
+    def push_gscquery(term, website, **kwargs):
         """
-        Pushes page instance to gsc page entries.
+        Pushes query instance to gsc query entries.
         """
-        gscpage, create = GscPage.objects.update_or_create(full_address=full_address, website=website, defaults=kwargs)
-        if create:
-            logger.debug(f"GSCPAGE instance does not exist - creating: '{full_address}'")
+        keyword = KeywordManager.push_keyword(term)
+        gscquery, created = GscQuery.objects.update_or_create(keyword=keyword, website=website, defaults=kwargs)
+        if created:
+            logger.debug(f"GSCQUERY instance does not exist - creating: '{term}'")
         else:
-            logger.debug(f"GSCPAGE instance already exists - updating: '{full_address}'")
-        return gscpage
+            logger.debug(f"GSCQUERY instance already exists - updating: '{term}'")
+        return gscquery
 
     @staticmethod
-    def get_gscpages_by_website(website):
-        objects = GscPage.objects.filter(website=website)
+    def get_gscqueries_by_website(website):
+        objects = GscQuery.objects.filter(website=website)
         return objects
