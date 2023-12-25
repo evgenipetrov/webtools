@@ -1,8 +1,10 @@
 import logging
 
 from core.models import Project
+from data_processors.gscpage_data_processor import GscPageDataProcessor
+from data_processors.gscquery_data_processor import GscQueryDataProcessor
+from data_processors.ranking_data_processor import RankingDataProcessor
 from data_processors.url_data_processor import UrlDataProcessor
-from data_processors.gsc_data_processor import GscDataProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +14,9 @@ class ProcessProjectDataWorkflow:
         self._project = project
 
         self.url_data_processor = UrlDataProcessor(project)
-        self.gsc_data_processor = GscDataProcessor(project)
+        self.gscpage_data_processor = GscPageDataProcessor(project)
+        self.gscquery_data_processor = GscQueryDataProcessor(project)
+        self.ranking_data_processor = RankingDataProcessor(project)
 
     def run(self):
         """
@@ -26,6 +30,8 @@ class ProcessProjectDataWorkflow:
         """
         Processes the retrieved data.
         """
-        # self._process_url_data()
+        # todo activate processors after debug sessions
         self.url_data_processor.run()
-        self.gsc_data_processor.run()
+        self.gscpage_data_processor.run()
+        self.gscquery_data_processor.run()
+        self.ranking_data_processor.run()

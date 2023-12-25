@@ -9,15 +9,12 @@ logger = logging.getLogger(__name__)
 
 
 class Url(models.Model):
-    # relations
     website = models.ForeignKey(Website, on_delete=models.CASCADE)  # from project website
 
-    # primary attributes
     full_address = models.URLField(max_length=2048, unique=True)  # from screamingfrog list crawl
     status_code = models.IntegerField(null=True, blank=True)  # from screamingfrog list crawl
     redirect_url = models.URLField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
 
-    # secondary attributes
     relative_address = models.CharField(max_length=2048, null=True, blank=True)  # calculate
     content_type = models.CharField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
     indexability = models.CharField(max_length=2048, null=True, blank=True)  # from screamingfrog list crawl
@@ -85,6 +82,10 @@ class UrlManager:
         )
         logger.debug(f"Removed fragment from URL '{full_address}'. New URL: '{clean_url}'.")
         return clean_url
+
+    @staticmethod
+    def has_fragment(full_address):
+        return bool(urlparse(full_address).fragment)
 
     @staticmethod
     def get_root_url(full_address):

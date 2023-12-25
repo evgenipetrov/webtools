@@ -2,17 +2,14 @@ import logging
 
 from django.db import models
 
-from core.models.keyword import Keyword, KeywordManager
+from core.models.keyword import Keyword
 from core.models.website import Website
 
 logger = logging.getLogger(__name__)
 
 
 class GscQuery(models.Model):
-    # relations
     website = models.ForeignKey(Website, on_delete=models.CASCADE)
-
-    # primary attributes
     keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE)
 
     impressions_last_1m = models.IntegerField(null=True, blank=True)
@@ -53,16 +50,15 @@ class GscQuery(models.Model):
 
 class GscQueryManager:
     @staticmethod
-    def push_gscquery(query, website, **kwargs):
+    def push_gscquery(keyword, website, **kwargs):
         """
         Pushes query instance to gsc query entries.
         """
-        keyword = KeywordManager.push_keyword(query)
         gscquery, created = GscQuery.objects.update_or_create(keyword=keyword, website=website, defaults=kwargs)
         if created:
-            logger.debug(f"GSCQUERY instance does not exist - creating: '{query}'")
+            logger.debug(f"GSCQUERY instance does not exist - creating: '{keyword.phras}'")
         else:
-            logger.debug(f"GSCQUERY instance already exists - updating: '{query}'")
+            logger.debug(f"GSCQUERY instance already exists - updating: '{keyword.phrase}'")
         return gscquery
 
     @staticmethod

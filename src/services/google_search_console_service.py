@@ -29,13 +29,13 @@ class GoogleSearchConsoleService:
 
     @staticmethod
     def _create_request(
-            start_date,
-            end_date,
-            dimensions,
-            start_row,
-            dimension_filter_groups=None,
-            aggregation_type=None,
-            data_type=None,
+        start_date,
+        end_date,
+        dimensions,
+        start_row,
+        dimension_filter_groups=None,
+        aggregation_type=None,
+        data_type=None,
     ):
         request = {
             "startDate": start_date,
@@ -67,11 +67,7 @@ class GoogleSearchConsoleService:
     )
     def execute_request(self, site_url, request_body) -> list:
         try:
-            response = (
-                self.service.searchanalytics()
-                .query(siteUrl=site_url, body=request_body)
-                .execute()
-            )
+            response = self.service.searchanalytics().query(siteUrl=site_url, body=request_body).execute()
             logger.info("Search Analytics query executed successfully.")
             return response.get("rows", [])
         except Exception as e:
@@ -93,9 +89,7 @@ class GoogleSearchConsoleService:
         )
         return flat_entry
 
-    def fetch_data(
-            self, site_url, start_date: datetime.date, end_date: datetime.date, dimensions
-    ) -> pd.DataFrame:
+    def fetch_data(self, site_url, start_date: datetime.date, end_date: datetime.date, dimensions) -> pd.DataFrame:
         all_data = []
         start_row = 0
 
@@ -107,9 +101,7 @@ class GoogleSearchConsoleService:
                 start_row,
             )
             try:
-                logger.info(
-                    f"Fetching GSC data from {start_date} to {end_date} for {site_url}, dimensions {dimensions}, start row {start_row}"
-                )
+                logger.info(f"Fetching GSC data from {start_date} to {end_date} for {site_url}, dimensions {dimensions}, start row {start_row}")
                 data = self.execute_request(site_url, request_body)
             except GSCFetchError as e:
                 logger.error(str(e))

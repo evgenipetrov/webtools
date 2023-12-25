@@ -10,9 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class GscPage(models.Model):
-    # relations
     website = models.ForeignKey(Website, on_delete=models.CASCADE)
-
     url = models.ForeignKey(Url, on_delete=models.CASCADE)
 
     impressions_last_1m = models.IntegerField(null=True, blank=True)
@@ -45,6 +43,8 @@ class GscPage(models.Model):
     class Meta:
         verbose_name = "GscPage"
         verbose_name_plural = "GscPages"
+
+        unique_together = ("website", "url")
 
 
 class GscPageManager:

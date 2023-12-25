@@ -12,7 +12,7 @@ EXPORT_SUBFOLDER = "sitebulb_list_crawl_url_internal_export"
 @contextlib.contextmanager
 def suppress_stdout():
     """Context manager to suppress standard output."""
-    with open(os.devnull, 'w') as devnull:
+    with open(os.devnull, "w") as devnull:
         old_stdout = sys.stdout
         sys.stdout = devnull
         try:

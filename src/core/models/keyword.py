@@ -2,8 +2,6 @@ import logging
 
 from django.db import models
 
-from core.models.website import Website
-
 logger = logging.getLogger(__name__)
 
 

@@ -1,14 +1,13 @@
 import logging
 from datetime import datetime
 
-import numpy as np
 import pandas as pd
 from django.utils import timezone
 from pandas import isna
 
 from core.models import Project
 from core.models.url import UrlManager
-from core.models.website import WebsiteManager, Website
+from core.models.website import WebsiteManager
 from exports.googleanalytics4_last_14m_export import GoogleAnalytics4Last14mExport
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
@@ -26,7 +25,7 @@ class UrlDataProcessor:
         self._project = project
         self._website = WebsiteManager.get_website_by_project(project)
 
-        self._url_data = None
+        self._data = None
 
         self.screamingfrog_list_crawl_data = None
         self.screamingfrog_spider_crawl_data = None
@@ -54,6 +53,8 @@ class UrlDataProcessor:
 
         googleanalytics4_last_14m_export = GoogleAnalytics4Last14mExport(self._project)
         self.googleanalytics4_last_14m_data = googleanalytics4_last_14m_export.get_data()
+        # Add a new column 'full_address' by joining root_url with pagePath
+        self.googleanalytics4_last_14m_data["full_address"] = self.googleanalytics4_last_14m_data["pagePath"].apply(lambda x: UrlManager.build_full_address(self._website.root_url, x))
 
         googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(self._project)
         self.googlesearchconsole_page_last_16m_data = googlesearchconsole_page_last_16m_export.get_data()
@@ -68,6 +69,26 @@ class UrlDataProcessor:
         self.sitebulb_list_crawl_url_internal_data = sitebulb_list_crawl_url_internal_export.get_data()
 
     def process_data(self):
+        # stack key column then map
+        df = pd.concat(
+            [
+                self.screamingfrog_list_crawl_data["Address"],
+                self.screamingfrog_spider_crawl_data["Address"],
+                self.screamingfrog_sitemap_crawl_data["Address"],
+                self.googleanalytics4_last_14m_data["full_address"],
+                self.googlesearchconsole_page_last_16m_data["page"],
+                self.semrush_analytics_organic_pages_data["URL"],
+                self.semrush_analytics_backlinks_rootdomain_data["Target url"],
+                self.sitebulb_list_crawl_url_internal_data["URL"],
+            ]
+        )
+        df = pd.DataFrame(df.unique(), columns=["full_address"])
+        # Drop rows where the URL has a fragment
+        mask = df["full_address"].apply(UrlManager.has_fragment)
+        df = df[~mask]
+        # calculate relative url column
+        df["Path"] = df["full_address"].apply(UrlManager.parse_relative_url)
+
         screamingfrog_list_crawl_data_columns = [
             "Address",
             "Status Code",
@@ -86,10 +107,13 @@ class UrlDataProcessor:
             "Hash",
             "Crawl Timestamp",
         ]
-        df = self.screamingfrog_list_crawl_data[screamingfrog_list_crawl_data_columns].drop_duplicates(subset="Address", keep="first")
-
-        # calculate relative url column
-        df["Path"] = df["Address"].apply(UrlManager.parse_relative_url)
+        df = pd.merge(
+            df,
+            self.screamingfrog_list_crawl_data[screamingfrog_list_crawl_data_columns].drop_duplicates(subset="Address", keep="first"),
+            left_on="full_address",
+            right_on="Address",
+            how="left",
+        )
 
         # join spider crawl data
         self.screamingfrog_spider_crawl_data["In Crawl"] = True
@@ -101,7 +125,7 @@ class UrlDataProcessor:
         df = pd.merge(
             df,
             self.screamingfrog_spider_crawl_data[screamingfrog_spider_crawl_data_columns].drop_duplicates(subset="Address", keep="first"),
-            left_on="Address",
+            left_on="full_address",
             right_on="Address",
             how="left",
         )
@@ -116,7 +140,7 @@ class UrlDataProcessor:
         df = pd.merge(
             df,
             self.screamingfrog_sitemap_crawl_data[screamingfrog_sitemap_crawl_data_columns].drop_duplicates(subset="Address", keep="first"),
-            left_on="Address",
+            left_on="full_address",
             right_on="Address",
             how="left",
         )
@@ -144,7 +168,7 @@ class UrlDataProcessor:
         df = pd.merge(
             df,
             self.googlesearchconsole_page_last_16m_data[googlesearchconsole_page_last_16m_data_columns].drop_duplicates(subset="page", keep="first"),
-            left_on="Address",
+            left_on="full_address",
             right_on="page",
             how="left",
         )
@@ -158,7 +182,7 @@ class UrlDataProcessor:
         df = pd.merge(
             df,
             self.semrush_analytics_organic_pages_data[semrush_analytics_organic_pages_data_columns].drop_duplicates(subset="URL", keep="first"),
-            left_on="Address",
+            left_on="full_address",
             right_on="URL",
             how="left",
         )
@@ -173,7 +197,7 @@ class UrlDataProcessor:
         df = pd.merge(
             df,
             self.semrush_analytics_backlinks_rootdomain_data[semrush_analytics_backlinks_rootdomain_data_columns].drop_duplicates(subset="Target url", keep="first"),
-            left_on="Address",
+            left_on="full_address",
             right_on="Target url",
             how="left",
         )
@@ -191,38 +215,35 @@ class UrlDataProcessor:
         df = pd.merge(
             df,
             self.sitebulb_list_crawl_url_internal_data[sitebulb_list_crawl_url_internal_data_columns].drop_duplicates(subset="URL", keep="first"),
-            left_on="Address",
+            left_on="full_address",
             right_on="URL",
             how="left",
         )
         df.drop("URL", axis=1, inplace=True)
 
-        self._url_data = df
+        self._data = df
 
     def store_data(self):
-        total_urls = len(self._url_data)
-        for index, row in self._url_data.iterrows():
+        total_rows = len(self._data)
+        for index, row in self._data.iterrows():
             row = row.apply(lambda x: None if isna(x) else x)
 
-            # Extract required data from the row
-            full_address = row["Address"]
-
-            # Parse the string to a naive datetime object
-            naive_datetime = datetime.strptime(row["Crawl Timestamp"], "%Y-%m-%d %H:%M:%S")
-
-            # Convert the naive datetime to a timezone-aware datetime
-            aware_datetime = timezone.make_aware(naive_datetime, timezone.get_default_timezone())
+            if row["Crawl Timestamp"] is None:
+                crawl_timestamp = None
+            else:
+                naive_datetime = datetime.strptime(row["Crawl Timestamp"], "%Y-%m-%d %H:%M:%S")
+                crawl_timestamp = timezone.make_aware(naive_datetime, timezone.get_default_timezone())
 
             # Use UrlManager's method to push the URL to the database
             UrlManager.push_url(
-                full_address=full_address,
+                full_address=row["full_address"],
                 website=self._website,
                 status_code=row["Status Code"],
                 redirect_url=row["Redirect URL"],
                 content_type=row["Content Type"],
                 canonical_link_element_1=row["Canonical Link Element 1"],
                 content_words_count=row["No. Content Words"],
-                crawl_timestamp=aware_datetime,
+                crawl_timestamp=crawl_timestamp,
                 h1_1=row["H1-1"],
                 hash=row["Hash"],
                 crawl_depth=row["Crawl Depth"],
@@ -245,7 +266,7 @@ class UrlDataProcessor:
                 in_semrush_pages=row["In Semrush Pages"],
                 in_semrush_backlinks=row["In Semrush Backlinks"],
             )
-            if index % 100 == 0 or index == total_urls:  # Log every 100 rows or on the last row
-                logger.info(f"Processing Url Data: Row {index} of {total_urls}")
+            if index % 100 == 0 or index == total_rows:  # Log every 100 rows or on the last row
+                logger.info(f"UrlManager: Processing Url Data: Row {index} of {total_rows} ({(index / total_rows) * 100:.2f}% complete)")
 
         logger.info("Data successfully processed using UrlManager.")
