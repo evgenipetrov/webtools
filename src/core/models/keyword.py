@@ -29,7 +29,7 @@ class KeywordManager:
     def push_keyword(phrase, **kwargs):
         keyword, created = Keyword.objects.update_or_create(phrase=phrase, defaults=kwargs)
         if created:
-            logger.debug(f"KEYWORD instance does not exist - creating: '{phrase}'")
+            logger.debug(f"KEYWORD instance does not exist - creating: '{keyword}'")
         else:
-            logger.debug(f"KEYWORD instance already exists - updating: '{phrase}'")
+            logger.debug(f"KEYWORD instance already exists - updating: '{keyword}'")
         return keyword

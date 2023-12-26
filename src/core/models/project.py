@@ -21,7 +21,7 @@ class Project(models.Model):
     website = models.ForeignKey(Website, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Project {self.id} - {self.base_url}"
+        return f"{self.name} - {self.base_url}"
 
     class Meta:
         verbose_name = "Project"
@@ -63,7 +63,7 @@ class ProjectManager:
         # Save the new project instance
         project.website = WebsiteManager.create_website(project.base_url)
         project.save()
-        logger.info(f"Created project: '{name}'.")
+        logger.info(f"Created project: {project}.")
         return project
 
     @staticmethod

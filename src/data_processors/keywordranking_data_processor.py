@@ -7,7 +7,7 @@ from pandas import isna
 
 from core.models import Project
 from core.models.keyword import KeywordManager
-from core.models.keywordranking import RankingManager
+from core.models.keywordranking import KeywordRankingManager
 from core.models.url import UrlManager
 from core.models.website import WebsiteManager
 from exports.googlesearchconsole_page_query_last_1m_export import GoogleSearchConsolePageQueryLast1mExport
@@ -118,12 +118,9 @@ class KeywordRankingDataProcessor:
 
             keyword = KeywordManager.push_keyword(row["keyword"])
             if row["URL (Semrush)"] is not None:
-                semrush_url = UrlManager.push_url(row["URL (Semrush)"], self._website)
-                # Parse the string to a naive datetime object
                 naive_datetime = datetime.strptime(row["Timestamp (Semrush)"], "%Y-%m-%d")
                 semrush_timestamp = timezone.make_aware(naive_datetime, timezone.get_default_timezone())
             else:
-                semrush_url = None
                 semrush_timestamp = None
 
             if row["gsc_page_last_1m"] is not None:
@@ -142,31 +139,31 @@ class KeywordRankingDataProcessor:
                 gsc_page_last_1m_previous_year = None
 
             # Use UrlManager's method to push the URL to the database
-            RankingManager.push_ranking(
+            KeywordRankingManager.push_ranking(
                 keyword=keyword,
                 website=self._website,
-                semrush_url=semrush_url,
+                semrush_url=UrlManager.push_url(row["URL (Semrush)"], self._website) if row["URL (Semrush)"] is not None else None,
                 semrush_current_position=row["Position (Semrush)"],
                 semrush_previous_position=row["Previous position (Semrush)"],
-                semrush_timestamp=semrush_timestamp,
+                semrush_timestamp=row["Timestamp (Semrush)"],
                 semrush_position_type=row["Position Type (Semrush)"],
-                gsc_page_last_1m=gsc_page_last_1m,
+                gsc_page_last_1m=UrlManager.push_url(row["gsc_page_last_1m"], self._website) if row["gsc_page_last_1m"] is not None else None,
                 gsc_impressions_last_1m=row["gsc_impressions_last_1m"],
                 gsc_clicks_last_1m=row["gsc_clicks_last_1m"],
                 gsc_ctr_last_1m=row["gsc_ctr_last_1m"],
                 gsc_position_last_1m=row["gsc_position_last_1m"],
-                gsc_page_previous_1m=gsc_page_previous_1m,
+                gsc_page_previous_1m=UrlManager.push_url(row["gsc_page_previous_1m"], self._website) if row["gsc_page_previous_1m"] is not None else None,
                 gsc_impressions_previous_1m=row["gsc_impressions_previous_1m"],
                 gsc_clicks_previous_1m=row["gsc_clicks_previous_1m"],
                 gsc_ctr_previous_1m=row["gsc_ctr_previous_1m"],
                 gsc_position_previous_1m=row["gsc_position_previous_1m"],
-                gsc_page_last_1m_previous_year=gsc_page_last_1m_previous_year,
+                gsc_page_last_1m_previous_year=UrlManager.push_url(row["gsc_page_last_1m_previous_year"], self._website) if row["gsc_page_last_1m_previous_year"] is not None else None,
                 gsc_impressions_last_1m_previous_year=row["gsc_impressions_last_1m_previous_year"],
                 gsc_clicks_last_1m_previous_year=row["gsc_clicks_last_1m_previous_year"],
                 gsc_ctr_last_1m_previous_year=row["gsc_ctr_last_1m_previous_year"],
                 gsc_position_last_1m_previous_year=row["gsc_position_last_1m_previous_year"],
             )
             if index % 100 == 0 or index == total_rows:
-                logger.info(f"RankingManager: Processing Ranking Data: Row {index} of {total_rows} ({(index / total_rows) * 100:.2f}% complete)")
+                logger.info(f"KeywordRankingManager: Processing Ranking Data: Row {index} of {total_rows} ({(index / total_rows) * 100:.2f}% complete)")
 
-        logger.info("Data successfully processed using RankingManager.")
+        logger.info("Data successfully processed using KeywordRankingManager.")

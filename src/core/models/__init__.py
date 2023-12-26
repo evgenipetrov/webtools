@@ -5,3 +5,4 @@ from .project import Project
 from .keywordranking import KeywordRanking
 from .url import Url
 from .website import Website
+from .urlranking import UrlRanking

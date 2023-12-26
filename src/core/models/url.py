@@ -113,9 +113,9 @@ class UrlManager:
         """
         url, create = Url.objects.update_or_create(full_address=full_address, website=website, defaults=kwargs)
         if create:
-            logger.debug(f"URL instance does not exist - creating: '{full_address}'")
+            logger.debug(f"URL instance does not exist - creating: '{url}'")
         else:
-            logger.debug(f"URL instance already exists - updating: '{full_address}'")
+            logger.debug(f"URL instance already exists - updating: '{url}'")
         return url
 
     @staticmethod

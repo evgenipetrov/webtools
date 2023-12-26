@@ -5,6 +5,7 @@ from data_processors.gscpage_data_processor import GscPageDataProcessor
 from data_processors.gscquery_data_processor import GscQueryDataProcessor
 from data_processors.keywordranking_data_processor import KeywordRankingDataProcessor
 from data_processors.url_data_processor import UrlDataProcessor
+from data_processors.urlranking_data_processor import UrlRankingDataProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ class ProcessProjectDataWorkflow:
         self.gscpage_data_processor = GscPageDataProcessor(project)
         self.gscquery_data_processor = GscQueryDataProcessor(project)
         self.keywordranking_data_processor = KeywordRankingDataProcessor(project)
+        self.urlranking_data_processor = UrlRankingDataProcessor(project)
 
     def run(self):
         """
@@ -35,3 +37,4 @@ class ProcessProjectDataWorkflow:
         self.gscpage_data_processor.run()
         self.gscquery_data_processor.run()
         self.keywordranking_data_processor.run()
+        self.urlranking_data_processor.run()

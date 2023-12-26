@@ -15,6 +15,7 @@ from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawl
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
 from exports.semrush_analytics_backlinks_rootdomain_export import SemrushAnalyticsBacklinksRootdomainExport
 from exports.semrush_analytics_organic_pages_export import SemrushAnalyticsOrganicPagesExport
+from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 from exports.sitebulb_list_crawl_url_internal_export import SitebulbListCrawlUrlInternalExport
 
 logger = logging.getLogger(__name__)
@@ -59,6 +60,9 @@ class UrlDataProcessor:
         googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(self._project)
         self.googlesearchconsole_page_last_16m_data = googlesearchconsole_page_last_16m_export.get_data()
 
+        semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(self._project)
+        self.semrush_analytics_organic_positions_rootdomain_data = semrush_analytics_organic_positions_rootdomain_export.get_data()
+
         semrush_analytics_organic_pages_export = SemrushAnalyticsOrganicPagesExport(self._project)
         self.semrush_analytics_organic_pages_data = semrush_analytics_organic_pages_export.get_data()
 
@@ -77,6 +81,7 @@ class UrlDataProcessor:
                 self.screamingfrog_sitemap_crawl_data["Address"],
                 self.googleanalytics4_last_14m_data["full_address"],
                 self.googlesearchconsole_page_last_16m_data["page"],
+                self.semrush_analytics_organic_positions_rootdomain_data["URL"],
                 self.semrush_analytics_organic_pages_data["URL"],
                 self.semrush_analytics_backlinks_rootdomain_data["Target url"],
                 self.sitebulb_list_crawl_url_internal_data["URL"],

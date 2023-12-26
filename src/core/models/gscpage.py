@@ -56,9 +56,9 @@ class GscPageManager:
         url = UrlManager.push_url(full_address, website)
         gscpage, create = GscPage.objects.update_or_create(url=url, website=website, defaults=kwargs)
         if create:
-            logger.debug(f"GSCPAGE instance does not exist - creating: '{full_address}'")
+            logger.debug(f"GSCPAGE instance does not exist - creating: '{gscpage}'")
         else:
-            logger.debug(f"GSCPAGE instance already exists - updating: '{full_address}'")
+            logger.debug(f"GSCPAGE instance already exists - updating: '{gscpage}'")
         return gscpage
 
     @staticmethod

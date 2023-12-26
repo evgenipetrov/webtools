@@ -23,41 +23,41 @@ class KeywordRanking(models.Model):
     gsc_page_last_1m = models.ForeignKey(Url, on_delete=models.CASCADE, null=True, blank=True, related_name="gsc_page_last_1m_keywordrankings")
     gsc_impressions_last_1m = models.IntegerField(null=True, blank=True)
     gsc_clicks_last_1m = models.IntegerField(null=True, blank=True)
-    gsc_ctr_last_1m = models.IntegerField(null=True, blank=True)
-    gsc_position_last_1m = models.IntegerField(null=True, blank=True)
+    gsc_ctr_last_1m = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    gsc_position_last_1m = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
     gsc_page_previous_1m = models.ForeignKey(Url, on_delete=models.CASCADE, null=True, blank=True, related_name="gsc_page_previous_1m_keywordrankings")
     gsc_impressions_previous_1m = models.IntegerField(null=True, blank=True)
     gsc_clicks_previous_1m = models.IntegerField(null=True, blank=True)
-    gsc_ctr_previous_1m = models.IntegerField(null=True, blank=True)
-    gsc_position_previous_1m = models.IntegerField(null=True, blank=True)
+    gsc_ctr_previous_1m = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    gsc_position_previous_1m = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
     gsc_page_last_1m_previous_year = models.ForeignKey(Url, on_delete=models.CASCADE, null=True, blank=True, related_name="gsc_page_last_1m_previous_year_keywordrankings")
     gsc_impressions_last_1m_previous_year = models.IntegerField(null=True, blank=True)
     gsc_clicks_last_1m_previous_year = models.IntegerField(null=True, blank=True)
-    gsc_ctr_last_1m_previous_year = models.IntegerField(null=True, blank=True)
-    gsc_position_last_1m_previous_year = models.IntegerField(null=True, blank=True)
+    gsc_ctr_last_1m_previous_year = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    gsc_position_last_1m_previous_year = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
     # system attributes
     created_at = models.DateTimeField(auto_now_add=True)  # auto
     updated_at = models.DateTimeField(auto_now=True)  # auto
 
     def __str__(self):
-        return f"{self.keyword.phrase} / {self.url.full_address}"
+        return f"{self.keyword.phrase} / {self.website.root_url}"
 
     class Meta:
-        verbose_name = "Ranking"
-        verbose_name_plural = "Rankings"
+        verbose_name = "KeywordRanking"
+        verbose_name_plural = "KeywordRankings"
 
         unique_together = ("website", "keyword")
 
 
-class RankingManager:
+class KeywordRankingManager:
     @staticmethod
     def push_ranking(keyword, website, **kwargs):
-        ranking, created = KeywordRanking.objects.update_or_create(keyword=keyword, website=website, defaults=kwargs)
+        keywordranking, created = KeywordRanking.objects.update_or_create(keyword=keyword, website=website, defaults=kwargs)
         if created:
-            logger.debug(f"RANKING instance does not exist - creating: '{keyword.phrase}' / {website.root_url}")
+            logger.debug(f"RANKING instance does not exist - creating: '{keywordranking}")
         else:
-            logger.debug(f"RANKING instance already exists - updating: '{keyword.phrase}' / {website.root_url}")
-        return ranking
+            logger.debug(f"RANKING instance already exists - updating: '{keywordranking}")
+        return keywordranking
