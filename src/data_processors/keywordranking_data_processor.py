@@ -117,28 +117,7 @@ class KeywordRankingDataProcessor:
             row = row.apply(lambda x: None if isna(x) else x)
 
             keyword = KeywordManager.push_keyword(row["keyword"])
-            if row["URL (Semrush)"] is not None:
-                naive_datetime = datetime.strptime(row["Timestamp (Semrush)"], "%Y-%m-%d")
-                semrush_timestamp = timezone.make_aware(naive_datetime, timezone.get_default_timezone())
-            else:
-                semrush_timestamp = None
 
-            if row["gsc_page_last_1m"] is not None:
-                gsc_page_last_1m = UrlManager.push_url(row["gsc_page_last_1m"], self._website)
-            else:
-                gsc_page_last_1m = None
-
-            if row["gsc_page_previous_1m"] is not None:
-                gsc_page_previous_1m = UrlManager.push_url(row["gsc_page_previous_1m"], self._website)
-            else:
-                gsc_page_previous_1m = None
-
-            if row["gsc_page_last_1m_previous_year"] is not None:
-                gsc_page_last_1m_previous_year = UrlManager.push_url(row["gsc_page_last_1m_previous_year"], self._website)
-            else:
-                gsc_page_last_1m_previous_year = None
-
-            # Use UrlManager's method to push the URL to the database
             KeywordRankingManager.push_ranking(
                 keyword=keyword,
                 website=self._website,
