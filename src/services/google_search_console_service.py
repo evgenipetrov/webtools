@@ -120,10 +120,19 @@ class GoogleSearchConsoleService:
             start_row += len(data)
 
         logger.info(f"Fetched {len(all_data)} rows of GSC data")
-        return pd.DataFrame(all_data).astype(
+        df = pd.DataFrame(all_data)
+        required_columns = {"clicks", "impressions", "ctr", "position"}
+
+        # Add missing columns with NaN values
+        missing_columns = required_columns - set(df.columns)
+        for column in missing_columns:
+            df[column] = float("NaN")
+
+        # Now, it's safe to cast types because all required columns are present
+        return df.astype(
             {
-                "clicks": "int",
-                "impressions": "int",
+                "clicks": "int64",
+                "impressions": "int64",
                 "ctr": "float64",
                 "position": "float64",
             }
