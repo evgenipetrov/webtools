@@ -5,8 +5,8 @@ from exports.googlesearchconsole_date_page_query_last_16m_export import GoogleSe
 from exports.googlesearchconsole_last_16m_page_query_export import GoogleSearchConsoleLast16mPageQueryExport
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
-from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
-from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
+from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport
+from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport
 from exports.semrush_analytics_backlinks_rootdomain_export import SemrushAnalyticsBacklinksRootdomainExport
 from exports.semrush_analytics_backlinks_url_export import SemrushAnalyticsBacklinksUrlExport
 from exports.semrush_analytics_organic_competitors import SemrushAnalyticsOrganicCompetitorsExport
@@ -24,10 +24,10 @@ class CollectProjectDataWorkflow:
     def execute(self):
         project = ProjectManager.get_project_by_id(project_id=self.project_id)
 
-        screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(project)
+        screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlManualExport(project)
         screamingfrog_sitemap_crawl_export.run()
 
-        screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlExport(project)
+        screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlManualExport(project)
         screamingfrog_spider_crawl_export.run()
 
         sitebulb_url_internal_export = SitebulbSpiderCrawlUrlInternalExport(project)

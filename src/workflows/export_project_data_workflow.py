@@ -23,8 +23,8 @@ from exports.googlesearchconsole_query_last_1m_previous_year_export import Googl
 from exports.googlesearchconsole_query_previous_15m_export import GoogleSearchConsoleQueryPrevious15mExport
 from exports.googlesearchconsole_query_previous_1m_export import GoogleSearchConsoleQueryPrevious1mExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
-from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
-from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
+from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport, ScreamingFrogSitemapCrawlAutomaticExport
+from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport, ScreamingFrogSpiderCrawlAutomaticExport
 from exports.semrush_analytics_backlinks_rootdomain_export import SemrushAnalyticsBacklinksRootdomainExport
 from exports.semrush_analytics_organic_competitors import SemrushAnalyticsOrganicCompetitorsExport
 from exports.semrush_analytics_organic_pages_export import SemrushAnalyticsOrganicPagesExport
@@ -60,8 +60,11 @@ class ExportProjectDataWorkflow:
     googlesearchconsole_query_previous_1m_export: GoogleSearchConsoleQueryPrevious1mExport
     # screamingfrog
     screamingfrog_list_crawl_export: ScreamingFrogListCrawlExport
-    screamingfrog_sitemap_crawl_export: ScreamingFrogSitemapCrawlExport
-    screamingfrog_spider_crawl_export: ScreamingFrogSpiderCrawlExport
+    screamingfrog_sitemap_crawl_manual_export: ScreamingFrogSitemapCrawlManualExport
+    screamingfrog_sitemap_crawl_automatic_export: ScreamingFrogSitemapCrawlAutomaticExport
+    screamingfrog_spider_crawl_manual_export: ScreamingFrogSpiderCrawlManualExport
+    screamingfrog_spider_crawl_automatic_export: ScreamingFrogSpiderCrawlAutomaticExport
+
     # semrush
     semrush_analytics_backlinks_rootdomain_export: SemrushAnalyticsBacklinksRootdomainExport
     semrush_analytics_organic_competitors_export: SemrushAnalyticsOrganicCompetitorsExport
@@ -86,12 +89,14 @@ class ExportProjectDataWorkflow:
         pass
 
     def run_stage_1_exports(self):
+        self.screamingfrog_sitemap_crawl_automatic_export = ScreamingFrogSitemapCrawlAutomaticExport(self._project)
+        self.screamingfrog_sitemap_crawl_automatic_export.run(force=True)
         # Run manual exports first
-        self.screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(self._project)
-        self.screamingfrog_sitemap_crawl_export.run(force=True)
+        # self.screamingfrog_sitemap_crawl_manual_export = ScreamingFrogSitemapCrawlManualExport(self._project)
+        # self.screamingfrog_sitemap_crawl_manual_export.run(force=True)
 
-        self.screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlExport(self._project)
-        self.screamingfrog_spider_crawl_export.run(force=True)
+        self.screamingfrog_spider_crawl_manual_export = ScreamingFrogSpiderCrawlManualExport(self._project)
+        self.screamingfrog_spider_crawl_manual_export.run(force=True)
 
         self.sitebulb_spider_crawl_url_internal_export = SitebulbSpiderCrawlUrlInternalExport(self._project)
         self.sitebulb_spider_crawl_url_internal_export.run(force=True)
@@ -114,12 +119,12 @@ class ExportProjectDataWorkflow:
         self.googlesearchconsole_page_last_16m_export.run(force=True)
 
     def prepare_stage_2(self):
-        if self.screamingfrog_sitemap_crawl_export:
-            screamingfrog_sitemap_crawl_data = self.screamingfrog_sitemap_crawl_export.get_data()
+        if self.screamingfrog_sitemap_crawl_manual_export:
+            screamingfrog_sitemap_crawl_data = self.screamingfrog_sitemap_crawl_manual_export.get_data()
             self._project_urls.extend(screamingfrog_sitemap_crawl_data["Address"].dropna().unique().tolist())
 
-        if self.screamingfrog_spider_crawl_export:
-            screamingfrog_spider_crawl_data = self.screamingfrog_spider_crawl_export.get_data()
+        if self.screamingfrog_spider_crawl_manual_export:
+            screamingfrog_spider_crawl_data = self.screamingfrog_spider_crawl_manual_export.get_data()
             self._project_urls.extend(screamingfrog_spider_crawl_data["Address"].dropna().unique().tolist())
 
         if self.sitebulb_spider_crawl_url_internal_export:

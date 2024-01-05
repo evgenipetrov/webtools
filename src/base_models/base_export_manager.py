@@ -4,11 +4,13 @@ import os
 import pandas as pd
 from pandas.errors import EmptyDataError
 
+from core.models import Project
+
 logger = logging.getLogger(__name__)
 
 
 class BaseExportManager:
-    def __init__(self, project, export_subfolder):
+    def __init__(self, project: Project, export_subfolder):
         self.force = False
         self.project = project
         self.export_subfolder = export_subfolder

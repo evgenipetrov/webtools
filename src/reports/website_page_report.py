@@ -2,8 +2,8 @@ import pandas as pd
 
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
-from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
-from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
+from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport
+from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport
 from exports.sitebulb_spider_crawl_url_internal_export import SitebulbSpiderCrawlUrlInternalExport
 from reports.base_report import BaseReport
 
@@ -21,8 +21,8 @@ class WebsitePagesReport(BaseReport):
         self.report = None
         self.processed_data = None
         self.screamingfrog_list_crawl_export = None
-        self.screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(self.project)
-        self.screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlExport(self.project)
+        self.screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlManualExport(self.project)
+        self.screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlManualExport(self.project)
         self.sitebulb_url_internal_export = SitebulbSpiderCrawlUrlInternalExport(self.project)
 
         self.googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(self.project)

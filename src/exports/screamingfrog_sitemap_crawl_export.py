@@ -1,12 +1,18 @@
 import logging
+import os
+import shutil
+
+from django.conf import settings
 
 from base_models.base_export_manager import BaseExportManager
+from services.screamingfrogseospider_service import ScreamingFrogSeoSpiderService
 
 logger = logging.getLogger(__name__)
 EXPORT_SUBFOLDER = "screamingfrog_sitemap_crawl_export"
+EXPORT_TABS = "Internal:HTML"
 
 
-class ScreamingFrogSitemapCrawlExport(BaseExportManager):
+class ScreamingFrogSitemapCrawlManualExport(BaseExportManager):
     def __init__(self, project):
         super().__init__(project, EXPORT_SUBFOLDER)
 
@@ -47,3 +53,43 @@ class ScreamingFrogSitemapCrawlExport(BaseExportManager):
         """
         Any post-export actions.
         """
+
+
+class ScreamingFrogSitemapCrawlAutomaticExport(BaseExportManager):
+    def __init__(self, project):
+        super().__init__(project, EXPORT_SUBFOLDER)
+
+    def perform_pre_export_action(self):
+        """
+        Provides instructions for Screaming Frog sitemap crawl export in a step-by-step format.
+        """
+        # Check if the user wants to proceed
+        pass
+
+    def perform_export(self):
+        """
+        Implement the actual export logic here.
+        """
+        # Export logic or automated steps specific to Screaming Frog
+        sf_service = ScreamingFrogSeoSpiderService()
+        sf_service.set_crawl_config("/seospiderconfig/listcrawl.seospiderconfig")
+        sf_service.set_sitemap_url(self.project.sitemap_url)
+        sf_service.set_export_tabs(EXPORT_TABS)
+
+        sf_service.run()
+
+    def perform_post_export_action(self):
+        """
+        Any post-export actions.
+        """
+        # Empty destination dir
+        for filename in os.listdir(self.export_path):
+            file_path = os.path.join(self.export_path, filename)
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+
+        # Move files from TEMP_DIR to export_path
+        for filename in os.listdir(settings.TEMP_DIR):
+            shutil.move(os.path.join(settings.TEMP_DIR, filename), self.export_path)

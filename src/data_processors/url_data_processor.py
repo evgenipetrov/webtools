@@ -11,8 +11,8 @@ from core.models.website import WebsiteManager
 from exports.googleanalytics4_last_14m_export import GoogleAnalytics4Last14mExport
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
-from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
-from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
+from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport
+from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport
 from exports.semrush_analytics_backlinks_rootdomain_export import SemrushAnalyticsBacklinksRootdomainExport
 from exports.semrush_analytics_organic_pages_export import SemrushAnalyticsOrganicPagesExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
@@ -46,10 +46,10 @@ class UrlDataProcessor:
         screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self._project)
         self.screamingfrog_list_crawl_data = screamingfrog_list_crawl_export.get_data()
 
-        screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlExport(self._project)
+        screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlManualExport(self._project)
         self.screamingfrog_spider_crawl_data = screamingfrog_spider_crawl_export.get_data()
 
-        screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(self._project)
+        screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlManualExport(self._project)
         self.screamingfrog_sitemap_crawl_data = screamingfrog_sitemap_crawl_export.get_data()
 
         googleanalytics4_last_14m_export = GoogleAnalytics4Last14mExport(self._project)

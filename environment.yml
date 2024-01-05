@@ -1,0 +1,11 @@
+name: webtools
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - aiohttp
+  - black[d]
+  - pip
+  - pip:
+      - -r requirements.txt
+

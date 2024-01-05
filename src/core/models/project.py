@@ -12,6 +12,8 @@ class Project(models.Model):
     base_url = models.URLField(max_length=200)
     data_folder = models.CharField(max_length=255)
 
+    sitemap_url = models.URLField(max_length=200, blank=True, null=True)
+
     gsc_auth_domain = models.CharField(max_length=255, blank=True, null=True)
     gsc_property_name = models.CharField(max_length=255, blank=True, null=True)
 

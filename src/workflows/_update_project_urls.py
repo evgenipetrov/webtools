@@ -8,8 +8,8 @@ from core.models.url import UrlManager
 from core.models.website import WebsiteManager
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
-from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlExport
-from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlExport
+from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport
+from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport
 from exports.sitebulb_spider_crawl_url_internal_export import SitebulbSpiderCrawlUrlInternalExport
 from services.dataframe_service import DataframeService
 
@@ -32,7 +32,7 @@ class UpdateProjectUrlsWorkflow:
         )
 
         # build URL list
-        screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlExport(project)
+        screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlManualExport(project)
         screamingfrog_sitemap_crawl_data = screamingfrog_sitemap_crawl_export.get_data()
         # clean urls
         screamingfrog_sitemap_crawl_data = screamingfrog_sitemap_crawl_data[~screamingfrog_sitemap_crawl_data["Content Type"].str.contains("application/xml")]  # remove sitemap urls
@@ -43,7 +43,7 @@ class UpdateProjectUrlsWorkflow:
         # merge clean urls in master data
         master_url_data = DataframeService.merge_keys(master_url_data, screamingfrog_sitemap_crawl_data, "url", "Address")
 
-        screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlExport(project)
+        screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlManualExport(project)
         screamingfrog_spider_crawl_data = screamingfrog_spider_crawl_export.get_data()
         # clean urls
 
