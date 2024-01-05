@@ -3,10 +3,16 @@ import logging
 import os
 import sys
 
+from django.conf import settings
+
 from base_models.base_export_manager import BaseExportManager
+from services.screamingfrogseospider_service import ScreamingFrogSeoSpiderService
 
 logger = logging.getLogger(__name__)
 EXPORT_SUBFOLDER = "screamingfrog_list_crawl_export"
+EXPORT_TABS = "Internal:HTML"
+
+CRAWL_LIST_FILENAME = "urls.txt"
 
 
 @contextlib.contextmanager
@@ -21,7 +27,7 @@ def suppress_stdout():
             sys.stdout = old_stdout
 
 
-class ScreamingFrogListCrawlExport(BaseExportManager):
+class ScreamingFrogListCrawlManualExport(BaseExportManager):
     def __init__(self, project, urls=None):
         super().__init__(project, EXPORT_SUBFOLDER)
         self.urls = urls
@@ -30,11 +36,6 @@ class ScreamingFrogListCrawlExport(BaseExportManager):
         """
         Provides instructions for Screaming Frog list crawl export in a step-by-step format.
         """
-        # Check if the user wants to proceed
-        if not self.force and not self.confirm_export(EXPORT_SUBFOLDER):
-            print("Export process aborted.")
-            return  # Stop the method if user does not confirm
-
         # ANSI escape codes for colors
         color_yellow = "\033[93m"
         color_reset = "\033[0m"
@@ -68,3 +69,42 @@ class ScreamingFrogListCrawlExport(BaseExportManager):
         """
         Any post-export actions.
         """
+
+
+class ScreamingFrogListCrawlAutomaticExport(BaseExportManager):
+    def __init__(self, project, urls=None):
+        super().__init__(project, EXPORT_SUBFOLDER)
+        self.urls = urls
+        self.crawl_list_file_path = os.path.join(settings.TEMP_DIR, CRAWL_LIST_FILENAME)
+
+    def perform_pre_export_action(self):
+        """
+        Provides instructions for Screaming Frog list crawl export in a step-by-step format.
+        """
+        # cleanup export folder
+        self.empty_export_folder()
+
+        # Create a file with the URLs
+        with open(CRAWL_LIST_FILENAME, "w") as file:
+            file.write("\n".join(self.urls))
+
+    def perform_export(self):
+        """
+        Implement the actual export logic here.
+        """
+        # Export logic or automated steps specific to Screaming Frog
+        sf_service = ScreamingFrogSeoSpiderService()
+        sf_service.set_crawl_config("/seospiderconfig/listcrawl.seospiderconfig")
+        docker_crawl_list_file_path = os.path.join("/export", CRAWL_LIST_FILENAME)
+        sf_service.set_crawl_list(docker_crawl_list_file_path)
+        sf_service.set_export_tabs(EXPORT_TABS)
+
+        sf_service.run()
+
+    def perform_post_export_action(self):
+        """
+        Any post-export actions.
+        """
+        # Delete the crawl list file
+        if os.path.exists(self.crawl_list_file_path):
+            os.remove(self.crawl_list_file_path)

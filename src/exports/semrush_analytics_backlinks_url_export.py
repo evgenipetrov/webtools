@@ -18,11 +18,6 @@ class SemrushAnalyticsBacklinksUrlExport(BaseExportManager):
         """
         Provides instructions for Semrush backlinks export for urls.
         """
-        # Check if the user wants to proceed
-        if not self.force and not self.confirm_export(EXPORT_SUBFOLDER):
-            print("Export process aborted.")
-            return  # Stop the method if user does not confirm
-
         print(f"Open the following URL and perform export.")
         print(f"Place the exported file(s) in the following directory: {self.export_path}")
         website = WebsiteManager.get_website_by_project(self.project)

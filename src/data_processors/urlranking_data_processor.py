@@ -17,7 +17,7 @@ from exports.googlesearchconsole_page_query_last_1m_export import GoogleSearchCo
 from exports.googlesearchconsole_page_query_last_1m_previous_year_export import GoogleSearchConsolePageQueryLast1mPreviousYearExport
 from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSearchConsolePageQueryPrevious1mExport
 from exports.googlesearchconsole_query_last_16m_export import GoogleSearchConsoleQueryLast16mExport
-from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
+from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlManualExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ class UrlRankingDataProcessor:
         self.store_data()
 
     def collect_data(self):
-        screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self._project)
+        screamingfrog_list_crawl_export = ScreamingFrogListCrawlManualExport(self._project)
         self.screamingfrog_list_crawl_data = screamingfrog_list_crawl_export.get_data()
 
         googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(self._project)
@@ -86,7 +86,9 @@ class UrlRankingDataProcessor:
         ]
         df = pd.merge(
             df,
-            semrush_analytics_organic_positions_rootdomain_best_by_volume_data[semrush_analytics_organic_positions_rootdomain_data_columns].sort_values(by="Search Volume (Semrush Best by Volume)", ascending=False).drop_duplicates(subset="URL", keep="first"),
+            semrush_analytics_organic_positions_rootdomain_best_by_volume_data[semrush_analytics_organic_positions_rootdomain_data_columns]
+            .sort_values(by="Search Volume (Semrush Best by Volume)", ascending=False)
+            .drop_duplicates(subset="URL", keep="first"),
             left_on="full_address",
             right_on="URL",
             how="left",
@@ -105,7 +107,9 @@ class UrlRankingDataProcessor:
         ]
         df = pd.merge(
             df,
-            semrush_analytics_organic_positions_rootdomain_best_by_position_data[semrush_analytics_organic_positions_rootdomain_data_columns].sort_values(by="Position (Semrush Best by Position)", ascending=True).drop_duplicates(subset="URL", keep="first"),
+            semrush_analytics_organic_positions_rootdomain_best_by_position_data[semrush_analytics_organic_positions_rootdomain_data_columns]
+            .sort_values(by="Position (Semrush Best by Position)", ascending=True)
+            .drop_duplicates(subset="URL", keep="first"),
             left_on="full_address",
             right_on="URL",
             how="left",
@@ -135,7 +139,9 @@ class UrlRankingDataProcessor:
         googlesearchconsole_page_query_last_1m_data_best_by_position = self.googlesearchconsole_page_query_last_1m_data.rename(columns=lambda x: "gsc_" + x + "_last_1m_best_by_position" if x != "page" else x)
         df = pd.merge(
             df,
-            googlesearchconsole_page_query_last_1m_data_best_by_position.sort_values(by=["gsc_position_last_1m_best_by_position", "gsc_impressions_last_1m_best_by_position"], ascending=[False, False]).drop_duplicates(subset="page", keep="first"),
+            googlesearchconsole_page_query_last_1m_data_best_by_position.sort_values(by=["gsc_position_last_1m_best_by_position", "gsc_impressions_last_1m_best_by_position"], ascending=[False, False]).drop_duplicates(
+                subset="page", keep="first"
+            ),
             left_on="full_address",
             right_on="page",
             how="left",
@@ -146,7 +152,9 @@ class UrlRankingDataProcessor:
         googlesearchconsole_page_query_previous_1m_data_best_by_clicks = self.googlesearchconsole_page_query_previous_1m_data.rename(columns=lambda x: "gsc_" + x + "_previous_1m_best_by_clicks" if x != "page" else x)
         df = pd.merge(
             df,
-            googlesearchconsole_page_query_previous_1m_data_best_by_clicks.sort_values(by=["gsc_clicks_previous_1m_best_by_clicks", "gsc_impressions_previous_1m_best_by_clicks"], ascending=[False, False]).drop_duplicates(subset="page", keep="first"),
+            googlesearchconsole_page_query_previous_1m_data_best_by_clicks.sort_values(by=["gsc_clicks_previous_1m_best_by_clicks", "gsc_impressions_previous_1m_best_by_clicks"], ascending=[False, False]).drop_duplicates(
+                subset="page", keep="first"
+            ),
             left_on="full_address",
             right_on="page",
             how="left",
@@ -166,7 +174,9 @@ class UrlRankingDataProcessor:
         googlesearchconsole_page_query_previous_1m_data_best_by_position = self.googlesearchconsole_page_query_previous_1m_data.rename(columns=lambda x: "gsc_" + x + "_previous_1m_best_by_position" if x != "page" else x)
         df = pd.merge(
             df,
-            googlesearchconsole_page_query_previous_1m_data_best_by_position.sort_values(by=["gsc_position_previous_1m_best_by_position", "gsc_impressions_previous_1m_best_by_position"], ascending=[False, False]).drop_duplicates(subset="page", keep="first"),
+            googlesearchconsole_page_query_previous_1m_data_best_by_position.sort_values(by=["gsc_position_previous_1m_best_by_position", "gsc_impressions_previous_1m_best_by_position"], ascending=[False, False]).drop_duplicates(
+                subset="page", keep="first"
+            ),
             left_on="full_address",
             right_on="page",
             how="left",
@@ -174,17 +184,23 @@ class UrlRankingDataProcessor:
         df.drop("page", axis=1, inplace=True)
         ####################### end #############################
         ####################### last_1m_previous_year_data #############################
-        googlesearchconsole_page_query_last_1m_previous_year_data_best_by_clicks = self.googlesearchconsole_page_query_last_1m_previous_year_data.rename(columns=lambda x: "gsc_" + x + "_last_1m_previous_year_best_by_clicks" if x != "page" else x)
+        googlesearchconsole_page_query_last_1m_previous_year_data_best_by_clicks = self.googlesearchconsole_page_query_last_1m_previous_year_data.rename(
+            columns=lambda x: "gsc_" + x + "_last_1m_previous_year_best_by_clicks" if x != "page" else x
+        )
         df = pd.merge(
             df,
-            googlesearchconsole_page_query_last_1m_previous_year_data_best_by_clicks.sort_values(by=["gsc_clicks_last_1m_previous_year_best_by_clicks", "gsc_impressions_last_1m_previous_year_best_by_clicks"], ascending=[False, False]).drop_duplicates(subset="page", keep="first"),
+            googlesearchconsole_page_query_last_1m_previous_year_data_best_by_clicks.sort_values(
+                by=["gsc_clicks_last_1m_previous_year_best_by_clicks", "gsc_impressions_last_1m_previous_year_best_by_clicks"], ascending=[False, False]
+            ).drop_duplicates(subset="page", keep="first"),
             left_on="full_address",
             right_on="page",
             how="left",
         )
         df.drop("page", axis=1, inplace=True)
 
-        googlesearchconsole_page_query_last_1m_previous_year_data_best_by_impressions = self.googlesearchconsole_page_query_last_1m_previous_year_data.rename(columns=lambda x: "gsc_" + x + "_last_1m_previous_year_best_by_impressions" if x != "page" else x)
+        googlesearchconsole_page_query_last_1m_previous_year_data_best_by_impressions = self.googlesearchconsole_page_query_last_1m_previous_year_data.rename(
+            columns=lambda x: "gsc_" + x + "_last_1m_previous_year_best_by_impressions" if x != "page" else x
+        )
         df = pd.merge(
             df,
             googlesearchconsole_page_query_last_1m_previous_year_data_best_by_impressions.sort_values(by="gsc_impressions_last_1m_previous_year_best_by_impressions", ascending=False).drop_duplicates(subset="page", keep="first"),
@@ -194,10 +210,14 @@ class UrlRankingDataProcessor:
         )
         df.drop("page", axis=1, inplace=True)
 
-        googlesearchconsole_page_query_last_1m_previous_year_data_best_by_position = self.googlesearchconsole_page_query_last_1m_previous_year_data.rename(columns=lambda x: "gsc_" + x + "_last_1m_previous_year_best_by_position" if x != "page" else x)
+        googlesearchconsole_page_query_last_1m_previous_year_data_best_by_position = self.googlesearchconsole_page_query_last_1m_previous_year_data.rename(
+            columns=lambda x: "gsc_" + x + "_last_1m_previous_year_best_by_position" if x != "page" else x
+        )
         df = pd.merge(
             df,
-            googlesearchconsole_page_query_last_1m_previous_year_data_best_by_position.sort_values(by=["gsc_position_last_1m_previous_year_best_by_position", "gsc_impressions_last_1m_previous_year_best_by_position"], ascending=[False, False]).drop_duplicates(subset="page", keep="first"),
+            googlesearchconsole_page_query_last_1m_previous_year_data_best_by_position.sort_values(
+                by=["gsc_position_last_1m_previous_year_best_by_position", "gsc_impressions_last_1m_previous_year_best_by_position"], ascending=[False, False]
+            ).drop_duplicates(subset="page", keep="first"),
             left_on="full_address",
             right_on="page",
             how="left",
@@ -208,7 +228,9 @@ class UrlRankingDataProcessor:
         googlesearchconsole_page_query_last_16m_data_best_by_clicks = self.googlesearchconsole_page_query_last_16m_data.rename(columns=lambda x: "gsc_" + x + "_last_16m_best_by_clicks" if x != "page" else x)
         df = pd.merge(
             df,
-            googlesearchconsole_page_query_last_16m_data_best_by_clicks.sort_values(by=["gsc_clicks_last_16m_best_by_clicks", "gsc_impressions_last_16m_best_by_clicks"], ascending=[False, False]).drop_duplicates(subset="page", keep="first"),
+            googlesearchconsole_page_query_last_16m_data_best_by_clicks.sort_values(by=["gsc_clicks_last_16m_best_by_clicks", "gsc_impressions_last_16m_best_by_clicks"], ascending=[False, False]).drop_duplicates(
+                subset="page", keep="first"
+            ),
             left_on="full_address",
             right_on="page",
             how="left",
@@ -228,7 +250,9 @@ class UrlRankingDataProcessor:
         googlesearchconsole_page_query_last_16m_data_best_by_position = self.googlesearchconsole_page_query_last_16m_data.rename(columns=lambda x: "gsc_" + x + "_last_16m_best_by_position" if x != "page" else x)
         df = pd.merge(
             df,
-            googlesearchconsole_page_query_last_16m_data_best_by_position.sort_values(by=["gsc_position_last_16m_best_by_position", "gsc_impressions_last_16m_best_by_position"], ascending=[False, False]).drop_duplicates(subset="page", keep="first"),
+            googlesearchconsole_page_query_last_16m_data_best_by_position.sort_values(by=["gsc_position_last_16m_best_by_position", "gsc_impressions_last_16m_best_by_position"], ascending=[False, False]).drop_duplicates(
+                subset="page", keep="first"
+            ),
             left_on="full_address",
             right_on="page",
             how="left",

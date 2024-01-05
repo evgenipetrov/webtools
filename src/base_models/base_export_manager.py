@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 
 import pandas as pd
 from pandas.errors import EmptyDataError
@@ -15,14 +16,16 @@ class BaseExportManager:
         self.project = project
         self.export_subfolder = export_subfolder
         self.export_path = os.path.join(project.data_folder, self.export_subfolder)
-        self.ensure_export_path()
 
-    def ensure_export_path(self):
-        """
-        Ensures that the export folder exists.
-        """
+    def empty_export_folder(self):
         if not os.path.exists(self.export_path):
             os.makedirs(self.export_path)
+        for filename in os.listdir(self.export_path):
+            file_path = os.path.join(self.export_path, filename)
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
 
     def run(self, force=False):
         """
@@ -30,31 +33,25 @@ class BaseExportManager:
         If 'force' is True, skips user confirmation.
         """
         self.force = force
-        if force or self.confirm_export(self.export_subfolder):
+
+        if not self.force:
+            self.confirm_export(self.export_subfolder)
+
+        if self.force:
+            self.empty_export_folder()
             self.perform_pre_export_action()
             self.perform_export()
             self.perform_post_export_action()
+        else:
+            logger.info("Export process aborted.")
 
-    @staticmethod
-    def confirm_export(export_description):
+    def confirm_export(self, export_description):
         """
         Asks the user whether to proceed with a specific export process.
-        Adds distinct color and formatting to the export name for visibility.
+        Only proceeds if the user inputs 'y'.
         """
-        default_response = "N"  # Default to no
-        # ANSI escape code for bold and blue text
-        blue_bold_start = "\033[1;34m"
-        # ANSI escape code to reset to default text color
-        color_end = "\033[0m"
-        response = input(f"Do you want to proceed with {blue_bold_start}{export_description.upper()}{color_end} export? (y/n) [{default_response}]: ")
-
-        if response.strip().lower() not in ("y", "n"):
-            return False
-
-        if response.strip().lower() == "y":
-            return True
-        else:
-            return False
+        response = input(f"Do you want to proceed with {export_description.upper()} export? [y/N]: ").strip().lower()
+        self.force = response == "y"
 
     def perform_pre_export_action(self):
         """

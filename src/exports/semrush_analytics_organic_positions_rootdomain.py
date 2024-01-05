@@ -15,11 +15,6 @@ class SemrushAnalyticsOrganicPositionsRootdomainExport(BaseExportManager):
         """
         Provides instructions for Semrush organic positions export in a step-by-step format.
         """
-        # Check if the user wants to proceed
-        if not self.force and not self.confirm_export(EXPORT_SUBFOLDER):
-            print("Export process aborted.")
-            return  # Stop the method if user does not confirm
-
         # ANSI escape codes for colors
         color_yellow = "\033[93m"
         color_blue = "\033[94m"

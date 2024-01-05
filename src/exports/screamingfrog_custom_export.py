@@ -24,9 +24,12 @@ class ScreamingFrogCustomExport(BaseExportManager):
 
         urls_df.to_clipboard(index=False, header=False)
 
+        self.empty_export_folder()
         print(f"The urls to crawl are copied to clipboard.")
         print(f"Please export the Screaming Frog list crawl data as CSV. Verify for 429 error codes.")
         print(f"Place the exported file(s) in the following directory: {self.export_path}")
+        input("Press ENTER to continue after placing the exported files.")
+        # cleanup export folder
 
     def perform_export(self):
         """
@@ -39,7 +42,7 @@ class ScreamingFrogCustomExport(BaseExportManager):
         """
         Any post-export actions.
         """
-        input("Press ENTER to continue after placing the exported files.")
+
         df = self.get_data()
         # clean urls
         df = df[~df["Address"].str.contains("#")]  # remove fragments

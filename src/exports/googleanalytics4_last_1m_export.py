@@ -24,10 +24,6 @@ class GoogleAnalytics4Last1mExport(BaseExportManager):
         self.ga4_property_id = None
 
     def perform_pre_export_action(self):
-        """
-        Obtain or confirm authentication details for Google Analytics 4.
-        If 'force' is True and auth details are present, skip user input.
-        """
         # Check if auth_domain and property_id are already set in the project
         if self.project.ga4_auth_domain and self.project.ga4_property_id:
             if self.force:

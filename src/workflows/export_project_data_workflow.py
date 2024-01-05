@@ -8,7 +8,6 @@ from exports.googleanalytics4_last_14m_export import GoogleAnalytics4Last14mExpo
 from exports.googleanalytics4_last_1m_export import GoogleAnalytics4Last1mExport
 from exports.googleanalytics4_last_1m_previous_year_export import GoogleAnalytics4Last1mPreviousYearExport
 from exports.googleanalytics4_previous_1m_export import GoogleAnalytics4Previous1mExport
-from exports.googlesearchconsole_date_page_query_last_16m_export import GoogleSearchConsoleDatePageQueryLast16mExport
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
 from exports.googlesearchconsole_page_last_1m_export import GoogleSearchConsolePageLast1mExport
 from exports.googlesearchconsole_page_last_1m_previous_year_export import GoogleSearchConsolePageLast1mPreviousYearExport
@@ -22,15 +21,13 @@ from exports.googlesearchconsole_query_last_1m_export import GoogleSearchConsole
 from exports.googlesearchconsole_query_last_1m_previous_year_export import GoogleSearchConsoleQueryLast1mPreviousYearExport
 from exports.googlesearchconsole_query_previous_15m_export import GoogleSearchConsoleQueryPrevious15mExport
 from exports.googlesearchconsole_query_previous_1m_export import GoogleSearchConsoleQueryPrevious1mExport
-from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
-from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport, ScreamingFrogSitemapCrawlAutomaticExport
-from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport, ScreamingFrogSpiderCrawlAutomaticExport
+from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlManualExport, ScreamingFrogListCrawlAutomaticExport
+from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlAutomaticExport
+from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlAutomaticExport
 from exports.semrush_analytics_backlinks_rootdomain_export import SemrushAnalyticsBacklinksRootdomainExport
 from exports.semrush_analytics_organic_competitors import SemrushAnalyticsOrganicCompetitorsExport
 from exports.semrush_analytics_organic_pages_export import SemrushAnalyticsOrganicPagesExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
-from exports.sitebulb_list_crawl_url_internal_export import SitebulbListCrawlUrlInternalExport
-from exports.sitebulb_spider_crawl_url_internal_export import SitebulbSpiderCrawlUrlInternalExport
 
 # Other imports...
 
@@ -38,43 +35,34 @@ logger = logging.getLogger(__name__)
 
 
 class ExportProjectDataWorkflow:
-    # googleanalytics4
-    googleanalytics4_last_14m_export: GoogleAnalytics4Last14mExport
-    googleanalytics4_last_1m_export: GoogleAnalytics4Last1mExport
-    googleanalytics4_last_1m_previous_year_export: GoogleAnalytics4Last1mPreviousYearExport
-    googleanalytics4_previous_1m_export: GoogleAnalytics4Previous1mExport
-    # googlesearchconsole
-    googlesearchconsole_date_page_query_last_16m_export: GoogleSearchConsoleDatePageQueryLast16mExport
-    googlesearchconsole_page_last_16m_export: GoogleSearchConsolePageLast16mExport
-    googlesearchconsole_page_last_1m_export: GoogleSearchConsolePageLast1mExport
-    googlesearchconsole_page_last_1m_previous_year_export: GoogleSearchConsolePageLast1mPreviousYearExport
-    googlesearchconsole_page_previous_1m_export: GoogleSearchConsolePagePrevious1mExport
-    googlesearchconsole_page_query_last_16m_export: GoogleSearchConsolePageQueryLast16mExport
-    googlesearchconsole_page_query_last_1m_export: GoogleSearchConsolePageQueryLast1mExport
-    googlesearchconsole_page_query_last_1m_previous_year_export: GoogleSearchConsolePageQueryLast1mPreviousYearExport
-    googlesearchconsole_page_query_previous_1m_export: GoogleSearchConsolePageQueryPrevious1mExport
-    googlesearchconsole_query_last_16m_export: GoogleSearchConsoleQueryLast16mExport
-    googlesearchconsole_query_last_1m_export: GoogleSearchConsoleQueryLast1mExport
-    googlesearchconsole_query_last_1m_previous_year_export: GoogleSearchConsoleQueryLast1mPreviousYearExport
-    googlesearchconsole_query_previous_15m_export: GoogleSearchConsoleQueryPrevious15mExport
-    googlesearchconsole_query_previous_1m_export: GoogleSearchConsoleQueryPrevious1mExport
-    # screamingfrog
-    screamingfrog_list_crawl_export: ScreamingFrogListCrawlExport
-    screamingfrog_sitemap_crawl_manual_export: ScreamingFrogSitemapCrawlManualExport
-    screamingfrog_sitemap_crawl_automatic_export: ScreamingFrogSitemapCrawlAutomaticExport
-    screamingfrog_spider_crawl_manual_export: ScreamingFrogSpiderCrawlManualExport
-    screamingfrog_spider_crawl_automatic_export: ScreamingFrogSpiderCrawlAutomaticExport
-
-    # semrush
-    semrush_analytics_backlinks_rootdomain_export: SemrushAnalyticsBacklinksRootdomainExport
-    semrush_analytics_organic_competitors_export: SemrushAnalyticsOrganicCompetitorsExport
-    semrush_analytics_organic_pages_export: SemrushAnalyticsOrganicPagesExport
-    semrush_analytics_organic_positions_rootdomain_export: SemrushAnalyticsOrganicPositionsRootdomainExport
-    # sitebulb
-    sitebulb_list_crawl_url_internal_export: SitebulbListCrawlUrlInternalExport
-    sitebulb_spider_crawl_url_internal_export: SitebulbSpiderCrawlUrlInternalExport
-
     def __init__(self, project: Project):
+        self.googlesearchconsole_query_previous_15m_export = None
+        self.googlesearchconsole_page_query_previous_1m_export = None
+        self.googlesearchconsole_page_query_last_1m_previous_year_export = None
+        self.googlesearchconsole_page_query_last_1m_export = None
+        self.googlesearchconsole_query_previous_1m_export = None
+        self.googlesearchconsole_query_last_1m_previous_year_export = None
+        self.googlesearchconsole_query_last_1m_export = None
+        self.googlesearchconsole_page_previous_1m_export = None
+        self.googlesearchconsole_page_last_1m_previous_year_export = None
+        self.googlesearchconsole_page_last_1m_export = None
+        self.googlesearchconsole_page_query_last_16m_export = None
+        self.googlesearchconsole_query_last_16m_export = None
+        self.googleanalytics4_previous_1m_export = None
+        self.googleanalytics4_last_1m_previous_year_export = None
+        self.googleanalytics4_last_1m_export = None
+        self.screamingfrog_list_crawl_automatic_export = None
+        self.screamingfrog_list_crawl_manual_export = None
+        self.googlesearchconsole_page_last_16m_export = None
+        self.googleanalytics4_last_14m_export = None
+        self.screamingfrog_spider_crawl_automatic_export = None
+        self.screamingfrog_sitemap_crawl_automatic_export = None
+        self.semrush_analytics_organic_competitors_export = None
+        self.semrush_analytics_backlinks_rootdomain_export = None
+        self.semrush_analytics_organic_pages_export = None
+        self.semrush_analytics_organic_positions_rootdomain_export = None
+        self.screamingfrog_spider_crawl_manual_export = None
+        self.screamingfrog_sitemap_crawl_manual_export = None
         self._project = project
         self._project_urls = []
 
@@ -89,26 +77,33 @@ class ExportProjectDataWorkflow:
         pass
 
     def run_stage_1_exports(self):
-        self.screamingfrog_sitemap_crawl_automatic_export = ScreamingFrogSitemapCrawlAutomaticExport(self._project)
-        self.screamingfrog_sitemap_crawl_automatic_export.run(force=True)
         # Run manual exports first
         # self.screamingfrog_sitemap_crawl_manual_export = ScreamingFrogSitemapCrawlManualExport(self._project)
         # self.screamingfrog_sitemap_crawl_manual_export.run(force=True)
 
-        self.screamingfrog_spider_crawl_manual_export = ScreamingFrogSpiderCrawlManualExport(self._project)
-        self.screamingfrog_spider_crawl_manual_export.run(force=True)
+        # self.screamingfrog_spider_crawl_manual_export = ScreamingFrogSpiderCrawlManualExport(self._project)
+        # self.screamingfrog_spider_crawl_manual_export.run(force=True)
 
-        self.sitebulb_spider_crawl_url_internal_export = SitebulbSpiderCrawlUrlInternalExport(self._project)
-        self.sitebulb_spider_crawl_url_internal_export.run(force=True)
+        # self.sitebulb_spider_crawl_url_internal_export = SitebulbSpiderCrawlUrlInternalExport(self._project)
+        # self.sitebulb_spider_crawl_url_internal_export.run(force=True)
 
         self.semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(self._project)
-        self.semrush_analytics_organic_positions_rootdomain_export.run(force=True)
+        self.semrush_analytics_organic_positions_rootdomain_export.run()
 
         self.semrush_analytics_organic_pages_export = SemrushAnalyticsOrganicPagesExport(self._project)
-        self.semrush_analytics_organic_pages_export.run(force=True)
+        self.semrush_analytics_organic_pages_export.run()
 
         self.semrush_analytics_backlinks_rootdomain_export = SemrushAnalyticsBacklinksRootdomainExport(self._project)
-        self.semrush_analytics_backlinks_rootdomain_export.run(force=True)
+        self.semrush_analytics_backlinks_rootdomain_export.run()
+
+        self.semrush_analytics_organic_competitors_export = SemrushAnalyticsOrganicCompetitorsExport(self._project)
+        self.semrush_analytics_organic_competitors_export.run()
+
+        self.screamingfrog_sitemap_crawl_automatic_export = ScreamingFrogSitemapCrawlAutomaticExport(self._project)
+        self.screamingfrog_sitemap_crawl_automatic_export.run(force=True)
+
+        self.screamingfrog_spider_crawl_automatic_export = ScreamingFrogSpiderCrawlAutomaticExport(self._project)
+        self.screamingfrog_spider_crawl_automatic_export.run(force=True)
 
         # GA4 14 month window
         self.googleanalytics4_last_14m_export = GoogleAnalytics4Last14mExport(self._project)
@@ -119,27 +114,35 @@ class ExportProjectDataWorkflow:
         self.googlesearchconsole_page_last_16m_export.run(force=True)
 
     def prepare_stage_2(self):
-        if self.screamingfrog_sitemap_crawl_manual_export:
+        if self.screamingfrog_sitemap_crawl_manual_export is not None:
             screamingfrog_sitemap_crawl_data = self.screamingfrog_sitemap_crawl_manual_export.get_data()
             self._project_urls.extend(screamingfrog_sitemap_crawl_data["Address"].dropna().unique().tolist())
 
-        if self.screamingfrog_spider_crawl_manual_export:
+        if self.screamingfrog_spider_crawl_manual_export is not None:
             screamingfrog_spider_crawl_data = self.screamingfrog_spider_crawl_manual_export.get_data()
             self._project_urls.extend(screamingfrog_spider_crawl_data["Address"].dropna().unique().tolist())
 
-        if self.sitebulb_spider_crawl_url_internal_export:
-            sitebulb_data = self.sitebulb_spider_crawl_url_internal_export.get_data()
-            self._project_urls.extend(sitebulb_data["URL"].dropna().unique().tolist())
+        if self.screamingfrog_sitemap_crawl_automatic_export is not None:
+            screamingfrog_sitemap_crawl_data = self.screamingfrog_sitemap_crawl_automatic_export.get_data()
+            self._project_urls.extend(screamingfrog_sitemap_crawl_data["Address"].dropna().unique().tolist())
 
-        if self.semrush_analytics_organic_positions_rootdomain_export:
+        if self.screamingfrog_spider_crawl_automatic_export is not None:
+            screamingfrog_spider_crawl_data = self.screamingfrog_spider_crawl_automatic_export.get_data()
+            self._project_urls.extend(screamingfrog_spider_crawl_data["Address"].dropna().unique().tolist())
+
+        # if self.sitebulb_spider_crawl_url_internal_export is not None:
+        #     sitebulb_data = self.sitebulb_spider_crawl_url_internal_export.get_data()
+        #     self._project_urls.extend(sitebulb_data["URL"].dropna().unique().tolist())
+
+        if self.semrush_analytics_organic_positions_rootdomain_export is not None:
             semrush_positions_data = self.semrush_analytics_organic_positions_rootdomain_export.get_data()
             self._project_urls.extend(semrush_positions_data["URL"].dropna().unique().tolist())
 
-        if self.semrush_analytics_organic_pages_export:
+        if self.semrush_analytics_organic_pages_export is not None:
             semrush_pages_data = self.semrush_analytics_organic_pages_export.get_data()
             self._project_urls.extend(semrush_pages_data["URL"].dropna().unique().tolist())
 
-        if self.semrush_analytics_backlinks_rootdomain_export:
+        if self.semrush_analytics_backlinks_rootdomain_export is not None:
             semrush_backlinks_data = self.semrush_analytics_backlinks_rootdomain_export.get_data()
             self._project_urls.extend(semrush_backlinks_data["Target url"].dropna().unique().tolist())
 
@@ -159,14 +162,14 @@ class ExportProjectDataWorkflow:
 
     def run_stage_2_exports(self):
         # Run manual exports first
-        self.screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self._project, self._project_urls)
-        self.screamingfrog_list_crawl_export.run(force=True)
+        # self.screamingfrog_list_crawl_manual_export = ScreamingFrogListCrawlManualExport(self._project, self._project_urls)
+        # self.screamingfrog_list_crawl_manual_export.run(force=True)
 
-        self.sitebulb_list_crawl_url_internal_export = SitebulbListCrawlUrlInternalExport(self._project, self._project_urls)
-        self.sitebulb_list_crawl_url_internal_export.run(force=True)
+        # self.sitebulb_list_crawl_url_internal_export = SitebulbListCrawlUrlInternalExport(self._project, self._project_urls)
+        # self.sitebulb_list_crawl_url_internal_export.run(force=True)
 
-        self.semrush_analytics_organic_competitors_export = SemrushAnalyticsOrganicCompetitorsExport(self._project)
-        self.semrush_analytics_organic_competitors_export.run(force=True)
+        self.screamingfrog_list_crawl_automatic_export = ScreamingFrogListCrawlAutomaticExport(self._project, self._project_urls)
+        self.screamingfrog_list_crawl_automatic_export.run(force=True)
 
         # GA4 1 month window
         self.googleanalytics4_last_1m_export = GoogleAnalytics4Last1mExport(self._project)

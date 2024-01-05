@@ -7,7 +7,7 @@ from core.models.project import ProjectManager
 from core.models.url import UrlManager
 from core.models.website import WebsiteManager
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
-from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
+from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlManualExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport
 from exports.sitebulb_spider_crawl_url_internal_export import SitebulbSpiderCrawlUrlInternalExport
@@ -81,11 +81,11 @@ class UpdateProjectUrlsWorkflow:
         urls_with_nan_status_code = master_url_data[master_url_data["status_code"].isna()]["url"]
         urls_with_nan_status_code.to_clipboard(index=False, header=False)
 
-        screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(project)
+        screamingfrog_list_crawl_export = ScreamingFrogListCrawlManualExport(project)
         screamingfrog_list_crawl_export.run()
         print(urls_with_nan_status_code)
 
-        screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(project)
+        screamingfrog_list_crawl_export = ScreamingFrogListCrawlManualExport(project)
         screamingfrog_list_crawl_data = screamingfrog_list_crawl_export.get_data()
         master_url_data = DataframeService.merge_data(master_url_data, screamingfrog_list_crawl_data, "url", "Address", "status_code", "Status Code")
         master_url_data = DataframeService.merge_data(master_url_data, screamingfrog_list_crawl_data, "url", "Address", "redirect_url", "Redirect URL")

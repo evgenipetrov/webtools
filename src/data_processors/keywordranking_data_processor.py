@@ -14,7 +14,7 @@ from exports.googlesearchconsole_page_query_last_1m_export import GoogleSearchCo
 from exports.googlesearchconsole_page_query_last_1m_previous_year_export import GoogleSearchConsolePageQueryLast1mPreviousYearExport
 from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSearchConsolePageQueryPrevious1mExport
 from exports.googlesearchconsole_query_last_16m_export import GoogleSearchConsoleQueryLast16mExport
-from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
+from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlManualExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class KeywordRankingDataProcessor:
         self.store_data()
 
     def collect_data(self):
-        screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self._project)
+        screamingfrog_list_crawl_export = ScreamingFrogListCrawlManualExport(self._project)
         self.screamingfrog_list_crawl_data = screamingfrog_list_crawl_export.get_data()
 
         googlesearchconsole_query_last_16m_export = GoogleSearchConsoleQueryLast16mExport(self._project)

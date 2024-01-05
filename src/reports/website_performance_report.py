@@ -7,7 +7,7 @@ from exports.googlesearchconsole_page_last_1m_export import GoogleSearchConsoleP
 from exports.googlesearchconsole_page_previous_1m_export import GoogleSearchConsolePagePrevious1mExport
 from exports.googlesearchconsole_page_query_last_1m_export import GoogleSearchConsolePageQueryLast1mExport
 from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSearchConsolePageQueryPrevious1mExport
-from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
+from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlManualExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 from reports.base_report import BaseReport
 
@@ -25,7 +25,7 @@ class WebsitePerformanceReport(BaseReport):
         self.report = None
         self.processed_data = None
 
-        self.screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self.project)
+        self.screamingfrog_list_crawl_export = ScreamingFrogListCrawlManualExport(self.project)
         self.semrush_analytics_organic_positions_rootdomain_export = SemrushAnalyticsOrganicPositionsRootdomainExport(self.project)
         self.googlesearchconsole_page_query_last_1m_export = GoogleSearchConsolePageQueryLast1mExport(self.project)
         self.googlesearchconsole_page_query_previous_1m_export = GoogleSearchConsolePageQueryPrevious1mExport(self.project)

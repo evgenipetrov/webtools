@@ -4,7 +4,7 @@ from core.models.project import ProjectManager
 from exports.googlesearchconsole_date_page_query_last_16m_export import GoogleSearchConsoleLast16mDatePageQueryExport
 from exports.googlesearchconsole_last_16m_page_query_export import GoogleSearchConsoleLast16mPageQueryExport
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
-from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
+from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlManualExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport
 from exports.semrush_analytics_backlinks_rootdomain_export import SemrushAnalyticsBacklinksRootdomainExport
@@ -57,5 +57,5 @@ class CollectProjectDataWorkflow:
         googlesearchconsole_last_16m_date_page_query_export = GoogleSearchConsoleLast16mDatePageQueryExport(project)
         googlesearchconsole_last_16m_date_page_query_export.run()
 
-        screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(project)
+        screamingfrog_list_crawl_export = ScreamingFrogListCrawlManualExport(project)
         screamingfrog_list_crawl_export.run()

@@ -1,7 +1,7 @@
 import pandas as pd
 
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
-from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
+from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlManualExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport
 from exports.sitebulb_spider_crawl_url_internal_export import SitebulbSpiderCrawlUrlInternalExport
@@ -65,7 +65,7 @@ class WebsitePagesReport(BaseReport):
         self.processed_data = stacked_data
 
     def generate_report(self):
-        self.screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self.project, self.processed_data)
+        self.screamingfrog_list_crawl_export = ScreamingFrogListCrawlManualExport(self.project, self.processed_data)
         self.screamingfrog_list_crawl_export.run()
 
         self.report = self.screamingfrog_list_crawl_export.get_data()

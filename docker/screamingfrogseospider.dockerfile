@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
 RUN apt-get update && apt-get -y upgrade
-RUN apt-get install -y wget xdg-utils zenity libgconf-2-4 libgtk2.0-0 libnss3 libxss1
+RUN apt-get install -y wget xdg-utils zenity libgconf-2-4 libgtk2.0-0 libnss3 libxss1 chromium-browser
 RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
 
 # Download Screaming Frog CLI using wget

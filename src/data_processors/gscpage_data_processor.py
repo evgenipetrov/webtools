@@ -16,7 +16,7 @@ from exports.googlesearchconsole_page_query_last_16m_export import GoogleSearchC
 from exports.googlesearchconsole_page_query_last_1m_export import GoogleSearchConsolePageQueryLast1mExport
 from exports.googlesearchconsole_page_query_last_1m_previous_year_export import GoogleSearchConsolePageQueryLast1mPreviousYearExport
 from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSearchConsolePageQueryPrevious1mExport
-from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlExport
+from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlManualExport
 from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport
 from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport
 from exports.semrush_analytics_backlinks_rootdomain_export import SemrushAnalyticsBacklinksRootdomainExport
@@ -52,7 +52,7 @@ class GscPageDataProcessor:
         self.store_data()
 
     def collect_data(self):
-        screamingfrog_list_crawl_export = ScreamingFrogListCrawlExport(self._project)
+        screamingfrog_list_crawl_export = ScreamingFrogListCrawlManualExport(self._project)
         self.screamingfrog_list_crawl_data = screamingfrog_list_crawl_export.get_data()
 
         googlesearchconsole_page_last_16m_export = GoogleSearchConsolePageLast16mExport(self._project)

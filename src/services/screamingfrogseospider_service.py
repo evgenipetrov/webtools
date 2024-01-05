@@ -30,6 +30,10 @@ class ScreamingFrogSeoSpiderService:
         self.parameters.append(f"--crawl-sitemap {sitemap_url}")
         return self
 
+    def set_crawl_list(self, listfile):
+        self.parameters.append(f"--crawl-list {listfile}")
+        return self
+
     def set_export_tabs(self, export_tabs):
         self.parameters.append(f"--export-tabs {export_tabs}")
         return self

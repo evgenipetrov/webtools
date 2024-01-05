@@ -20,11 +20,6 @@ class ScreamingFrogSitemapCrawlManualExport(BaseExportManager):
         """
         Provides instructions for Screaming Frog sitemap crawl export in a step-by-step format.
         """
-        # Check if the user wants to proceed
-        if not self.force and not self.confirm_export(EXPORT_SUBFOLDER):
-            print("Export process aborted.")
-            return  # Stop the method if user does not confirm
-
         # ANSI escape codes for colors
         color_yellow = "\033[93m"
         color_reset = "\033[0m"
@@ -63,8 +58,8 @@ class ScreamingFrogSitemapCrawlAutomaticExport(BaseExportManager):
         """
         Provides instructions for Screaming Frog sitemap crawl export in a step-by-step format.
         """
-        # Check if the user wants to proceed
-        pass
+        # cleanup export folder
+        self.empty_export_folder()
 
     def perform_export(self):
         """
@@ -82,14 +77,6 @@ class ScreamingFrogSitemapCrawlAutomaticExport(BaseExportManager):
         """
         Any post-export actions.
         """
-        # Empty destination dir
-        for filename in os.listdir(self.export_path):
-            file_path = os.path.join(self.export_path, filename)
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-
         # Move files from TEMP_DIR to export_path
         for filename in os.listdir(settings.TEMP_DIR):
             shutil.move(os.path.join(settings.TEMP_DIR, filename), self.export_path)
