@@ -10,13 +10,14 @@ from core.models.url import UrlManager
 from core.models.website import WebsiteManager
 from exports.googleanalytics4_last_14m_export import GoogleAnalytics4Last14mExport
 from exports.googlesearchconsole_page_last_16m_export import GoogleSearchConsolePageLast16mExport
-from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlManualExport
-from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport
-from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport
+from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlManualExport, ScreamingFrogListCrawlAutomaticExport
+from exports.screamingfrog_sitemap_crawl_export import ScreamingFrogSitemapCrawlManualExport, ScreamingFrogSitemapCrawlAutomaticExport
+from exports.screamingfrog_spider_crawl_export import ScreamingFrogSpiderCrawlManualExport, ScreamingFrogSpiderCrawlAutomaticExport
 from exports.semrush_analytics_backlinks_rootdomain_export import SemrushAnalyticsBacklinksRootdomainExport
 from exports.semrush_analytics_organic_pages_export import SemrushAnalyticsOrganicPagesExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
 from exports.sitebulb_list_crawl_url_internal_export import SitebulbListCrawlUrlInternalExport
+from services.dataframe_service import DataframeService
 
 logger = logging.getLogger(__name__)
 
@@ -43,14 +44,23 @@ class UrlDataProcessor:
         self.store_data()
 
     def collect_data(self):
-        screamingfrog_list_crawl_export = ScreamingFrogListCrawlManualExport(self._project)
-        self.screamingfrog_list_crawl_data = screamingfrog_list_crawl_export.get_data()
+        # screamingfrog_list_crawl_manual_export = ScreamingFrogListCrawlManualExport(self._project)
+        # self.screamingfrog_list_crawl_data = screamingfrog_list_crawl_manual_export.get_data()
+        #
+        # screamingfrog_spider_crawl_manual_export = ScreamingFrogSpiderCrawlManualExport(self._project)
+        # self.screamingfrog_spider_crawl_data = screamingfrog_spider_crawl_manual_export.get_data()
+        #
+        # screamingfrog_sitemap_crawl_manual_export = ScreamingFrogSitemapCrawlManualExport(self._project)
+        # self.screamingfrog_sitemap_crawl_data = screamingfrog_sitemap_crawl_manual_export.get_data()
 
-        screamingfrog_spider_crawl_export = ScreamingFrogSpiderCrawlManualExport(self._project)
-        self.screamingfrog_spider_crawl_data = screamingfrog_spider_crawl_export.get_data()
+        screamingfrog_list_crawl_automatic_export = ScreamingFrogListCrawlAutomaticExport(self._project)
+        self.screamingfrog_list_crawl_data = screamingfrog_list_crawl_automatic_export.get_data()
 
-        screamingfrog_sitemap_crawl_export = ScreamingFrogSitemapCrawlManualExport(self._project)
-        self.screamingfrog_sitemap_crawl_data = screamingfrog_sitemap_crawl_export.get_data()
+        screamingfrog_spider_crawl_automatic_export = ScreamingFrogSpiderCrawlAutomaticExport(self._project)
+        self.screamingfrog_spider_crawl_data = screamingfrog_spider_crawl_automatic_export.get_data()
+
+        screamingfrog_sitemap_crawl_automatic_export = ScreamingFrogSitemapCrawlAutomaticExport(self._project)
+        self.screamingfrog_sitemap_crawl_data = screamingfrog_sitemap_crawl_automatic_export.get_data()
 
         googleanalytics4_last_14m_export = GoogleAnalytics4Last14mExport(self._project)
         self.googleanalytics4_last_14m_data = googleanalytics4_last_14m_export.get_data()
@@ -69,24 +79,24 @@ class UrlDataProcessor:
         semrush_analytics_backlinks_rootdomain_export = SemrushAnalyticsBacklinksRootdomainExport(self._project)
         self.semrush_analytics_backlinks_rootdomain_data = semrush_analytics_backlinks_rootdomain_export.get_data()
 
-        sitebulb_list_crawl_url_internal_export = SitebulbListCrawlUrlInternalExport(self._project)
-        self.sitebulb_list_crawl_url_internal_data = sitebulb_list_crawl_url_internal_export.get_data()
+        # sitebulb_list_crawl_url_internal_export = SitebulbListCrawlUrlInternalExport(self._project)
+        # self.sitebulb_list_crawl_url_internal_data = sitebulb_list_crawl_url_internal_export.get_data()
 
     def process_data(self):
-        # stack key column then map
         df = pd.concat(
             [
-                self.screamingfrog_list_crawl_data["Address"],
-                self.screamingfrog_spider_crawl_data["Address"],
-                self.screamingfrog_sitemap_crawl_data["Address"],
-                self.googleanalytics4_last_14m_data["full_address"],
-                self.googlesearchconsole_page_last_16m_data["page"],
-                self.semrush_analytics_organic_positions_rootdomain_data["URL"],
-                self.semrush_analytics_organic_pages_data["URL"],
-                self.semrush_analytics_backlinks_rootdomain_data["Target url"],
-                self.sitebulb_list_crawl_url_internal_data["URL"],
+                DataframeService.get_unique_column_values(self.screamingfrog_list_crawl_data, column_name="Address"),
+                DataframeService.get_unique_column_values(self.screamingfrog_spider_crawl_data, column_name="Address"),
+                DataframeService.get_unique_column_values(self.screamingfrog_sitemap_crawl_data, column_name="Address"),
+                DataframeService.get_unique_column_values(self.googleanalytics4_last_14m_data, column_name="full_address"),
+                DataframeService.get_unique_column_values(self.googlesearchconsole_page_last_16m_data, column_name="page"),
+                DataframeService.get_unique_column_values(self.semrush_analytics_organic_positions_rootdomain_data, column_name="URL"),
+                DataframeService.get_unique_column_values(self.semrush_analytics_organic_pages_data, column_name="URL"),
+                DataframeService.get_unique_column_values(self.semrush_analytics_backlinks_rootdomain_data, column_name="Target url"),
+                # DataframeService.get_unique_column_values(self.sitebulb_list_crawl_url_internal_data, column_name="URL"),
             ]
         )
+
         df = pd.DataFrame(df.unique(), columns=["full_address"])
         # Drop rows where the URL has a fragment
         mask = df["full_address"].apply(UrlManager.has_fragment)
@@ -209,22 +219,22 @@ class UrlDataProcessor:
         df["In Semrush Backlinks"].fillna(False, inplace=True)
         df.drop("Target url", axis=1, inplace=True)
 
-        # join sitebulb crawl data
-        sitebulb_list_crawl_url_internal_data_columns = [
-            "URL",
-            "HTML Template",
-            "No. Content Words",
-            "No. Template Words",
-            "No. Words",
-        ]
-        df = pd.merge(
-            df,
-            self.sitebulb_list_crawl_url_internal_data[sitebulb_list_crawl_url_internal_data_columns].drop_duplicates(subset="URL", keep="first"),
-            left_on="full_address",
-            right_on="URL",
-            how="left",
-        )
-        df.drop("URL", axis=1, inplace=True)
+        # # join sitebulb crawl data
+        # sitebulb_list_crawl_url_internal_data_columns = [
+        #     "URL",
+        #     "HTML Template",
+        #     "No. Content Words",
+        #     "No. Template Words",
+        #     "No. Words",
+        # ]
+        # df = pd.merge(
+        #     df,
+        #     self.sitebulb_list_crawl_url_internal_data[sitebulb_list_crawl_url_internal_data_columns].drop_duplicates(subset="URL", keep="first"),
+        #     left_on="full_address",
+        #     right_on="URL",
+        #     how="left",
+        # )
+        # df.drop("URL", axis=1, inplace=True)
 
         self._data = df
 
@@ -247,23 +257,19 @@ class UrlDataProcessor:
                 redirect_url=row["Redirect URL"],
                 content_type=row["Content Type"],
                 canonical_link_element_1=row["Canonical Link Element 1"],
-                content_words_count=row["No. Content Words"],
                 crawl_timestamp=crawl_timestamp,
                 h1_1=row["H1-1"],
                 hash=row["Hash"],
                 crawl_depth=row["Crawl Depth"],
-                html_template=row["HTML Template"],
                 indexability=row["Indexability"],
                 indexability_status=row["Indexability Status"],
                 meta_description_1=row["Meta Description 1"],
                 readability=row["Readability"],
                 relative_address=row["Path"],
-                template_words_count=row["No. Template Words"],
                 title_1=row["Title 1"],
                 unique_inlinks=row["Unique Inlinks"],
                 unique_outlinks=row["Unique Outlinks"],
                 word_count=row["Word Count"],
-                word_count2=row["No. Words"],
                 in_sitemap=row["In Sitemap"],
                 in_crawl=row["In Crawl"],
                 in_ga4=row["In GA4"],

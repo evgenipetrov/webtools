@@ -1,6 +1,7 @@
 import contextlib
 import logging
 import os
+import shutil
 import sys
 
 from django.conf import settings
@@ -72,21 +73,17 @@ class ScreamingFrogListCrawlManualExport(BaseExportManager):
 
 
 class ScreamingFrogListCrawlAutomaticExport(BaseExportManager):
-    def __init__(self, project, urls=None):
+    def __init__(self, project, df=None):
         super().__init__(project, EXPORT_SUBFOLDER)
-        self.urls = urls
+        self.url_data = df
         self.crawl_list_file_path = os.path.join(settings.TEMP_DIR, CRAWL_LIST_FILENAME)
 
     def perform_pre_export_action(self):
         """
         Provides instructions for Screaming Frog list crawl export in a step-by-step format.
         """
-        # cleanup export folder
-        self.empty_export_folder()
-
-        # Create a file with the URLs
-        with open(CRAWL_LIST_FILENAME, "w") as file:
-            file.write("\n".join(self.urls))
+        # Write url_data dataframe to CSV file without index
+        self.url_data.to_csv(self.crawl_list_file_path, index=False)
 
     def perform_export(self):
         """
@@ -108,3 +105,7 @@ class ScreamingFrogListCrawlAutomaticExport(BaseExportManager):
         # Delete the crawl list file
         if os.path.exists(self.crawl_list_file_path):
             os.remove(self.crawl_list_file_path)
+
+        # Move files from TEMP_DIR to export_path
+        for filename in os.listdir(settings.TEMP_DIR):
+            shutil.move(os.path.join(settings.TEMP_DIR, filename), self.export_path)

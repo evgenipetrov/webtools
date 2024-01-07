@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 import pandas as pd
 from pandas import isna
 
@@ -123,22 +124,32 @@ class GscPageDataProcessor:
             how="left",
         )
 
-        googlesearchconsole_page_last_1m_previous_year_aggregated_data = aggregate_gscpage_data(df.merge(self.googlesearchconsole_page_last_1m_previous_year_data, left_on="full_address", right_on="page", how="left"))
-        googlesearchconsole_page_last_1m_previous_year_aggregated_data = googlesearchconsole_page_last_1m_previous_year_aggregated_data.rename(columns=lambda x: x + "_last_1m_previous_year" if x != "redirect_url" else x)
-        df = df.merge(
-            googlesearchconsole_page_last_1m_previous_year_aggregated_data,
-            left_on="Redirect URL",
-            right_index=True,
-            how="left",
-        )
-        googlesearchconsole_page_query_last_1m_previous_year_aggregated_data = aggregate_gscpagequery_data(df.merge(self.googlesearchconsole_page_query_last_1m_previous_year_data, left_on="full_address", right_on="page", how="left"))
-        googlesearchconsole_page_query_last_1m_previous_year_aggregated_data = googlesearchconsole_page_query_last_1m_previous_year_aggregated_data.rename(columns=lambda x: x + "_last_1m_previous_year" if x != "redirect_url" else x)
-        df = df.merge(
-            googlesearchconsole_page_query_last_1m_previous_year_aggregated_data,
-            left_on="Redirect URL",
-            right_index=True,
-            how="left",
-        )
+        if not self.googlesearchconsole_page_last_1m_previous_year_data.empty:
+            googlesearchconsole_page_last_1m_previous_year_aggregated_data = aggregate_gscpage_data(df.merge(self.googlesearchconsole_page_last_1m_previous_year_data, left_on="full_address", right_on="page", how="left"))
+            googlesearchconsole_page_last_1m_previous_year_aggregated_data = googlesearchconsole_page_last_1m_previous_year_aggregated_data.rename(columns=lambda x: x + "_last_1m_previous_year" if x != "redirect_url" else x)
+            df = df.merge(
+                googlesearchconsole_page_last_1m_previous_year_aggregated_data,
+                left_on="Redirect URL",
+                right_index=True,
+                how="left",
+            )
+        else:
+            df["clicks_last_1m_previous_year"] = np.nan
+            df["impressions_last_1m_previous_year"] = np.nan
+            df["ctr_last_1m_previous_year"] = np.nan
+            df["position_last_1m_previous_year"] = np.nan
+
+        if not self.googlesearchconsole_page_query_last_1m_previous_year_data.empty:
+            googlesearchconsole_page_query_last_1m_previous_year_aggregated_data = aggregate_gscpagequery_data(df.merge(self.googlesearchconsole_page_query_last_1m_previous_year_data, left_on="full_address", right_on="page", how="left"))
+            googlesearchconsole_page_query_last_1m_previous_year_aggregated_data = googlesearchconsole_page_query_last_1m_previous_year_aggregated_data.rename(columns=lambda x: x + "_last_1m_previous_year" if x != "redirect_url" else x)
+            df = df.merge(
+                googlesearchconsole_page_query_last_1m_previous_year_aggregated_data,
+                left_on="Redirect URL",
+                right_index=True,
+                how="left",
+            )
+        else:
+            df["querycount_last_1m_previous_year"] = np.nan
 
         googlesearchconsole_page_last_16m_aggregated_data = aggregate_gscpage_data(df.merge(self.googlesearchconsole_page_last_16m_data, left_on="full_address", right_on="page", how="left"))
         googlesearchconsole_page_last_16m_aggregated_data = googlesearchconsole_page_last_16m_aggregated_data.rename(columns=lambda x: x + "_last_16m" if x != "redirect_url" else x)

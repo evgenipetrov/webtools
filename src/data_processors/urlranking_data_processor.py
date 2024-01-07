@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+import numpy as np
 import pandas as pd
 from django.utils import timezone
 from pandas import isna
@@ -19,6 +20,7 @@ from exports.googlesearchconsole_page_query_previous_1m_export import GoogleSear
 from exports.googlesearchconsole_query_last_16m_export import GoogleSearchConsoleQueryLast16mExport
 from exports.screamingfrog_list_crawl_export import ScreamingFrogListCrawlManualExport
 from exports.semrush_analytics_organic_positions_rootdomain import SemrushAnalyticsOrganicPositionsRootdomainExport
+from services.dataframe_service import DataframeService
 
 logger = logging.getLogger(__name__)
 
@@ -61,14 +63,15 @@ class UrlRankingDataProcessor:
         # stack key column then map
         df = pd.concat(
             [
-                self.screamingfrog_list_crawl_data["Address"],
-                self.semrush_analytics_organic_positions_rootdomain_data["URL"],
-                self.googlesearchconsole_page_query_last_1m_data["page"],
-                self.googlesearchconsole_page_query_previous_1m_data["page"],
-                self.googlesearchconsole_page_query_last_1m_previous_year_data["page"],
-                self.googlesearchconsole_page_query_last_16m_data["page"],
+                DataframeService.get_unique_column_values(self.screamingfrog_list_crawl_data, column_name="Address"),
+                DataframeService.get_unique_column_values(self.semrush_analytics_organic_positions_rootdomain_data, column_name="Address"),
+                DataframeService.get_unique_column_values(self.googlesearchconsole_page_query_last_1m_data, column_name="Address"),
+                DataframeService.get_unique_column_values(self.googlesearchconsole_page_query_previous_1m_data, column_name="Address"),
+                DataframeService.get_unique_column_values(self.googlesearchconsole_page_query_last_1m_previous_year_data, column_name="Address"),
+                DataframeService.get_unique_column_values(self.googlesearchconsole_page_query_last_16m_data, column_name="Address"),
             ]
         )
+
         df = pd.DataFrame(df.unique(), columns=["full_address"])
         # Drop rows where the URL has a fragment
         mask = df["full_address"].apply(UrlManager.has_fragment)
@@ -187,42 +190,63 @@ class UrlRankingDataProcessor:
         googlesearchconsole_page_query_last_1m_previous_year_data_best_by_clicks = self.googlesearchconsole_page_query_last_1m_previous_year_data.rename(
             columns=lambda x: "gsc_" + x + "_last_1m_previous_year_best_by_clicks" if x != "page" else x
         )
-        df = pd.merge(
-            df,
-            googlesearchconsole_page_query_last_1m_previous_year_data_best_by_clicks.sort_values(
-                by=["gsc_clicks_last_1m_previous_year_best_by_clicks", "gsc_impressions_last_1m_previous_year_best_by_clicks"], ascending=[False, False]
-            ).drop_duplicates(subset="page", keep="first"),
-            left_on="full_address",
-            right_on="page",
-            how="left",
-        )
-        df.drop("page", axis=1, inplace=True)
+        if not googlesearchconsole_page_query_last_1m_previous_year_data_best_by_clicks.empty:
+            df = pd.merge(
+                df,
+                googlesearchconsole_page_query_last_1m_previous_year_data_best_by_clicks.sort_values(
+                    by=["gsc_clicks_last_1m_previous_year_best_by_clicks", "gsc_impressions_last_1m_previous_year_best_by_clicks"], ascending=[False, False]
+                ).drop_duplicates(subset="page", keep="first"),
+                left_on="full_address",
+                right_on="page",
+                how="left",
+            )
+            df.drop("page", axis=1, inplace=True)
+        else:
+            df["gsc_query_last_1m_previous_year_best_by_clicks"] = np.nan
+            df["gsc_impressions_last_1m_previous_year_best_by_clicks"] = np.nan
+            df["gsc_clicks_last_1m_previous_year_best_by_clicks"] = np.nan
+            df["gsc_ctr_last_1m_previous_year_best_by_clicks"] = np.nan
+            df["gsc_position_last_1m_previous_year_best_by_clicks"] = np.nan
 
         googlesearchconsole_page_query_last_1m_previous_year_data_best_by_impressions = self.googlesearchconsole_page_query_last_1m_previous_year_data.rename(
             columns=lambda x: "gsc_" + x + "_last_1m_previous_year_best_by_impressions" if x != "page" else x
         )
-        df = pd.merge(
-            df,
-            googlesearchconsole_page_query_last_1m_previous_year_data_best_by_impressions.sort_values(by="gsc_impressions_last_1m_previous_year_best_by_impressions", ascending=False).drop_duplicates(subset="page", keep="first"),
-            left_on="full_address",
-            right_on="page",
-            how="left",
-        )
-        df.drop("page", axis=1, inplace=True)
+        if not googlesearchconsole_page_query_last_1m_previous_year_data_best_by_impressions.empty:
+            df = pd.merge(
+                df,
+                googlesearchconsole_page_query_last_1m_previous_year_data_best_by_impressions.sort_values(by="gsc_impressions_last_1m_previous_year_best_by_impressions", ascending=False).drop_duplicates(subset="page", keep="first"),
+                left_on="full_address",
+                right_on="page",
+                how="left",
+            )
+            df.drop("page", axis=1, inplace=True)
+        else:
+            df["gsc_query_last_1m_previous_year_best_by_impressions"] = np.nan
+            df["gsc_impressions_last_1m_previous_year_best_by_impressions"] = np.nan
+            df["gsc_clicks_last_1m_previous_year_best_by_impressions"] = np.nan
+            df["gsc_ctr_last_1m_previous_year_best_by_impressions"] = np.nan
+            df["gsc_position_last_1m_previous_year_best_by_impressions"] = np.nan
 
         googlesearchconsole_page_query_last_1m_previous_year_data_best_by_position = self.googlesearchconsole_page_query_last_1m_previous_year_data.rename(
             columns=lambda x: "gsc_" + x + "_last_1m_previous_year_best_by_position" if x != "page" else x
         )
-        df = pd.merge(
-            df,
-            googlesearchconsole_page_query_last_1m_previous_year_data_best_by_position.sort_values(
-                by=["gsc_position_last_1m_previous_year_best_by_position", "gsc_impressions_last_1m_previous_year_best_by_position"], ascending=[False, False]
-            ).drop_duplicates(subset="page", keep="first"),
-            left_on="full_address",
-            right_on="page",
-            how="left",
-        )
-        df.drop("page", axis=1, inplace=True)
+        if not googlesearchconsole_page_query_last_1m_previous_year_data_best_by_position.empty:
+            df = pd.merge(
+                df,
+                googlesearchconsole_page_query_last_1m_previous_year_data_best_by_position.sort_values(
+                    by=["gsc_position_last_1m_previous_year_best_by_position", "gsc_impressions_last_1m_previous_year_best_by_position"], ascending=[False, False]
+                ).drop_duplicates(subset="page", keep="first"),
+                left_on="full_address",
+                right_on="page",
+                how="left",
+            )
+            df.drop("page", axis=1, inplace=True)
+        else:
+            df["gsc_query_last_1m_previous_year_best_by_position"] = np.nan
+            df["gsc_impressions_last_1m_previous_year_best_by_position"] = np.nan
+            df["gsc_clicks_last_1m_previous_year_best_by_position"] = np.nan
+            df["gsc_ctr_last_1m_previous_year_best_by_position"] = np.nan
+            df["gsc_position_last_1m_previous_year_best_by_position"] = np.nan
         ####################### end #############################
         ####################### last_16m_data #############################
         googlesearchconsole_page_query_last_16m_data_best_by_clicks = self.googlesearchconsole_page_query_last_16m_data.rename(columns=lambda x: "gsc_" + x + "_last_16m_best_by_clicks" if x != "page" else x)

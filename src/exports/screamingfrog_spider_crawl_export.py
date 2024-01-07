@@ -58,8 +58,6 @@ class ScreamingFrogSpiderCrawlAutomaticExport(BaseExportManager):
         """
         Provides instructions for Screaming Frog sitemap crawl export in a step-by-step format.
         """
-        # cleanup export folder
-        self.empty_export_folder()
 
     def perform_export(self):
         """

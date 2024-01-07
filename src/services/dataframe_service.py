@@ -31,8 +31,9 @@ class DataframeService:
 
     @staticmethod
     def get_unique_column_values(df, column_name):
-        unique_values = df[column_name].unique()
-        return unique_values
+        if column_name in df.columns:
+            return pd.Series(df[column_name].unique())
+        return None
 
     @staticmethod
     def queryset_to_dataframe(queryset):

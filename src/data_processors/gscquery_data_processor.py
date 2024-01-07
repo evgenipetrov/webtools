@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 import pandas as pd
 from pandas import isna
 
@@ -80,11 +81,17 @@ class GscQueryDataProcessor:
         )
 
         googlesearchconsole_query_last_1m_previous_year_data = self.googlesearchconsole_query_last_1m_previous_year_data.rename(columns=lambda x: x + "_last_1m_previous_year" if x != "query" else x)
-        df = df.merge(
-            googlesearchconsole_query_last_1m_previous_year_data,
-            on="query",
-            how="left",
-        )
+        if not googlesearchconsole_query_last_1m_previous_year_data.empty:
+            df = df.merge(
+                googlesearchconsole_query_last_1m_previous_year_data,
+                on="query",
+                how="left",
+            )
+        else:
+            df["impressions_last_1m_previous_year"] = np.nan
+            df["clicks_last_1m_previous_year"] = np.nan
+            df["ctr_last_1m_previous_year"] = np.nan
+            df["position_last_1m_previous_year"] = np.nan
 
         googlesearchconsole_query_previous_15m_data = self.googlesearchconsole_query_previous_15m_data.rename(columns=lambda x: x + "_previous_15m" if x != "query" else x)
         df = df.merge(googlesearchconsole_query_previous_15m_data, on="query", how="left", indicator=True)

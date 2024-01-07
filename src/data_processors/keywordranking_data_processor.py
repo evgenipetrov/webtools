@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+import numpy as np
 import pandas as pd
 from django.utils import timezone
 from pandas import isna
@@ -100,14 +101,21 @@ class KeywordRankingDataProcessor:
         df.drop("query", axis=1, inplace=True)
 
         googlesearchconsole_page_query_last_1m_previous_year_data = self.googlesearchconsole_page_query_last_1m_previous_year_data.rename(columns=lambda x: "gsc_" + x + "_last_1m_previous_year" if x != "query" else x)
-        df = pd.merge(
-            df,
-            googlesearchconsole_page_query_last_1m_previous_year_data.sort_values(by=["gsc_clicks_last_1m_previous_year", "gsc_impressions_last_1m_previous_year"], ascending=[False, False]).drop_duplicates(subset="query", keep="first"),
-            left_on="keyword",
-            right_on="query",
-            how="left",
-        )
-        df.drop("query", axis=1, inplace=True)
+        if not googlesearchconsole_page_query_last_1m_previous_year_data.empty:
+            df = pd.merge(
+                df,
+                googlesearchconsole_page_query_last_1m_previous_year_data.sort_values(by=["gsc_clicks_last_1m_previous_year", "gsc_impressions_last_1m_previous_year"], ascending=[False, False]).drop_duplicates(subset="query", keep="first"),
+                left_on="keyword",
+                right_on="query",
+                how="left",
+            )
+            df.drop("query", axis=1, inplace=True)
+        else:
+            df["gsc_page_last_1m_previous_year"] = np.nan
+            df["gsc_impressions_last_1m_previous_year"] = np.nan
+            df["gsc_clicks_last_1m_previous_year"] = np.nan
+            df["gsc_ctr_last_1m_previous_year"] = np.nan
+            df["gsc_position_last_1m_previous_year"] = np.nan
 
         self._data = df
 

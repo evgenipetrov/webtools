@@ -48,10 +48,10 @@ class BaseExportManager:
     def confirm_export(self, export_description):
         """
         Asks the user whether to proceed with a specific export process.
-        Only proceeds if the user inputs 'y'.
+        Proceeds if the user inputs 'y' or presses Enter without input.
         """
-        response = input(f"Do you want to proceed with {export_description.upper()} export? [y/N]: ").strip().lower()
-        self.force = response == "y"
+        response = input(f"Do you want to proceed with {export_description.upper()} export? [Y/n]: ").strip().lower()
+        self.force = response == "y" or response == ""
 
     def perform_pre_export_action(self):
         """
@@ -79,15 +79,18 @@ class BaseExportManager:
         Reads all CSV files in the export folder into a single DataFrame.
         """
         all_dataframes = []
-        for filename in os.listdir(self.export_path):
-            if filename.endswith(".csv"):
-                file_path = os.path.join(self.export_path, filename)
-                try:
-                    df = pd.read_csv(file_path)
-                    all_dataframes.append(df)
-                except EmptyDataError:
-                    # Skip file if it is empty or contains no parseable data
-                    continue
+        if os.path.exists(self.export_path):
+            for filename in os.listdir(self.export_path):
+                if filename.endswith(".csv"):
+                    file_path = os.path.join(self.export_path, filename)
+                    try:
+                        df = pd.read_csv(file_path)
+                        all_dataframes.append(df)
+                    except EmptyDataError:
+                        # Skip file if it is empty or contains no parseable data
+                        continue
+        else:
+            print(f"Directory not found: {self.export_path}")
 
         # Concatenate all dataframes if there are any, else return an empty dataframe
         if all_dataframes:

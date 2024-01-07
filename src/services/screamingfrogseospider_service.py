@@ -38,17 +38,7 @@ class ScreamingFrogSeoSpiderService:
         self.parameters.append(f"--export-tabs {export_tabs}")
         return self
 
-    @staticmethod
-    def _empty_temp_dir():
-        for filename in os.listdir(settings.TEMP_DIR):
-            file_path = os.path.join(settings.TEMP_DIR, filename)
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-
     def run(self):
-        self._empty_temp_dir()  # Empty the TEMP_DIR
         volumes = {settings.TEMP_DIR: {"bind": "/export", "mode": "rw"}}
         self.container = self.client.containers.run(self.image, " ".join(self.parameters), volumes=volumes, detach=True, auto_remove=True)
         for line in self.container.logs(stream=True):

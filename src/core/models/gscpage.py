@@ -34,9 +34,13 @@ class GscPage(models.Model):
     position_previous_1m = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
     querycount_last_1m = models.IntegerField(null=True, blank=True)
-    querycount_impressions_last_16m = models.IntegerField(null=True, blank=True)
-    querycount_impressions_last_1m_previous_year = models.IntegerField(null=True, blank=True)
-    querycount_impressions_previous_1m = models.IntegerField(null=True, blank=True)
+    querycount_last_1m_previous_year = models.IntegerField(null=True, blank=True)
+    querycount_previous_1m = models.IntegerField(null=True, blank=True)
+    querycount_last_16m = models.IntegerField(null=True, blank=True)
+    #
+    # querycount_impressions_last_16m = models.IntegerField(null=True, blank=True)
+    # querycount_impressions_last_1m_previous_year = models.IntegerField(null=True, blank=True)
+    # querycount_impressions_previous_1m = models.IntegerField(null=True, blank=True)
 
     # system attributes
     created_at = models.DateTimeField(auto_now_add=True)  # auto
