@@ -13,17 +13,17 @@ class GA4FetchError(Exception):
 
 
 class GoogleAnalytics4Service:
-    def __init__(self, auth_domain):
+    def __init__(self, auth_email):
         try:
-            self.service = self._authenticate_ga4(auth_domain)
+            self.service = self._authenticate_ga4(auth_email)
             logger.info("Successfully authenticated Google Analytics 4 service.")
         except Exception as e:
             logger.error(f"Failed to authenticate Google Analytics 4: {e}")
             raise GA4FetchError("Authentication failed") from e
 
     @staticmethod
-    def _authenticate_ga4(auth_domain):
-        auth_service = GoogleAuthService(auth_domain)
+    def _authenticate_ga4(auth_email):
+        auth_service = GoogleAuthService(auth_email)
         creds = auth_service.authenticate()
         return build("analyticsdata", "v1beta", credentials=creds)
 

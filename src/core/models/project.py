@@ -14,10 +14,10 @@ class Project(models.Model):
 
     sitemap_url = models.URLField(max_length=200, blank=True, null=True)
 
-    gsc_auth_domain = models.CharField(max_length=255, blank=True, null=True)
+    gsc_auth_email = models.CharField(max_length=255, blank=True, null=True)
     gsc_property_name = models.CharField(max_length=255, blank=True, null=True)
 
-    ga4_auth_domain = models.CharField(max_length=255, blank=True, null=True)
+    ga4_auth_email = models.CharField(max_length=255, blank=True, null=True)
     ga4_property_id = models.CharField(max_length=255, blank=True, null=True)
 
     website = models.ForeignKey(Website, on_delete=models.CASCADE)

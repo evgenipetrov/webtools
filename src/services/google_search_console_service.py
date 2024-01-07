@@ -19,9 +19,9 @@ class GSCFetchError(Exception):
 class GoogleSearchConsoleService:
     ROW_LIMIT = 25000
 
-    def __init__(self, auth_domain):
+    def __init__(self, auth_email):
         try:
-            self.service = self._authenticate_gsc(auth_domain)
+            self.service = self._authenticate_gsc(auth_email)
             logger.info("Successfully authenticated Google Search Console service.")
         except Exception as e:
             logger.error(f"Failed to authenticate Google Search Console: {e}")
@@ -55,8 +55,8 @@ class GoogleSearchConsoleService:
         return request
 
     @staticmethod
-    def _authenticate_gsc(auth_domain):
-        auth_service = GoogleAuthService(auth_domain)
+    def _authenticate_gsc(auth_email):
+        auth_service = GoogleAuthService(auth_email)
         creds = auth_service.authenticate()
         return build("webmasters", "v3", credentials=creds)
 

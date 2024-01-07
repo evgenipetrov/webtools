@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class GoogleAuthService:
-    def __init__(self, auth_domain):
-        self.auth_domain = auth_domain
-        self.token_file_path = os.path.abspath(os.path.join(settings.BASE_DIR, "..", "secrets", f"{self.auth_domain}.token.pickle"))
+    def __init__(self, auth_email):
+        self.auth_email = auth_email
+        self.token_file_path = os.path.abspath(os.path.join(settings.BASE_DIR, "..", "secrets", f"{self.auth_email}.token.pickle"))
 
     # Constants
     CLIENT_SECRET_FILE = os.path.abspath(os.path.join(settings.BASE_DIR, "..", "secrets", "client_secret.json"))

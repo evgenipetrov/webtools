@@ -20,41 +20,41 @@ END_DATE = BASE_DATE
 class GoogleAnalytics4Last1mExport(BaseExportManager):
     def __init__(self, project):
         super().__init__(project, EXPORT_SUBFOLDER)
-        self.ga4_auth_domain = None
+        self.ga4_auth_email = None
         self.ga4_property_id = None
 
     def perform_pre_export_action(self):
-        # Check if auth_domain and property_id are already set in the project
-        if self.project.ga4_auth_domain and self.project.ga4_property_id:
+        # Check if auth_email and property_id are already set in the project
+        if self.project.ga4_auth_email and self.project.ga4_property_id:
             if self.force:
-                self.ga4_auth_domain = self.project.ga4_auth_domain
+                self.ga4_auth_email = self.project.ga4_auth_email
                 self.ga4_property_id = self.project.ga4_property_id
             else:
-                use_existing = input(f"Use existing GA4 settings? (Auth Domain: {self.project.ga4_auth_domain}, Property: {self.project.ga4_property_id}) [Y/n]: ")
+                use_existing = input(f"Use existing GA4 settings? (Auth Email: {self.project.ga4_auth_email}, Property: {self.project.ga4_property_id}) [Y/n]: ")
                 if use_existing.lower() != "n":
-                    self.ga4_auth_domain = self.project.ga4_auth_domain
+                    self.ga4_auth_email = self.project.ga4_auth_email
                     self.ga4_property_id = self.project.ga4_property_id
                 else:
                     self._gather_user_input()
         else:
             self._gather_user_input()
             # Update project with new values
-            self.project.ga4_auth_domain = self.ga4_auth_domain
+            self.project.ga4_auth_email = self.ga4_auth_email
             self.project.ga4_property_id = self.ga4_property_id
             self.project.save()
 
     def _gather_user_input(self):
         """
-        Gather user input for auth domain and GSC property.
+        Gather user input for auth email and GSC property.
         """
-        self.ga4_auth_domain = input("Please provide auth domain for Google Analytics 4: ")
+        self.ga4_auth_email = input("Please provide auth email for Google Analytics 4: ")
         self.ga4_property_id = input("Please provide the GA4 property ID: ")
 
     def perform_export(self):
         """
         Implement the actual export logic here
         """
-        ga4_service = GoogleAnalytics4Service(self.ga4_auth_domain)
+        ga4_service = GoogleAnalytics4Service(self.ga4_auth_email)
 
         start_date = START_DATE
         end_date = END_DATE
