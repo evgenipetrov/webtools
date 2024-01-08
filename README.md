@@ -35,14 +35,14 @@ This project adopts a modular architecture with separate Django apps and special
 ### Usage
 Instructions on how to use the application, including command-line interfaces:
 
-Create a new project:
+Export project data:
 ```
-python manage.py create_project "Project Name" "https://example.com" "/path/to/data_folder"
+python manage.py export_project_data --project-name="example.com"
 ```
 
-Collect data for a project:
+Process data for a project:
 ```
-python manage.py collect_project_data_exports "Project Name"
+python manage.py process_project_data --project-name="example.com"
 ```
 ## Logging Guidelines
 

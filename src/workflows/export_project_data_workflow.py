@@ -115,60 +115,31 @@ class ExportProjectDataWorkflow:
         self.googlesearchconsole_page_last_16m_export.run(force=True)
 
     def prepare_stage_2(self):
+        screamingfrog_sitemap_crawl_data = self.screamingfrog_sitemap_crawl_automatic_export.get_data()
+        screamingfrog_spider_crawl_data = self.screamingfrog_spider_crawl_automatic_export.get_data()
+
+        googleanalytics4_last_14m_data = self.googleanalytics4_last_14m_export.get_data()
+        googleanalytics4_last_14m_data["full_address"] = googleanalytics4_last_14m_data["pagePath"].apply(lambda x: UrlManager.build_full_address(self._project.website.root_url, x))
+
+        googlesearchconsole_page_last_16m_data = self.googlesearchconsole_page_last_16m_export.get_data()
+        semrush_analytics_organic_positions_rootdomain_data = self.semrush_analytics_organic_positions_rootdomain_export.get_data()
+        semrush_analytics_organic_pages_data = self.semrush_analytics_organic_pages_export.get_data()
+        semrush_analytics_backlinks_rootdomain_data = self.semrush_analytics_backlinks_rootdomain_export.get_data()
+
         df = pd.concat(
             [
-                DataframeService.get_unique_column_values(self.screamingfrog_sitemap_crawl_automatic_export.get_data(), column_name="Address"),
-                DataframeService.get_unique_column_values(self.screamingfrog_spider_crawl_automatic_export.get_data(), column_name="Address"),
-                DataframeService.get_unique_column_values(self.googleanalytics4_last_14m_export.get_data(), column_name="full_address"),
-                DataframeService.get_unique_column_values(self.googlesearchconsole_page_last_16m_export.get_data(), column_name="page"),
-                DataframeService.get_unique_column_values(self.semrush_analytics_organic_positions_rootdomain_export.get_data(), column_name="URL"),
-                DataframeService.get_unique_column_values(self.semrush_analytics_organic_pages_export.get_data(), column_name="URL"),
-                DataframeService.get_unique_column_values(self.semrush_analytics_backlinks_rootdomain_export.get_data(), column_name="Target url"),
+                DataframeService.get_unique_column_values(screamingfrog_sitemap_crawl_data, column_name="Address"),
+                DataframeService.get_unique_column_values(screamingfrog_spider_crawl_data, column_name="Address"),
+                DataframeService.get_unique_column_values(googleanalytics4_last_14m_data, column_name="full_address"),
+                DataframeService.get_unique_column_values(googlesearchconsole_page_last_16m_data, column_name="page"),
+                DataframeService.get_unique_column_values(semrush_analytics_organic_positions_rootdomain_data, column_name="URL"),
+                DataframeService.get_unique_column_values(semrush_analytics_organic_pages_data, column_name="URL"),
+                DataframeService.get_unique_column_values(semrush_analytics_backlinks_rootdomain_data, column_name="Target url"),
                 # DataframeService.get_unique_column_values(self.sitebulb_list_crawl_url_internal_data, column_name="URL"),
             ]
         )
 
         df = pd.DataFrame(df.unique(), columns=["full_address"])
-        # if self.screamingfrog_sitemap_crawl_manual_export is not None:
-        #     screamingfrog_sitemap_crawl_data = self.screamingfrog_sitemap_crawl_manual_export.get_data()
-        #     self._project_urls.extend(screamingfrog_sitemap_crawl_data["Address"].dropna().unique().tolist())
-        #
-        # if self.screamingfrog_spider_crawl_manual_export is not None:
-        #     screamingfrog_spider_crawl_data = self.screamingfrog_spider_crawl_manual_export.get_data()
-        #     self._project_urls.extend(screamingfrog_spider_crawl_data["Address"].dropna().unique().tolist())
-        #
-        # if self.screamingfrog_sitemap_crawl_automatic_export is not None:
-        #     screamingfrog_sitemap_crawl_data = self.screamingfrog_sitemap_crawl_automatic_export.get_data()
-        #     self._project_urls.extend(screamingfrog_sitemap_crawl_data["Address"].dropna().unique().tolist())
-        #
-        # if self.screamingfrog_spider_crawl_automatic_export is not None:
-        #     screamingfrog_spider_crawl_data = self.screamingfrog_spider_crawl_automatic_export.get_data()
-        #     self._project_urls.extend(screamingfrog_spider_crawl_data["Address"].dropna().unique().tolist())
-        #
-        # # if self.sitebulb_spider_crawl_url_internal_export is not None:
-        # #     sitebulb_data = self.sitebulb_spider_crawl_url_internal_export.get_data()
-        # #     self._project_urls.extend(sitebulb_data["URL"].dropna().unique().tolist())
-        #
-        # if self.semrush_analytics_organic_positions_rootdomain_export is not None:
-        #     semrush_positions_data = self.semrush_analytics_organic_positions_rootdomain_export.get_data()
-        #     self._project_urls.extend(semrush_positions_data["URL"].dropna().unique().tolist())
-        #
-        # if self.semrush_analytics_organic_pages_export is not None:
-        #     semrush_pages_data = self.semrush_analytics_organic_pages_export.get_data()
-        #     self._project_urls.extend(semrush_pages_data["URL"].dropna().unique().tolist())
-        #
-        # if self.semrush_analytics_backlinks_rootdomain_export is not None:
-        #     semrush_backlinks_data = self.semrush_analytics_backlinks_rootdomain_export.get_data()
-        #     self._project_urls.extend(semrush_backlinks_data["Target url"].dropna().unique().tolist())
-        #
-        # if self.googleanalytics4_last_14m_export:
-        #     ga4_data = self.googleanalytics4_last_14m_export.get_data()
-        #     ga4_data["full_address"] = ga4_data["pagePath"].apply(lambda path: UrlManager.build_full_address(self._project.base_url, path))
-        #     self._project_urls.extend(ga4_data["full_address"].dropna().unique().tolist())
-        #
-        # if self.googlesearchconsole_page_last_16m_export:
-        #     gsc_data = self.googlesearchconsole_page_last_16m_export.get_data()
-        #     self._project_urls.extend(gsc_data["page"].dropna().unique().tolist())
 
         # convert to dataframe and cleanup
         # self._project_urls = pd.DataFrame(self._project_urls, columns=["URL"])

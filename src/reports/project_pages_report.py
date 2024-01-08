@@ -84,7 +84,6 @@ class ProjectPagesReport(BaseReportManager):
                 row[ReportColumns.META_DESCRIPTION] = UrlManager.get_meta_description(row[ReportColumns.FULL_ADDRESS])
                 row[ReportColumns.H1] = UrlManager.get_h1(row[ReportColumns.FULL_ADDRESS])
                 row[ReportColumns.CANONICAL_LINK] = UrlManager.get_canonical_link(row[ReportColumns.FULL_ADDRESS])
-                row[ReportColumns.PAGE_TEMPLATE] = UrlManager.get_page_template(row[ReportColumns.FULL_ADDRESS])
                 row[ReportColumns.IN_SITEMAP] = UrlManager.get_in_sitemap(row[ReportColumns.FULL_ADDRESS])
             logger.info("Report data generated successfully.")
         except Exception as e:

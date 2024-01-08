@@ -50,8 +50,8 @@ class BaseExportManager:
         Asks the user whether to proceed with a specific export process.
         Proceeds if the user inputs 'y' or presses Enter without input.
         """
-        response = input(f"Do you want to proceed with {export_description.upper()} export? [Y/n]: ").strip().lower()
-        self.force = response == "y" or response == ""
+        response = input(f"Do you want to proceed with {export_description.upper()} export? [y/N]: ").strip().lower()
+        self.force = response == "y"
 
     def perform_pre_export_action(self):
         """
